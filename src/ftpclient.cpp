@@ -246,7 +246,10 @@ int FtpClient::Login(const char *user, const char *pass)
 		return 0;
 	}
 	sprintf(tempbuf,"PASS %s",pass);
-	return FtpSendCmd(tempbuf, '2', mp_ftphandle);
+	int ret;
+	if (ret = FtpSendCmd(tempbuf, '2', mp_ftphandle))
+		mp_ftphandle->is_connected = true;
+	return ret;
 }
 
 /*
@@ -256,6 +259,15 @@ char* FtpClient::LastResponse()
 {
 	if ((mp_ftphandle) && (mp_ftphandle->dir == FTP_CLIENT_CONTROL)) return mp_ftphandle->response;
 	return NULL;
+}
+
+/*
+ * IsConnected - return true if connected to remote
+ */
+bool FtpClient::IsConnected()
+{
+	if (mp_ftphandle)
+		return mp_ftphandle->is_connected;
 }
 
 void FtpClient::ClearHandle()
@@ -271,6 +283,7 @@ void FtpClient::ClearHandle()
 	mp_ftphandle->handle = 0;
 	mp_ftphandle->xfercb = NULL;
 	mp_ftphandle->correctpasv = false;
+	mp_ftphandle->is_connected = false;
 	memset(&mp_ftphandle->response, 0, sizeof(mp_ftphandle->response));
 }
 

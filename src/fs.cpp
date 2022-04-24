@@ -172,7 +172,7 @@ namespace FS {
         }
     }
 
-    std::vector<FsEntry> ListDir(const std::string& ppath)
+    std::vector<FsEntry> ListDir(const std::string& ppath, int *err)
     {
         std::vector<FsEntry> out;
         FsEntry entry;
@@ -191,10 +191,12 @@ namespace FS {
         out.push_back(entry);
 
         const auto fd = sceIoDopen(path.c_str());
-        if (static_cast<uint32_t>(fd) == 0x80010002)
-            return {};
-        if (fd < 0)
+        *err = 0;
+        if (static_cast<uint32_t>(fd) == 0x80010002 || fd < 0)
+        {
+            *err = 1;
             return out;
+        }
 
         while (true)
         {
@@ -202,6 +204,7 @@ namespace FS {
             FsEntry entry;
             const auto ret = sceIoDread(fd, &dirent);
             if (ret < 0) {
+                *err = ret;
                 sceIoDclose(fd);
                 return out;
             }

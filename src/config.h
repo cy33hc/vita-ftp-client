@@ -45,36 +45,9 @@ extern char remote_directory[];
 
 namespace CONFIG {
     void LoadConfig();
+    void SaveConfig();
     void RemoveFromMultiValues(std::vector<std::string> &multi_values, std::string value);
     void ParseMultiValueString(const char* prefix_list, std::vector<std::string> &prefixes, bool toLower);
     std::string GetMultiValueString(std::vector<std::string> &multi_values);
-
-    static inline std::string& ltrim(std::string& str, std::string chars)
-    {
-        str.erase(0, str.find_first_not_of(chars));
-        return str;
-    }
-
-    static inline std::string& rtrim(std::string& str, std::string chars)
-    {
-        str.erase(str.find_last_not_of(chars) + 1);
-        return str;
-    }
-
-    // trim from both ends (in place)
-    static inline std::string& trim(std::string& str, std::string chars)
-    {
-        return ltrim(rtrim(str, chars), chars);
-    }
-
-    static inline void ReplaceAll(std::string & data, std::string toSearch, std::string replaceStr)
-    {
-        size_t pos = data.find(toSearch);
-        while( pos != std::string::npos)
-        {
-            data.replace(pos, toSearch.size(), replaceStr);
-            pos = data.find(toSearch, pos + replaceStr.size());
-        }
-    }
 }
 #endif

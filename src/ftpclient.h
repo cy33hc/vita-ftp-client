@@ -26,6 +26,7 @@ struct ftphandle {
 	bool correctpasv;
 	FtpCallbackXfer xfercb;
 	void *cbarg;
+	bool is_connected;
 };
 
 /**
@@ -117,6 +118,7 @@ public:
 	void SetCallbackXferFunction(FtpCallbackXfer pointer);
 	void SetCallbackArg(void *arg);
 	void SetCallbackBytes(int64_t bytes);
+	bool IsConnected();
 	char* LastResponse();
 	int Quit();
 	static void Sort(std::vector<FtpDirEntry> &list);

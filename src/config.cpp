@@ -79,6 +79,20 @@ namespace CONFIG {
         CloseIniFile();
     }
 
+    void SaveConfig()
+    {
+		OpenIniFile (CONFIG_INI_FILE);
+
+        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ftp_settings.server_ip);
+        WriteInt(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PORT, ftp_settings.server_port);
+        WriteBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, ftp_settings.pasv_mode);
+        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ftp_settings.username);
+        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ftp_settings.password);
+
+        WriteIniFile(CONFIG_INI_FILE);
+        CloseIniFile();
+    }
+
     void ParseMultiValueString(const char* prefix_list, std::vector<std::string> &prefixes, bool toLower)
     {
         std::string prefix = "";

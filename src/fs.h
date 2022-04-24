@@ -54,7 +54,7 @@ namespace FS {
     std::vector<char> Load(const std::string& path);
     void Save(const std::string& path, const void* data, uint32_t size);
 
-    std::vector<FsEntry> ListDir(const std::string& path);
+    std::vector<FsEntry> ListDir(const std::string& path, int *err);
 
     void Sort(std::vector<FsEntry> &list);
 

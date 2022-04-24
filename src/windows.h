@@ -21,6 +21,8 @@ extern ACTIONS selected_action;
 extern char status_message[];
 extern char local_file_to_select[];
 extern char remote_file_to_select[];
+extern char local_filter[32];
+extern char remote_filter[32];
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
 
@@ -167,6 +169,12 @@ namespace Windows {
     void MainWindow();
     void HandleImeInput();
     void SetModalMode(bool modal);
+
+    void SingleValueImeCallback(int ime_result);
+    void MultiValueImeCallback(int ime_result);
+    void NullAfterValueChangeCallback(int ime_result);
+    void AfterLocalFileChangesCallback(int ime_result);
+    void AfterRemoteFileChangesCallback(int ime_result);
 }
 
 #endif

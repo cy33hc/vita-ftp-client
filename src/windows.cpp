@@ -12,6 +12,7 @@
 #include "ftpclient.h"
 #include "updater.h"
 #include "actions.h"
+#include "util.h"
 
 #include "debugnet.h"
 
@@ -33,6 +34,7 @@ static ime_callback_t ime_before_update = nullptr;
 
 static std::vector<std::string> *ime_multi_field;
 static char* ime_single_field;
+static char txt_server_port[6];
 
 bool handle_updates = false;
 float previous_right = 0.0f;
@@ -48,6 +50,8 @@ ACTIONS selected_action;
 char status_message[1024];
 char local_file_to_select[256];
 char remote_file_to_select[256];
+char local_filter[32];
+char remote_filter[32];
 
 namespace Windows {
 
@@ -64,13 +68,14 @@ namespace Windows {
         ftpclient->SetCallbackBytes(1);
         ftpclient->SetCallbackXferFunction(FtpCallback);
 
-        local_files.clear();
-        local_files = FS::ListDir(local_directory);
-        FS::Sort(local_files);
-
         sprintf(local_file_to_select, "..");
         sprintf(remote_file_to_select, "..");
         sprintf(status_message, "");
+        sprintf(local_filter, "");
+        sprintf(remote_filter, "");
+        sprintf(txt_server_port, "%d", ftp_settings.server_port);
+
+        Actions::RefreshLocalFiles();
     }
 
     void HandleLauncherWindowInput()
@@ -101,20 +106,57 @@ namespace Windows {
         std::string hidden_password = std::string("********");
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
-        ImGui::Selectable(ftp_settings.server_ip, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(140, 0)); ImGui::SameLine();
+        if (ImGui::Selectable(ftp_settings.server_ip, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(140, 0)))
+        {
+            ime_single_field = ftp_settings.server_ip;
+            ime_before_update = nullptr;
+            ime_after_update = nullptr;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Server IP", ftp_settings.server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::SameLine();
+
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Username:"); ImGui::SameLine();
         sprintf(id, "%s##username", ftp_settings.username);
-        ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(120, 0)); ImGui::SameLine();
+        if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(120, 0)))
+        {
+            ime_single_field = ftp_settings.username;
+            ime_before_update = nullptr;
+            ime_after_update = nullptr;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Username", ftp_settings.username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::SameLine();
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Password:"); ImGui::SameLine();
         sprintf(id, "%s##password", hidden_password.c_str());
-        ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(100, 0)); ImGui::SameLine();
+        if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(100, 0)))
+        {
+            ime_single_field = ftp_settings.password;
+            ime_before_update = nullptr;
+            ime_after_update = nullptr;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Password", ftp_settings.password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::SameLine();
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Port:"); ImGui::SameLine();
-        sprintf(id, "%d##ServerPort", ftp_settings.server_port);
-        ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(30, 0)); ImGui::SameLine();
+        sprintf(id, "%s##ServerPort", txt_server_port);
+        if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(30, 0)))
+        {
+            ime_single_field = txt_server_port;
+            ime_before_update = nullptr;
+            ime_after_update = nullptr;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Server Port", txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::SameLine();
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Pasv:"); ImGui::SameLine();
@@ -123,6 +165,7 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         if (ImGui::Button("Connect"))
         {
+            ftp_settings.server_port = atoi(txt_server_port);
             selected_action = CONNECT_FTP;
         }
         ImGui::Dummy(ImVec2(1,2));
@@ -136,8 +179,33 @@ namespace Windows {
         
         BeginGroupPanel("Local", ImVec2(452, 400));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
-        ImGui::Selectable(local_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0));
-        ImGui::BeginChild(ImGui::GetID("Local##ChildWindow"), ImVec2(452,340));
+        if (ImGui::Selectable(local_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0)))
+        {
+            ime_single_field = local_directory;
+            ime_before_update = nullptr;
+            ime_after_update = AfterLocalFileChangesCallback;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
+        ImGui::PushID("local_filter##remote");
+        if (ImGui::Selectable(local_filter, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(310, 0)))
+        {
+            ime_single_field = local_filter;
+            ime_before_update = nullptr;
+            ime_after_update = AfterLocalFileChangesCallback;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::PopID(); ImGui::SameLine();
+        if (ImGui::SmallButton("Clear##local"))
+        {
+            selected_action = CLEAR_LOCAL_FILTER;
+        }
+        ImGui::BeginChild(ImGui::GetID("Local##ChildWindow"), ImVec2(452,315));
         ImGui::Separator();
         ImGui::Columns(2, "Local##Columns", true);
         int i = 0;
@@ -156,6 +224,7 @@ namespace Windows {
                 if (strcmp(local_file_to_select, it->name)==0)
                 {
                     SetNavFocusHere();
+                    ImGui::SetScrollHereY(0.0f);
                     sprintf(local_file_to_select, "");
                 }
             }
@@ -174,8 +243,33 @@ namespace Windows {
 
         BeginGroupPanel("Remote", ImVec2(452, 400));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
-        ImGui::Selectable(remote_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0));
-        ImGui::BeginChild(ImGui::GetID("Remote##ChildWindow"), ImVec2(452,340));
+        if (ImGui::Selectable(remote_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0)))
+        {
+            ime_single_field = remote_directory;
+            ime_before_update = nullptr;
+            ime_after_update = AfterRemoteFileChangesCallback;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        }
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
+        ImGui::PushID("remote_filter##remote");
+        if (ImGui::Selectable(remote_filter, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(310, 0)))
+        {
+            ime_single_field = remote_filter;
+            ime_before_update = nullptr;
+            ime_after_update = AfterRemoteFileChangesCallback;
+            ime_callback = SingleValueImeCallback;
+            Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
+            gui_mode = GUI_MODE_IME;
+        };
+        ImGui::PopID(); ImGui::SameLine();
+        if (ImGui::SmallButton("Clear##remote"))
+        {
+            selected_action = CLEAR_REMOTE_FILTER;
+        }
+        ImGui::BeginChild(ImGui::GetID("Remote##ChildWindow"), ImVec2(452,315));
         ImGui::Separator();
         ImGui::Columns(2, "Remote##Columns", true);
         i=99999;
@@ -194,6 +288,7 @@ namespace Windows {
                 if (strcmp(remote_file_to_select, it->name)==0)
                 {
                     SetNavFocusHere();
+                    ImGui::SetScrollHereY(0.0f);
                     sprintf(remote_file_to_select, "");
                 }
             }
@@ -212,7 +307,7 @@ namespace Windows {
 
     void StatusPanel()
     {
-        BeginGroupPanel("Status", ImVec2(945, 100));
+        BeginGroupPanel("Messages", ImVec2(945, 100));
         ImVec2 pos = ImGui::GetCursorPos();
         ImGui::Dummy(ImVec2(925,50));
         ImGui::SetCursorPos(pos);
@@ -224,6 +319,27 @@ namespace Windows {
 
     void ShowSettingsActionsDialog()
     {
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        if (io.NavInputs[ImGuiNavInput_Input] == 1.0f)
+        {
+            SetModalMode(true);
+            ImGui::OpenPopup("Settings and Actions");
+        }
+
+        ImGui::SetNextWindowPos(ImVec2(250, 200));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(500,130), ImVec2(500,475), NULL, NULL);
+        if (ImGui::BeginPopupModal("Settings and Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (ImGui::Selectable("Copy##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(452, 0)))
+            {
+                selected_action = COPY_LOCAL;
+            }
+            if (ImGui::Button("OK"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
 
     }
 
@@ -252,6 +368,18 @@ namespace Windows {
             break;
         case CHANGE_REMOTE_DIRECTORY:
             Actions::HandleChangeRemoteDirectory(selected_remote_file);
+            break;
+        case REFRESH_LOCAL_FILES:
+            Actions::HandleRefreshLocalFiles();
+            break;
+        case REFRESH_REMOTE_FILES:
+            Actions::HandleRefreshRemoteFiles();
+            break;
+        case CLEAR_LOCAL_FILTER:
+            Actions::HandleClearLocalFilter();
+            break;
+        case CLEAR_REMOTE_FILTER:
+            Actions::HandleClearRemoteFilter();
             break;
         case CONNECT_FTP:
             Actions::ConnectFTP();
@@ -324,6 +452,24 @@ namespace Windows {
     }
 
     void NullAfterValueChangeCallback(int ime_result) {}
+
+    void AfterLocalFileChangesCallback(int ime_result)
+    {
+        std::string str = std::string(local_directory);
+        sprintf(local_directory, "%s", Util::Rtrim(Util::Trim(str, " "), "/").c_str());
+        selected_action = REFRESH_LOCAL_FILES;
+    }
+
+    void AfterRemoteFileChangesCallback(int ime_result)
+    {
+        std::string str = std::string(remote_directory);
+        str = Util::Trim(str, " ");
+        if (strcmp(str.c_str(), "/") != 0)
+        {
+            sprintf(remote_directory, "%s", Util::Rtrim(str, "/").c_str());
+        }
+        selected_action = REFRESH_REMOTE_FILES;
+    }
 
     void HandleUpdates()
     {
