@@ -377,32 +377,61 @@ namespace Windows {
         EndGroupPanel();
     }
 
-    void ShowSettingsActionsDialog()
+    void ShowActionsDialog()
     {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         if (io.NavInputs[ImGuiNavInput_Input] == 1.0f)
         {
             if (!paused)
                 saved_selected_browser = selected_browser;
-            debugNetPrintf(DEBUG, "saved_selected_browser %d\n", saved_selected_browser);
             SetModalMode(true);
-            ImGui::OpenPopup("Settings and Actions");
+            ImGui::OpenPopup("Actions");
         }
 
-        ImGui::SetNextWindowPos(ImVec2(250, 200));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(500,130), ImVec2(500,475), NULL, NULL);
-        if (ImGui::BeginPopupModal("Settings and Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        ImGui::SetNextWindowPos(ImVec2(380, 150));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(200,200), ImVec2(200,200), NULL, NULL);
+        if (ImGui::BeginPopupModal("Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            char label[32];
-            sprintf(label, "Copy %d##settings", saved_selected_browser);
-            if (ImGui::Selectable(label, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(452, 0)))
+            int flags;
+            if (!(saved_selected_browser & LOCAL_BROWSER) && !(saved_selected_browser & REMOTE_BROWER))
+                flags = ImGuiSelectableFlags_Disabled;
+            else
+                flags = ImGuiSelectableFlags_None;
+            if (ImGui::Selectable("Move##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
             {
                 selected_action = COPY_LOCAL;
             }
-            if (ImGui::Button("OK"))
+            ImGui::Separator();
+            if (ImGui::Selectable("Copy##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
+            {
+                selected_action = COPY_LOCAL;
+            }
+            ImGui::Separator();
+            if (ImGui::Selectable("Paste##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
+            {
+                selected_action = COPY_LOCAL;
+            }
+            ImGui::Separator();
+            ImGui::Dummy(ImVec2(190, 10));
+            if (ImGui::Selectable("Delete##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
+            {
+                selected_action = COPY_LOCAL;
+            }
+            ImGui::Separator();
+            if (ImGui::Selectable("Rename##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
+            {
+                selected_action = COPY_LOCAL;
+            }
+            ImGui::Dummy(ImVec2(190, 5));
+            ImGui::Separator();
+            if (ImGui::Selectable("Cancel##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(190, 0)))
             {
                 SetModalMode(false);
                 ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::IsWindowAppearing())
+            {
+                SetNavFocusHere();
             }
             ImGui::EndPopup();
         }
@@ -423,7 +452,7 @@ namespace Windows {
             BrowserPanel();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
             StatusPanel();
-            ShowSettingsActionsDialog();
+            ShowActionsDialog();
         }
         ImGui::End();
 
