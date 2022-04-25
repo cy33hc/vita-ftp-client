@@ -10,7 +10,7 @@
 #include "actions.h"
 
 #define LOCAL_BROWSER 1
-#define REMOTE_BROWER 2
+#define REMOTE_BROWSER 2
 
 extern int view_mode;
 extern bool handle_updates;
@@ -24,6 +24,7 @@ extern std::set<FtpDirEntry> multi_selected_remote_files;
 extern FsEntry *selected_local_file;
 extern FtpDirEntry *selected_remote_file;
 extern ACTIONS selected_action;
+extern CopyType copy_type;
 extern char status_message[];
 extern char local_file_to_select[];
 extern char remote_file_to_select[];

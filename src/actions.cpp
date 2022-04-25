@@ -11,6 +11,7 @@ namespace Actions {
     {
         multi_selected_local_files.clear();
         local_files.clear();
+        copy_type = COPY_TYPE_NONE;
         int err;
         local_files = FS::ListDir(local_directory, &err);
         if (strlen(local_filter)>0)
@@ -43,6 +44,7 @@ namespace Actions {
 
         multi_selected_remote_files.clear();
         remote_files.clear();
+        copy_type = COPY_TYPE_NONE;
         remote_files = ftpclient->ListDir(remote_directory);
         sprintf(status_message, "%s", ftpclient->LastResponse());
         if (strlen(remote_filter)>0)
@@ -85,7 +87,7 @@ namespace Actions {
             sprintf(local_file_to_select, "%s", local_files[0].name);
         }
         selected_local_file = nullptr;
-        selected_action = NONE;
+        selected_action = ACTION_NONE;
     }
 
     void HandleChangeRemoteDirectory(FtpDirEntry *entry)
@@ -119,7 +121,7 @@ namespace Actions {
             sprintf(remote_file_to_select, "%s", remote_files[0].name);
         }
         selected_remote_file = nullptr;
-        selected_action = NONE;
+        selected_action = ACTION_NONE;
     }
 
     void HandleRefreshLocalFiles()
@@ -131,7 +133,7 @@ namespace Actions {
         {
             sprintf(local_file_to_select, "%s", local_files[0].name);
         }
-        selected_action = NONE;
+        selected_action = ACTION_NONE;
     }
 
     void HandleRefreshRemoteFiles()
@@ -143,7 +145,7 @@ namespace Actions {
         {
             sprintf(remote_file_to_select, "%s", remote_files[0].name);
         }
-        selected_action = NONE;
+        selected_action = ACTION_NONE;
     }
 
     void HandleClearLocalFilter()
@@ -177,6 +179,6 @@ namespace Actions {
         {
             sprintf(status_message, "300 Failed. Connection timeout.");
         }
-        selected_action = NONE;
+        selected_action = ACTION_NONE;
     }
 }
