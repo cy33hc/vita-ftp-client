@@ -20,6 +20,20 @@ enum ACTIONS {
     CONNECT_FTP
 };
 
+enum CopyType {
+    SINGLE_LOCAL_ENTRY = 0,
+    MULTIPLE_LOCAL_ENTRIES,
+    SINGLE_REMOTE_ENTRY,
+    MULTIPLE_REMOTE_ENTRIES
+};
+
+struct CopyStruct {
+    void *from_entry;
+    CopyType from_type;
+    void *to_entry;
+    CopyType to_type;
+};
+
 namespace Actions {
 
     void RefreshLocalFiles();

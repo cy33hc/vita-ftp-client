@@ -48,7 +48,7 @@ typedef struct
 /**
   * @brief Directory entry
   **/
-typedef struct
+struct FtpDirEntry
 {
 	char directory [512];
     char name[FTP_CLIENT_MAX_FILENAME_LEN + 1];
@@ -57,7 +57,12 @@ typedef struct
     bool isDir;
     uint32_t size;
     DateTime modified;
-} FtpDirEntry;
+
+    friend bool operator<(FtpDirEntry const& a, FtpDirEntry const& b)
+    {
+        return strcmp(a.name, b.name) < 0;
+    }
+};
 
 class FtpClient {
 public:

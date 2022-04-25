@@ -4,9 +4,13 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_vita2d/imgui_vita.h>
 #include <imgui_vita2d/imgui_internal.h>
+#include <set>
 #include "fs.h"
 #include "ftpclient.h"
 #include "actions.h"
+
+#define LOCAL_BROWSER 1
+#define REMOTE_BROWER 2
 
 extern int view_mode;
 extern bool handle_updates;
@@ -15,6 +19,8 @@ extern int64_t bytes_transfered;
 extern int64_t bytes_to_download;
 extern std::vector<FsEntry> local_files;
 extern std::vector<FtpDirEntry> remote_files;
+extern std::set<FsEntry> multi_selected_local_files;
+extern std::set<FtpDirEntry> multi_selected_remote_files;
 extern FsEntry *selected_local_file;
 extern FtpDirEntry *selected_remote_file;
 extern ACTIONS selected_action;
@@ -165,7 +171,7 @@ namespace Windows {
     }
 
     void Init();
-    void HandleLauncherWindowInput();
+    void HandleWindowInput();
     void MainWindow();
     void HandleImeInput();
     void SetModalMode(bool modal);

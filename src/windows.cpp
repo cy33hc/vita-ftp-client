@@ -1,6 +1,7 @@
 #include <imgui_vita2d/imgui_vita.h>
 #include <stdio.h>
-#include <algorithm> 
+#include <algorithm>
+#include <set>
 #include "windows.h"
 #include "textures.h"
 #include "fs.h"
@@ -44,6 +45,8 @@ int64_t bytes_transfered;
 int64_t bytes_to_download;
 std::vector<FsEntry> local_files;
 std::vector<FtpDirEntry> remote_files;
+std::set<FsEntry> multi_selected_local_files;
+std::set<FtpDirEntry> multi_selected_remote_files;
 FsEntry *selected_local_file;
 FtpDirEntry *selected_remote_file;
 ACTIONS selected_action;
@@ -52,6 +55,8 @@ char local_file_to_select[256];
 char remote_file_to_select[256];
 char local_filter[32];
 char remote_filter[32];
+int selected_browser = 0;
+int saved_selected_browser;
 
 namespace Windows {
 
@@ -78,16 +83,42 @@ namespace Windows {
         Actions::RefreshLocalFiles();
     }
 
-    void HandleLauncherWindowInput()
+    void HandleWindowInput()
     {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         SceCtrlData pad;
 
         sceCtrlReadBufferPositiveExt2(0, &pad, 1);
 
+        if ((pad_prev.buttons & SCE_CTRL_SQUARE) && !(pad.buttons & SCE_CTRL_SQUARE) && !paused)
+        {
+            if ( selected_browser & LOCAL_BROWSER && selected_local_file != nullptr && strcmp(selected_local_file->name, "..") != 0)
+            {
+                auto search_item = multi_selected_local_files.find(*selected_local_file);
+                if (search_item != multi_selected_local_files.end())
+                {
+                    multi_selected_local_files.erase(search_item);
+                }
+                else
+                {
+                    multi_selected_local_files.insert(*selected_local_file);
+                }
+            }
+            if (selected_browser & REMOTE_BROWER && selected_remote_file != nullptr && strcmp(selected_remote_file->name, "..") != 0)
+            {
+                auto search_item = multi_selected_remote_files.find(*selected_remote_file);
+                if (search_item != multi_selected_remote_files.end())
+                {
+                    multi_selected_remote_files.erase(search_item);
+                }
+                else
+                {
+                    multi_selected_remote_files.insert(*selected_remote_file);
+                }
+            }
+        }
+
         pad_prev = pad;
-        previous_right = io.NavInputs[ImGuiNavInput_DpadRight];
-        previous_left = io.NavInputs[ImGuiNavInput_DpadLeft];
     }
 
     void SetModalMode(bool modal)
@@ -176,7 +207,8 @@ namespace Windows {
     {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
-        
+        selected_browser = 0;
+
         BeginGroupPanel("Local", ImVec2(452, 400));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
         if (ImGui::Selectable(local_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0)))
@@ -213,12 +245,21 @@ namespace Windows {
         {
             ImGui::SetColumnWidth(-1,343);
             ImGui::PushID(i);
+            auto search_item = multi_selected_local_files.find(*it);
+            if (search_item != multi_selected_local_files.end())
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
+            }
             if (ImGui::Selectable(it->name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
             {
                 selected_local_file = &*it;
                 selected_action = CHANGE_LOCAL_DIRECTORY;
             }
             ImGui::PopID();
+            if (ImGui::IsItemFocused())
+            {
+                selected_local_file = &*it;
+            }
             if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
             {
                 if (strcmp(local_file_to_select, it->name)==0)
@@ -227,10 +268,15 @@ namespace Windows {
                     ImGui::SetScrollHereY(0.0f);
                     sprintf(local_file_to_select, "");
                 }
+                selected_browser |= LOCAL_BROWSER;
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,90);
             ImGui::Text(it->display_size);
+            if (search_item != multi_selected_local_files.end())
+            {
+                ImGui::PopStyleColor();
+            }
             ImGui::NextColumn();               
             ImGui::Separator();
             ++it;
@@ -276,6 +322,11 @@ namespace Windows {
         for (std::vector<FtpDirEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
         {
             ImGui::SetColumnWidth(-1,343);
+            auto search_item = multi_selected_remote_files.find(*it);
+            if (search_item != multi_selected_remote_files.end())
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
+            }
             ImGui::PushID(i);
             if (ImGui::Selectable(it->name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
             {
@@ -283,6 +334,10 @@ namespace Windows {
                 selected_action = CHANGE_REMOTE_DIRECTORY;
             }
             ImGui::PopID();
+            if (ImGui::IsItemFocused())
+            {
+                selected_remote_file = &*it;
+            }
             if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
             {
                 if (strcmp(remote_file_to_select, it->name)==0)
@@ -291,10 +346,15 @@ namespace Windows {
                     ImGui::SetScrollHereY(0.0f);
                     sprintf(remote_file_to_select, "");
                 }
+                selected_browser |= REMOTE_BROWER;
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,90);
             ImGui::Text(it->display_size);
+            if (search_item != multi_selected_remote_files.end())
+            {
+                ImGui::PopStyleColor();
+            }
             ImGui::NextColumn();               
             ImGui::Separator();
             ++it;
@@ -322,6 +382,9 @@ namespace Windows {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         if (io.NavInputs[ImGuiNavInput_Input] == 1.0f)
         {
+            if (!paused)
+                saved_selected_browser = selected_browser;
+            debugNetPrintf(DEBUG, "saved_selected_browser %d\n", saved_selected_browser);
             SetModalMode(true);
             ImGui::OpenPopup("Settings and Actions");
         }
@@ -330,12 +393,15 @@ namespace Windows {
         ImGui::SetNextWindowSizeConstraints(ImVec2(500,130), ImVec2(500,475), NULL, NULL);
         if (ImGui::BeginPopupModal("Settings and Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            if (ImGui::Selectable("Copy##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(452, 0)))
+            char label[32];
+            sprintf(label, "Copy %d##settings", saved_selected_browser);
+            if (ImGui::Selectable(label, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(452, 0)))
             {
                 selected_action = COPY_LOCAL;
             }
             if (ImGui::Button("OK"))
             {
+                SetModalMode(false);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();

@@ -9,6 +9,7 @@ namespace Actions {
     
     void RefreshLocalFiles()
     {
+        multi_selected_local_files.clear();
         local_files.clear();
         int err;
         local_files = FS::ListDir(local_directory, &err);
@@ -40,6 +41,7 @@ namespace Actions {
             return;
         }
 
+        multi_selected_remote_files.clear();
         remote_files.clear();
         remote_files = ftpclient->ListDir(remote_directory);
         sprintf(status_message, "%s", ftpclient->LastResponse());

@@ -2,7 +2,7 @@
 #define LAUNCHER_FS_H
 
 #pragma once
-
+#include <string.h>
 #include <string>
 #include <vector>
 
@@ -16,6 +16,12 @@ struct FsEntry {
     char path[1024];
     int64_t file_size;
     bool isDir;
+
+    friend bool operator<(FsEntry const& a, FsEntry const& b)
+    {
+        return strcmp(a.name, b.name) < 0;
+    }
+
 };
 
 namespace FS {

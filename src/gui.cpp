@@ -24,6 +24,7 @@ namespace GUI {
 			
 			if (gui_mode == GUI_MODE_BROWSER)
 			{
+				Windows::HandleWindowInput();
 				Windows::MainWindow();
 			} else if (gui_mode == GUI_MODE_IME)
 			{
