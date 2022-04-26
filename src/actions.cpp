@@ -11,7 +11,6 @@ namespace Actions {
     {
         multi_selected_local_files.clear();
         local_files.clear();
-        copy_type = COPY_TYPE_NONE;
         int err;
         local_files = FS::ListDir(local_directory, &err);
         if (strlen(local_filter)>0)
@@ -44,13 +43,12 @@ namespace Actions {
 
         multi_selected_remote_files.clear();
         remote_files.clear();
-        copy_type = COPY_TYPE_NONE;
         remote_files = ftpclient->ListDir(remote_directory);
         sprintf(status_message, "%s", ftpclient->LastResponse());
         if (strlen(remote_filter)>0)
         {
             std::string lower_filter = Util::ToLower(remote_filter);
-            for (std::vector<FtpDirEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
+            for (std::vector<FsEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
             {
                 std::string lower_name = Util::ToLower(it->name);
                 if (lower_name.find(lower_filter) == std::string::npos && strcmp(it->name, "..") != 0)
@@ -63,7 +61,7 @@ namespace Actions {
                 }
             }
         }
-        FtpClient::Sort(remote_files);
+        FS::Sort(remote_files);
     }
 
     void HandleChangeLocalDirectory(FsEntry *entry)
@@ -90,7 +88,7 @@ namespace Actions {
         selected_action = ACTION_NONE;
     }
 
-    void HandleChangeRemoteDirectory(FtpDirEntry *entry)
+    void HandleChangeRemoteDirectory(FsEntry *entry)
     {
         if (!entry->isDir)
             return;
@@ -158,6 +156,26 @@ namespace Actions {
     {
         sprintf(remote_filter, "");
         HandleRefreshRemoteFiles();
+    }
+
+    void CreateNewLocalFolder(char *new_folder)
+    {
+        std::string folder = std::string(new_folder);
+        folder = Util::Rtrim(Util::Trim(folder, " "), "/");
+        std::string path = FS::GetPath(local_directory, folder);
+        FS::MkDirs(path);
+        RefreshLocalFiles();
+        sprintf(local_file_to_select, "%s", folder.c_str());
+    }
+
+    void CreateNewRemoteFolder(char *new_folder)
+    {
+        std::string folder = std::string(new_folder);
+        folder = Util::Rtrim(Util::Trim(folder, " "), "/");
+        std::string path = FS::GetPath(remote_directory, folder);
+        ftpclient->Mkdir(path.c_str());
+        RefreshRemoteFiles();
+        sprintf(remote_file_to_select, "%s", folder.c_str());
     }
 
     void ConnectFTP()

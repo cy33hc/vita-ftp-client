@@ -18,13 +18,13 @@ extern FtpClient *ftpclient;
 extern int64_t bytes_transfered;
 extern int64_t bytes_to_download;
 extern std::vector<FsEntry> local_files;
-extern std::vector<FtpDirEntry> remote_files;
+extern std::vector<FsEntry> remote_files;
 extern std::set<FsEntry> multi_selected_local_files;
-extern std::set<FtpDirEntry> multi_selected_remote_files;
+extern std::set<FsEntry> multi_selected_remote_files;
 extern FsEntry *selected_local_file;
-extern FtpDirEntry *selected_remote_file;
+extern FsEntry *selected_remote_file;
 extern ACTIONS selected_action;
-extern CopyType copy_type;
+extern CopyStruct copy_set;
 extern char status_message[];
 extern char local_file_to_select[];
 extern char remote_file_to_select[];
@@ -182,6 +182,8 @@ namespace Windows {
     void NullAfterValueChangeCallback(int ime_result);
     void AfterLocalFileChangesCallback(int ime_result);
     void AfterRemoteFileChangesCallback(int ime_result);
+    void AfterFolderNameCallback(int ime_result);
+    void CancelActionCallBack(int ime_result);
 }
 
 #endif

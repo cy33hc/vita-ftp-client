@@ -9,6 +9,21 @@
 #include <cstdint>
 #define MAX_PATH_LENGTH 1024
 
+/**
+  * @brief Date and time representation
+**/  
+typedef struct
+{
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t dayOfWeek;
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+    uint16_t milliseconds;
+} DateTime;
+
 struct FsEntry {
     char directory[512];
     char name[256];
@@ -16,6 +31,7 @@ struct FsEntry {
     char path[1024];
     int64_t file_size;
     bool isDir;
+    DateTime modified;
 
     friend bool operator<(FsEntry const& a, FsEntry const& b)
     {
@@ -25,6 +41,8 @@ struct FsEntry {
 };
 
 namespace FS {
+    std::string GetPath(const std::string& path1, const std::string& path2);
+    
     void MkDirs(const std::string& path, bool prev=false);
     void MkPrevDirs(const std::string& path);
 

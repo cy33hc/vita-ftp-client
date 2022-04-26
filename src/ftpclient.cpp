@@ -1169,7 +1169,7 @@ int FtpClient::Delete(const char *path)
   * @return -1 on error or 1 on success
   **/
   
-int FtpClient::ParseDirEntry(char *line, FtpDirEntry *dirEntry)
+int FtpClient::ParseDirEntry(char *line, FsEntry *dirEntry)
 {
     unsigned int i;
     size_t n;
@@ -1265,7 +1265,7 @@ int FtpClient::ParseDirEntry(char *line, FtpDirEntry *dirEntry)
        else
        {
           //Save the size of the file
-          dirEntry->size = strtoul(token, NULL, 10);
+          dirEntry->file_size = strtoul(token, NULL, 10);
        }
   
        //Read filename field
@@ -1318,7 +1318,7 @@ int FtpClient::ParseDirEntry(char *line, FtpDirEntry *dirEntry)
           return -1;
   
        //Save the size of the file
-       dirEntry->size = strtoul(token, NULL, 10);
+       dirEntry->file_size = strtoul(token, NULL, 10);
   
        //Read modification time (month)
        token = strtok_r(NULL, " ", &p);
@@ -1397,7 +1397,7 @@ int FtpClient::ParseDirEntry(char *line, FtpDirEntry *dirEntry)
 std::vector<std::string> FtpClient::ListFiles(const char *path, bool includeSubDir)
 {
 	std::vector<std::string> out;
-	std::vector<FtpDirEntry> list = ListDir(path);
+	std::vector<FsEntry> list = ListDir(path);
 	for (int i=0; i<list.size(); i++)
 	{
 		if (list[i].isDir && includeSubDir)
@@ -1418,11 +1418,11 @@ std::vector<std::string> FtpClient::ListFiles(const char *path, bool includeSubD
 	return out;
 }
 
-std::vector<FtpDirEntry> FtpClient::ListDir(const char *path)
+std::vector<FsEntry> FtpClient::ListDir(const char *path)
 {
-	std::vector<FtpDirEntry> out;
-	FtpDirEntry entry;
-	memset(&entry, 0, sizeof(FtpDirEntry));
+	std::vector<FsEntry> out;
+	FsEntry entry;
+	memset(&entry, 0, sizeof(FsEntry));
 	if (path[strlen(path)-1] == '/' && strlen(path)>1)
 	{
 		strlcpy(entry.directory, path, strlen(path)-1);
@@ -1434,7 +1434,7 @@ std::vector<FtpDirEntry> FtpClient::ListDir(const char *path)
 	sprintf(entry.name, "..");
 	sprintf(entry.path, "%s", entry.directory);
 	sprintf(entry.display_size, "Folder");
-	entry.size = 0;
+	entry.file_size = 0;
 	entry.isDir = true;
 	out.push_back(entry);
 
@@ -1449,7 +1449,7 @@ std::vector<FtpDirEntry> FtpClient::ListDir(const char *path)
 		ret = FtpRead(buf, 1024, nData);
 		while (ret > 0)
 		{
-			FtpDirEntry entry;
+			FsEntry entry;
 			memset(&entry, 0, sizeof(entry));
 			if (ParseDirEntry(buf, &entry) > 0)
 			{
@@ -1469,21 +1469,21 @@ std::vector<FtpDirEntry> FtpClient::ListDir(const char *path)
 				}
 				else
 				{
-					if (entry.size < 1024)
+					if (entry.file_size < 1024)
 					{
-						sprintf(entry.display_size, "%dB", entry.size);
+						sprintf(entry.display_size, "%dB", entry.file_size);
 					}
-					else if (entry.size < 1024*1024)
+					else if (entry.file_size < 1024*1024)
 					{
-						sprintf(entry.display_size, "%.2fKB", entry.size*1.0f/1024);
+						sprintf(entry.display_size, "%.2fKB", entry.file_size*1.0f/1024);
 					}
-					else if (entry.size < 1024*1024*1024)
+					else if (entry.file_size < 1024*1024*1024)
 					{
-						sprintf(entry.display_size, "%.2f%MB", entry.size*1.0f/(1024*1024));
+						sprintf(entry.display_size, "%.2f%MB", entry.file_size*1.0f/(1024*1024));
 					}
 					else
 					{
-						sprintf(entry.display_size, "%.2fGB", entry.size*1.0f/(1024*1024*1024));
+						sprintf(entry.display_size, "%.2fGB", entry.file_size*1.0f/(1024*1024*1024));
 					}
 				}
 				out.push_back(entry);
@@ -1513,28 +1513,4 @@ void FtpClient::SetCallbackArg(void *arg)
 void FtpClient::SetCallbackBytes(int64_t bytes)
 {
 	mp_ftphandle->cbbytes = bytes;
-}
-
-static int FtpClient::FtpDirEntryComparator(const void *v1, const void *v2)
-{
-	const FtpDirEntry *p1 = (FtpDirEntry *)v1;
-	const FtpDirEntry *p2 = (FtpDirEntry *)v2;
-	if (strcasecmp(p1->name, "..") == 0)
-		return -1;
-
-	if (p1->isDir && !p2->isDir)
-	{
-		return -1;
-	}
-	else if (!p1->isDir && p2->isDir)
-	{
-		return 1;
-	}
-
-	return strcasecmp(p1->name, p2->name);
-}
-
-static void FtpClient::Sort(std::vector<FtpDirEntry> &list)
-{
-	qsort(&list[0], list.size(), sizeof(FtpDirEntry), FtpClient::FtpDirEntryComparator);
 }

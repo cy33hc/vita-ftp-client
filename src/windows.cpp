@@ -32,6 +32,7 @@ static std::vector<std::string> styles;
 static ime_callback_t ime_callback = nullptr;
 static ime_callback_t ime_after_update = nullptr;
 static ime_callback_t ime_before_update = nullptr;
+static ime_callback_t ime_cancelled = nullptr;
 
 static std::vector<std::string> *ime_multi_field;
 static char* ime_single_field;
@@ -44,18 +45,19 @@ FtpClient *ftpclient;
 int64_t bytes_transfered;
 int64_t bytes_to_download;
 std::vector<FsEntry> local_files;
-std::vector<FtpDirEntry> remote_files;
+std::vector<FsEntry> remote_files;
 std::set<FsEntry> multi_selected_local_files;
-std::set<FtpDirEntry> multi_selected_remote_files;
+std::set<FsEntry> multi_selected_remote_files;
 FsEntry *selected_local_file;
-FtpDirEntry *selected_remote_file;
+FsEntry *selected_remote_file;
 ACTIONS selected_action;
-CopyType copy_type;
+CopyStruct copy_set;
 char status_message[1024];
 char local_file_to_select[256];
 char remote_file_to_select[256];
 char local_filter[32];
 char remote_filter[32];
+char editor_text[1024];
 int selected_browser = 0;
 int saved_selected_browser;
 
@@ -82,7 +84,7 @@ namespace Windows {
         sprintf(txt_server_port, "%d", ftp_settings.server_port);
 
         Actions::RefreshLocalFiles();
-        copy_type = COPY_TYPE_NONE;
+        copy_set.type = COPY_TYPE_NONE;
     }
 
     void HandleWindowInput()
@@ -97,7 +99,6 @@ namespace Windows {
             if ( selected_browser & LOCAL_BROWSER && selected_local_file != nullptr && strcmp(selected_local_file->name, "..") != 0)
             {
                 multi_selected_remote_files.clear();
-                copy_type = COPY_TYPE_NONE;
                 auto search_item = multi_selected_local_files.find(*selected_local_file);
                 if (search_item != multi_selected_local_files.end())
                 {
@@ -111,7 +112,6 @@ namespace Windows {
             if (selected_browser & REMOTE_BROWSER && selected_remote_file != nullptr && strcmp(selected_remote_file->name, "..") != 0)
             {
                 multi_selected_local_files.clear();
-                copy_type = COPY_TYPE_NONE;
                 auto search_item = multi_selected_remote_files.find(*selected_remote_file);
                 if (search_item != multi_selected_remote_files.end())
                 {
@@ -123,16 +123,6 @@ namespace Windows {
                 }
             }
 
-        }
-
-        if (selected_browser & LOCAL_BROWSER && previous_right == 0.0f && io.NavInputs[ImGuiNavInput_DpadRight] == 1.0f)
-        {
-            ImGui::SetNextWindowFocus();
-        }
-
-        if (selected_browser & REMOTE_BROWSER && previous_left == 0.0f && io.NavInputs[ImGuiNavInput_DpadLeft] == 1.0f)
-        {
-            ImGui::SetNextWindowFocus();
         }
 
         pad_prev = pad;
@@ -161,6 +151,7 @@ namespace Windows {
             ime_single_field = ftp_settings.server_ip;
             ime_before_update = nullptr;
             ime_after_update = nullptr;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server IP", ftp_settings.server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -174,6 +165,7 @@ namespace Windows {
             ime_single_field = ftp_settings.username;
             ime_before_update = nullptr;
             ime_after_update = nullptr;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Username", ftp_settings.username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -188,6 +180,7 @@ namespace Windows {
             ime_single_field = ftp_settings.password;
             ime_before_update = nullptr;
             ime_after_update = nullptr;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Password", ftp_settings.password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -202,6 +195,7 @@ namespace Windows {
             ime_single_field = txt_server_port;
             ime_before_update = nullptr;
             ime_after_update = nullptr;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server Port", txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -235,6 +229,7 @@ namespace Windows {
             ime_single_field = local_directory;
             ime_before_update = nullptr;
             ime_after_update = AfterLocalFileChangesCallback;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -247,6 +242,7 @@ namespace Windows {
             ime_single_field = local_filter;
             ime_before_update = nullptr;
             ime_after_update = AfterLocalFileChangesCallback;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -313,6 +309,7 @@ namespace Windows {
             ime_single_field = remote_directory;
             ime_before_update = nullptr;
             ime_after_update = AfterRemoteFileChangesCallback;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -325,6 +322,7 @@ namespace Windows {
             ime_single_field = remote_filter;
             ime_before_update = nullptr;
             ime_after_update = AfterRemoteFileChangesCallback;
+            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -338,7 +336,7 @@ namespace Windows {
         ImGui::Separator();
         ImGui::Columns(2, "Remote##Columns", true);
         i=99999;
-        for (std::vector<FtpDirEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
+        for (std::vector<FsEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
         {
             ImGui::SetColumnWidth(-1,343);
             auto search_item = multi_selected_remote_files.find(*it);
@@ -401,6 +399,8 @@ namespace Windows {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
+        int flags;
+
         if (io.NavInputs[ImGuiNavInput_Input] == 1.0f)
         {
             if (!paused)
@@ -413,67 +413,87 @@ namespace Windows {
         ImGui::SetNextWindowSizeConstraints(ImVec2(280,200), ImVec2(280,300), NULL, NULL);
         if (ImGui::BeginPopupModal("Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            int flags = ImGuiSelectableFlags_Disabled;
             bool local_browser_selected = saved_selected_browser & LOCAL_BROWSER;
             bool remote_browser_selected = saved_selected_browser & REMOTE_BROWSER;
-            if (local_browser_selected)
+            if (copy_set.type == COPY_TYPE_LOCAL_ENTRY)
             {
-                if (multi_selected_local_files.size() > 0)
-                    flags = ImGuiSelectableFlags_None;
-            }
-            if (remote_browser_selected)
-            {
-                if (multi_selected_remote_files.size() > 0)
-                    flags = ImGuiSelectableFlags_None;
-            }
-            if (copy_type == COPY_TYPE_LOCAL_ENTRY)
-            {
-                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Local file(s) copied.", multi_selected_local_files.size());
+                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Local file(s)/folder(s) copied.", copy_set.files.size());
                 ImGui::Separator();
-            } else if (copy_type == COPY_TYPE_REMOTE_ENTRY)
+            } else if (copy_set.type == COPY_TYPE_REMOTE_ENTRY)
             {
-                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Remote file(s) copied.", multi_selected_remote_files.size());
+                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Remote file(s)/folder(s) copied.", copy_set.files.size());
                 ImGui::Separator();
             }
 
-            if (ImGui::Selectable("Move##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
-            {
-                selected_action = ACTION_COPY_LOCAL;
-            }
-            ImGui::Separator();
+            flags = ImGuiSelectableFlags_Disabled;
+            if (multi_selected_local_files.size() > 0 || multi_selected_remote_files.size() > 0)
+                flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Copy##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
-                if (local_browser_selected)
+                if (multi_selected_local_files.size() > 0)
                 {
-                    copy_type = COPY_TYPE_LOCAL_ENTRY;
+                    copy_set.files.clear();
+                    copy_set.files.insert(multi_selected_local_files.begin(), multi_selected_local_files.end());
+                    copy_set.type = COPY_TYPE_LOCAL_ENTRY;
                 }
-                else if (remote_browser_selected)
+                else if (multi_selected_remote_files.size() > 0)
                 {
-                    copy_type = COPY_TYPE_REMOTE_ENTRY;
+                    copy_set.files.clear();
+                    copy_set.files.insert(multi_selected_remote_files.begin(), multi_selected_remote_files.end());
+                    copy_set.type = COPY_TYPE_REMOTE_ENTRY;
                 }
                 SetModalMode(false);
-                selected_action = ACTION_COPY_LOCAL;
+                selected_action = ACTION_COPY;
                 ImGui::CloseCurrentPopup();
             }
             ImGui::Separator();
-            char paste_text[64];
-            sprintf(paste_text, "Paste##settings");
-            if (copy_type != COPY_TYPE_NONE && saved_selected_browser > 0)
-                sprintf(paste_text, "Paste into %s##settings", local_browser_selected ? "Local" : remote_browser_selected ? "Remote" : "" );
-            if (ImGui::Selectable(paste_text, false, copy_type != COPY_TYPE_NONE && saved_selected_browser > 0? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+
+            char display_text[64];
+            sprintf(display_text, "Paste##settings");
+            flags = ImGuiSelectableFlags_Disabled;
+            if (copy_set.type != COPY_TYPE_NONE && saved_selected_browser > 0)
             {
-                selected_action = ACTION_COPY_LOCAL;
+                flags = ImGuiSelectableFlags_None;
+                // Disable pasting into the folder where files are being copied from
+                if ((copy_set.type == COPY_TYPE_LOCAL_ENTRY && local_browser_selected && strcmp(copy_set.files.begin()->directory, local_directory) == 0) ||
+                    (copy_set.type == COPY_TYPE_REMOTE_ENTRY && remote_browser_selected && strcmp(copy_set.files.begin()->directory, remote_directory) == 0))
+                {
+                    flags = ImGuiSelectableFlags_Disabled;
+                }
+                sprintf(display_text, "Paste into %s##settings", local_browser_selected ? "Local" : remote_browser_selected ? "Remote" : "" );
+            }
+            if (ImGui::Selectable(display_text, false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            {
+                selected_action = ACTION_PASTE;
             }
             ImGui::Separator();
             ImGui::Dummy(ImVec2(190, 10));
             if (ImGui::Selectable("Delete##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
-                selected_action = ACTION_COPY_LOCAL;
+                selected_action = ACTION_DELETE;
             }
             ImGui::Separator();
             if (ImGui::Selectable("Rename##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
-                selected_action = ACTION_COPY_LOCAL;
+                selected_action = ACTION_RENAME;
+            }
+            ImGui::Separator();
+
+            sprintf(display_text, "New Folder##settings");
+            flags = ImGuiSelectableFlags_Disabled;
+            if (saved_selected_browser > 0)
+            {
+                flags = ImGuiSelectableFlags_None;
+                sprintf(display_text, "New Folder in %s##settings", local_browser_selected ? "Local" : remote_browser_selected ? "Remote" : "" );
+            }
+            if (ImGui::Selectable(display_text, false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            {
+                if (local_browser_selected)
+                    selected_action = ACTION_NEW_LOCAL_FOLDER;
+                else if (remote_browser_selected)
+                    selected_action = ACTION_NEW_REMOTE_FOLDER;
+                SetModalMode(false);
+                ImGui::CloseCurrentPopup();
             }
             ImGui::Dummy(ImVec2(190, 5));
             ImGui::Separator();
@@ -529,6 +549,20 @@ namespace Windows {
         case ACTION_CLEAR_REMOTE_FILTER:
             Actions::HandleClearRemoteFilter();
             break;
+        case ACTION_NEW_LOCAL_FOLDER:
+        case ACTION_NEW_REMOTE_FOLDER:
+            if (gui_mode != GUI_MODE_IME)
+            {
+                sprintf(editor_text, "");
+                ime_single_field = editor_text;
+                ime_before_update = nullptr;
+                ime_after_update = AfterFolderNameCallback;
+                ime_cancelled = CancelActionCallBack;
+                ime_callback = SingleValueImeCallback;
+                Dialog::initImeDialog("New Folder", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                gui_mode = GUI_MODE_IME;
+            }
+            break;
         case ACTION_CONNECT_FTP:
             Actions::ConnectFTP();
             break;
@@ -561,6 +595,8 @@ namespace Windows {
                     ime_after_update(ime_result);
                 }
             }
+            else
+                ime_cancelled(ime_result);
 
             gui_mode = GUI_MODE_BROWSER;
         }
@@ -617,6 +653,24 @@ namespace Windows {
             sprintf(remote_directory, "%s", Util::Rtrim(str, "/").c_str());
         }
         selected_action = ACTION_REFRESH_REMOTE_FILES;
+    }
+
+    void AfterFolderNameCallback(int ime_result)
+    {
+        if (selected_action == ACTION_NEW_LOCAL_FOLDER)
+        {
+            Actions::CreateNewLocalFolder(editor_text);
+        }
+        else if (selected_action == ACTION_NEW_REMOTE_FOLDER)
+        {
+            Actions::CreateNewRemoteFolder(editor_text);
+        }
+        selected_action = ACTION_NONE;
+    }
+
+    void CancelActionCallBack(int ime_result)
+    {
+        selected_action = ACTION_NONE;
     }
 
     void HandleUpdates()

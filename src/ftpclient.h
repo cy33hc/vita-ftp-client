@@ -5,6 +5,7 @@
 #include <time.h>
 #include <string>
 #include <vector>
+#include "fs.h"
 
 #define FTP_CLIENT_MAX_FILENAME_LEN 128
 
@@ -29,40 +30,7 @@ struct ftphandle {
 	bool is_connected;
 };
 
-/**
-  * @brief Date and time representation
-**/
-  
-typedef struct
-{
-    uint16_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t dayOfWeek;
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
-    uint16_t milliseconds;
-} DateTime;
 
-/**
-  * @brief Directory entry
-  **/
-struct FtpDirEntry
-{
-	char directory [512];
-    char name[FTP_CLIENT_MAX_FILENAME_LEN + 1];
-	char display_size[16];
-	char path[1024];
-    bool isDir;
-    uint32_t size;
-    DateTime modified;
-
-    friend bool operator<(FtpDirEntry const& a, FtpDirEntry const& b)
-    {
-        return strcmp(a.name, b.name) < 0;
-    }
-};
 
 class FtpClient {
 public:
@@ -119,14 +87,13 @@ public:
 	int RawWrite(void* buf, int len, ftphandle* handle);
 	int RawRead(void* buf, int max, ftphandle* handle);
 	std::vector<std::string> ListFiles(const char *path, bool includeSubDir=false);
-	std::vector<FtpDirEntry> ListDir(const char *path);
+	std::vector<FsEntry> ListDir(const char *path);
 	void SetCallbackXferFunction(FtpCallbackXfer pointer);
 	void SetCallbackArg(void *arg);
 	void SetCallbackBytes(int64_t bytes);
 	bool IsConnected();
 	char* LastResponse();
 	int Quit();
-	static void Sort(std::vector<FtpDirEntry> &list);
 
 private:
 	ftphandle* mp_ftphandle;
@@ -144,8 +111,7 @@ private:
 	int FtpWrite(void *buf, int len, ftphandle *nData);
 	int FtpRead(void *buf, int max, ftphandle *nData);
 	int FtpClose(ftphandle *nData);
-	int ParseDirEntry(char *line, FtpDirEntry *dirEntry);
-	static int FtpDirEntryComparator(const void *v1, const void *v2);
+	int ParseDirEntry(char *line, FsEntry *dirEntry);
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include <psp2/net/net.h>
 #include "string.h"
 #include "stdio.h"
+#include "util.h"
 #include "debugnet.h"
 #include <algorithm>
 
@@ -214,6 +215,13 @@ namespace FS {
             {
                 snprintf(entry.directory, 512, "%s", path.c_str());
                 snprintf(entry.name, 256, "%s", dirent.d_name);
+                entry.modified.day = dirent.d_stat.st_mtime.day;
+                entry.modified.month = dirent.d_stat.st_mtime.month;
+                entry.modified.year = dirent.d_stat.st_mtime.year;
+                entry.modified.hours = dirent.d_stat.st_mtime.hour;
+                entry.modified.minutes = dirent.d_stat.st_mtime.minute;
+                entry.modified.seconds = dirent.d_stat.st_mtime.second;
+                entry.modified.milliseconds = dirent.d_stat.st_mtime.microsecond;
                 if (hasEndSlash(path.c_str()))
                 {
                     sprintf(entry.path, "%s%s", path.c_str(), entry.name);
@@ -376,4 +384,12 @@ namespace FS {
         qsort(&list[0], list.size(), sizeof(FsEntry), FsEntryComparator);
     }
     
+    std::string GetPath(const std::string& ppath1, const std::string& ppath2)
+    {
+        std::string path1 = ppath1;
+        std::string path2 = ppath2;
+        path1 = Util::Rtrim(path1, "/");
+        path2 = Util::Rtrim(Util::Trim(path2, " "), "/");
+        return path1 + "/" + path2;
+    }
 }
