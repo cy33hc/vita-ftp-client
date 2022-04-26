@@ -178,6 +178,7 @@ namespace Windows {
     void HandleWindowInput();
     void MainWindow();
     void HandleImeInput();
+    void ResetImeCallbacks();
     void SetModalMode(bool modal);
 
     void SingleValueImeCallback(int ime_result);

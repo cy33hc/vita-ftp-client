@@ -156,9 +156,7 @@ namespace Windows {
         if (ImGui::Selectable(ftp_settings.server_ip, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(140, 0)))
         {
             ime_single_field = ftp_settings.server_ip;
-            ime_before_update = nullptr;
-            ime_after_update = nullptr;
-            ime_cancelled = nullptr;
+            ResetImeCallbacks();
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server IP", ftp_settings.server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -170,9 +168,7 @@ namespace Windows {
         if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(120, 0)))
         {
             ime_single_field = ftp_settings.username;
-            ime_before_update = nullptr;
-            ime_after_update = nullptr;
-            ime_cancelled = nullptr;
+            ResetImeCallbacks();
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Username", ftp_settings.username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -185,9 +181,7 @@ namespace Windows {
         if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(100, 0)))
         {
             ime_single_field = ftp_settings.password;
-            ime_before_update = nullptr;
-            ime_after_update = nullptr;
-            ime_cancelled = nullptr;
+            ResetImeCallbacks();
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Password", ftp_settings.password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -200,9 +194,7 @@ namespace Windows {
         if (ImGui::Selectable(id, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(30, 0)))
         {
             ime_single_field = txt_server_port;
-            ime_before_update = nullptr;
-            ime_after_update = nullptr;
-            ime_cancelled = nullptr;
+            ResetImeCallbacks();
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server Port", txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -234,9 +226,8 @@ namespace Windows {
         if (ImGui::Selectable(local_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0)))
         {
             ime_single_field = local_directory;
-            ime_before_update = nullptr;
+            ResetImeCallbacks();
             ime_after_update = AfterLocalFileChangesCallback;
-            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -247,9 +238,8 @@ namespace Windows {
         if (ImGui::Selectable(local_filter, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(310, 0)))
         {
             ime_single_field = local_filter;
-            ime_before_update = nullptr;
+            ResetImeCallbacks();
             ime_after_update = AfterLocalFileChangesCallback;
-            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -316,9 +306,8 @@ namespace Windows {
         if (ImGui::Selectable(remote_directory, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(360, 0)))
         {
             ime_single_field = remote_directory;
-            ime_before_update = nullptr;
+            ResetImeCallbacks();
             ime_after_update = AfterRemoteFileChangesCallback;
-            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -329,9 +318,8 @@ namespace Windows {
         if (ImGui::Selectable(remote_filter, false, ImGuiSelectableFlags_DontClosePopups, ImVec2(310, 0)))
         {
             ime_single_field = remote_filter;
-            ime_before_update = nullptr;
+            ResetImeCallbacks();
             ime_after_update = AfterRemoteFileChangesCallback;
-            ime_cancelled = nullptr;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -627,7 +615,7 @@ namespace Windows {
             {
                 sprintf(editor_text, "");
                 ime_single_field = editor_text;
-                ime_before_update = nullptr;
+                ResetImeCallbacks();
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
@@ -642,6 +630,14 @@ namespace Windows {
             break;
         }
         Windows::EndSetupWindow();
+    }
+
+    void ResetImeCallbacks()
+    {
+        ime_callback = nullptr;
+        ime_after_update = nullptr;
+        ime_before_update = nullptr;
+        ime_cancelled = nullptr;
     }
 
     void HandleImeInput()
@@ -667,8 +663,10 @@ namespace Windows {
                     ime_after_update(ime_result);
                 }
             }
-            else
+            else if (ime_cancelled != nullptr)
+            {
                 ime_cancelled(ime_result);
+            }
 
             gui_mode = GUI_MODE_BROWSER;
         }
