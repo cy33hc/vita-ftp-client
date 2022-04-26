@@ -12,22 +12,24 @@ namespace Actions {
         multi_selected_local_files.clear();
         local_files.clear();
         int err;
-        local_files = FS::ListDir(local_directory, &err);
         if (strlen(local_filter)>0)
         {
+            std::vector<FsEntry> temp_files = FS::ListDir(local_directory, &err);
             std::string lower_filter = Util::ToLower(local_filter);
-            for (std::vector<FsEntry>::iterator it=local_files.begin(); it!=local_files.end(); )
+            for (std::vector<FsEntry>::iterator it=temp_files.begin(); it!=temp_files.end(); )
             {
                 std::string lower_name = Util::ToLower(it->name);
-                if (lower_name.find(lower_filter) == std::string::npos && strcmp(it->name, "..") != 0)
+                if (lower_name.find(lower_filter) != std::string::npos || strcmp(it->name, "..") == 0)
                 {
-                    local_files.erase(it);
+                    local_files.push_back(*it);
                 }
-                else
-                {
-                    ++it;
-                }
+                ++it;
             }
+            temp_files.clear();
+        }
+        else
+        {
+            local_files = FS::ListDir(local_directory, &err);
         }
         FS::Sort(local_files);
         if (err != 0)
@@ -43,23 +45,24 @@ namespace Actions {
 
         multi_selected_remote_files.clear();
         remote_files.clear();
-        remote_files = ftpclient->ListDir(remote_directory);
         sprintf(status_message, "%s", ftpclient->LastResponse());
         if (strlen(remote_filter)>0)
         {
+            std::vector<FsEntry> temp_files = ftpclient->ListDir(remote_directory);
             std::string lower_filter = Util::ToLower(remote_filter);
-            for (std::vector<FsEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
+            for (std::vector<FsEntry>::iterator it=temp_files.begin(); it!=temp_files.end(); )
             {
                 std::string lower_name = Util::ToLower(it->name);
-                if (lower_name.find(lower_filter) == std::string::npos && strcmp(it->name, "..") != 0)
+                if (lower_name.find(lower_filter) != std::string::npos || strcmp(it->name, "..") == 0)
                 {
-                    remote_files.erase(it);
+                    remote_files.push_back(*it);
                 }
-                else
-                {
-                    ++it;
-                }
+                ++it;
             }
+        }
+        else
+        {
+            remote_files = ftpclient->ListDir(remote_directory);
         }
         FS::Sort(remote_files);
     }
