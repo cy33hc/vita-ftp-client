@@ -467,7 +467,10 @@ namespace Windows {
             }
             ImGui::Separator();
             ImGui::Dummy(ImVec2(190, 10));
-            if (ImGui::Selectable("Delete##settings", false, ImGuiSelectableFlags_None | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            flags = ImGuiSelectableFlags_Disabled;
+            if (multi_selected_local_files.size() > 0 || multi_selected_remote_files.size() > 0)
+                flags = ImGuiSelectableFlags_None;
+            if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
                 confirm_state = 0;
                 sprintf(confirm_message, "Are you sure you want to delete this file(s)/folder(s) ?");
@@ -523,14 +526,12 @@ namespace Windows {
                 if (ImGui::Button("Cancel"))
                 {
                     confirm_state = 2;
-                    selected_action = ACTION_NONE;
                     ImGui::CloseCurrentPopup();
                 };
                 ImGui::SameLine();
                 if (ImGui::Button("OK", ImVec2(60, 0)))
                 {
                     confirm_state = 1;
-                    selected_action = action_to_take;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
@@ -538,6 +539,10 @@ namespace Windows {
         }
         else if (confirm_state > 0)
         {
+            if (confirm_state == 2)
+                selected_action = ACTION_NONE;
+            else
+                selected_action = action_to_take;
             confirm_state = -1;
         }
 
@@ -621,6 +626,15 @@ namespace Windows {
                 ime_callback = SingleValueImeCallback;
                 Dialog::initImeDialog("New Folder", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
                 gui_mode = GUI_MODE_IME;
+            }
+            break;
+        case ACTION_DELETE:
+            if (multi_selected_local_files.size() > 0)
+            {
+                activity_inprogess = true;
+                stop_activity = false;
+                selected_action = ACTION_NONE;
+                Actions::DeleteSelectedLocalFiles();
             }
             break;
         case ACTION_CONNECT_FTP:

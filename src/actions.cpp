@@ -188,11 +188,12 @@ namespace Actions {
         {
             FS::RmRecursive(it->path);
         }
+        selected_action = ACTION_REFRESH_LOCAL_FILES;
         activity_inprogess = false;
         return sceKernelExitDeleteThread(0);
     }
 
-    void DeleteSelectedLocalFiles(std::vector<FsEntry> selected_files)
+    void DeleteSelectedLocalFiles()
     {
         delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
 		if (delete_files_thid >= 0)
