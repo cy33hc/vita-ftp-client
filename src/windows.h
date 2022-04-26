@@ -28,8 +28,11 @@ extern CopyStruct copy_set;
 extern char status_message[];
 extern char local_file_to_select[];
 extern char remote_file_to_select[];
-extern char local_filter[32];
-extern char remote_filter[32];
+extern char local_filter[];
+extern char remote_filter[];
+extern char activity_message[];
+extern bool activity_inprogess;
+extern bool stop_activity;
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
 

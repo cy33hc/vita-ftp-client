@@ -31,6 +31,8 @@ struct CopyStruct {
     CopyType type;
 };
 
+static SceUID delete_files_thid = -1;
+
 namespace Actions {
 
     void RefreshLocalFiles();
@@ -43,6 +45,8 @@ namespace Actions {
     void HandleClearRemoteFilter();
     void CreateNewLocalFolder(char *new_folder);
     void CreateNewRemoteFolder(char *new_folder);
+    void DeleteSelectedLocalFiles();
+    int DeleteSelectedLocalFilesThread(SceSize args, void *argp);
     void ConnectFTP();
 }
 

@@ -7,6 +7,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "util.h"
+#include "windows.h"
 #include "debugnet.h"
 #include <algorithm>
 
@@ -271,7 +272,7 @@ namespace FS {
     {
         const auto fd = sceIoDopen(path.c_str());
         if (static_cast<uint32_t>(fd) == 0x80010002)
-            return {};
+            return std::vector<std::string>(0);
         if (fd < 0)
             return std::vector<std::string>(0);
 
@@ -307,6 +308,8 @@ namespace FS {
 
     int RmRecursive(const std::string& path)
     {
+        if (stop_activity)
+            return 0;
         SceUID dfd = sceIoDopen(path.c_str());
         if (dfd >= 0) {
             int res = 0;
@@ -330,6 +333,7 @@ namespace FS {
                             sceIoDclose(dfd);
                             return ret;
                         }
+                        snprintf(activity_message, 1024, "Deleted %s", new_path);
                     }
                     else {
                         int ret = sceIoRemove(new_path);
@@ -343,18 +347,21 @@ namespace FS {
 
                     free(new_path);
                 }
-            } while (res > 0);
+            } while (res > 0 && !stop_activity);
 
             sceIoDclose(dfd);
 
+            if (stop_activity)
+                return 0;
             int ret = sceIoRmdir(path.c_str());
             if (ret < 0)
                 return ret;
-
+            snprintf(activity_message, 1024, "Deleted %s", path.c_str());
         } else {
             int ret = sceIoRemove(path.c_str());
             if (ret < 0)
             return ret;
+            snprintf(activity_message, 1024, "Deleted %s", path.c_str());
         }
 
         return 1;

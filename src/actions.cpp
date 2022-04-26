@@ -182,6 +182,23 @@ namespace Actions {
         sprintf(remote_file_to_select, "%s", folder.c_str());
     }
 
+    int DeleteSelectedLocalFilesThread(SceSize args, void *argp)
+    {
+        for (std::set<FsEntry>::iterator it = multi_selected_local_files.begin(); it != multi_selected_local_files.end(); ++it)
+        {
+            FS::RmRecursive(it->path);
+        }
+        activity_inprogess = false;
+        return sceKernelExitDeleteThread(0);
+    }
+
+    void DeleteSelectedLocalFiles(std::vector<FsEntry> selected_files)
+    {
+        delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (delete_files_thid >= 0)
+			sceKernelStartThread(delete_files_thid, 0, NULL);
+    }
+
     void ConnectFTP()
     {
         CONFIG::SaveConfig();

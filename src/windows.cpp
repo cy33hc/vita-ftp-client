@@ -58,8 +58,15 @@ char remote_file_to_select[256];
 char local_filter[32];
 char remote_filter[32];
 char editor_text[1024];
+char activity_message[1024];
 int selected_browser = 0;
 int saved_selected_browser;
+bool activity_inprogess = false;
+bool stop_activity = false;
+
+int confirm_state = -1;
+char confirm_message[256];
+ACTIONS action_to_take = ACTION_NONE;
 
 namespace Windows {
 
@@ -287,6 +294,8 @@ namespace Windows {
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,90);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(it->display_size).x 
+                   - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
             ImGui::Text(it->display_size);
             if (search_item != multi_selected_local_files.end())
             {
@@ -367,6 +376,8 @@ namespace Windows {
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,90);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(it->display_size).x 
+                   - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
             ImGui::Text(it->display_size);
             if (search_item != multi_selected_remote_files.end())
             {
@@ -468,9 +479,11 @@ namespace Windows {
             }
             ImGui::Separator();
             ImGui::Dummy(ImVec2(190, 10));
-            if (ImGui::Selectable("Delete##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            if (ImGui::Selectable("Delete##settings", false, ImGuiSelectableFlags_None | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
-                selected_action = ACTION_DELETE;
+                confirm_state = 0;
+                sprintf(confirm_message, "Are you sure you want to delete this file(s)/folder(s) ?");
+                action_to_take = ACTION_DELETE;
             }
             ImGui::Separator();
             if (ImGui::Selectable("Rename##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
@@ -509,6 +522,61 @@ namespace Windows {
             ImGui::EndPopup();
         }
 
+        if (confirm_state == 0)
+        {
+            ImGui::OpenPopup("Confirm");
+            ImGui::SetNextWindowPos(ImVec2(280, 200));
+            ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(430,200), NULL, NULL);
+            if (ImGui::BeginPopupModal("Confirm", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text(confirm_message);
+                ImGui::NewLine();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+150);
+                if (ImGui::Button("Cancel"))
+                {
+                    confirm_state = 2;
+                    selected_action = ACTION_NONE;
+                    ImGui::CloseCurrentPopup();
+                };
+                ImGui::SameLine();
+                if (ImGui::Button("OK", ImVec2(60, 0)))
+                {
+                    confirm_state = 1;
+                    selected_action = action_to_take;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        }
+        else if (confirm_state > 0)
+        {
+            confirm_state = -1;
+        }
+
+    }
+
+    void ShowProgressDialog()
+    {
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGuiStyle* style = &ImGui::GetStyle();
+        ImVec4* colors = style->Colors;
+
+        SetModalMode(true);
+        ImGui::OpenPopup("Progress");
+
+        ImGui::SetNextWindowPos(ImVec2(230, 200));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(500,200), ImVec2(500,300), NULL, NULL);
+        if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
+            ImGui::Text("%s", activity_message);
+            ImGui::Separator();
+            if (ImGui::Button("Cancel"))
+            {
+                stop_activity = true;
+            }
+            ImGui::EndPopup();
+        }
     }
 
     void MainWindow()
@@ -525,6 +593,10 @@ namespace Windows {
             BrowserPanel();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
             StatusPanel();
+            if (activity_inprogess)
+            {
+                ShowProgressDialog();
+            }
             ShowActionsDialog();
         }
         ImGui::End();

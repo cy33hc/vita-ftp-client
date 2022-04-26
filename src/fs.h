@@ -42,7 +42,7 @@ struct FsEntry {
 
 namespace FS {
     std::string GetPath(const std::string& path1, const std::string& path2);
-    
+
     void MkDirs(const std::string& path, bool prev=false);
     void MkPrevDirs(const std::string& path);
 
@@ -78,6 +78,7 @@ namespace FS {
     std::vector<char> Load(const std::string& path);
     void Save(const std::string& path, const void* data, uint32_t size);
 
+    std::vector<std::string> ListFiles(const std::string& path);
     std::vector<FsEntry> ListDir(const std::string& path, int *err);
 
     void Sort(std::vector<FsEntry> &list);
