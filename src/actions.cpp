@@ -59,6 +59,7 @@ namespace Actions {
                 }
                 ++it;
             }
+            temp_files.clear();
         }
         else
         {
