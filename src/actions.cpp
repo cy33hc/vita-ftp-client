@@ -216,7 +216,7 @@ namespace Actions {
 
     void DeleteSelectedLocalFiles()
     {
-        bk_activity_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+        bk_activity_thid = sceKernelCreateThread("delete_local_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
 		if (bk_activity_thid >= 0)
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
@@ -238,7 +238,7 @@ namespace Actions {
 
     void DeleteSelectedRemotesFiles()
     {
-        bk_activity_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedRemotesFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+        bk_activity_thid = sceKernelCreateThread("delete_remote_files_thread", (SceKernelThreadEntry)DeleteSelectedRemotesFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
 		if (bk_activity_thid >= 0)
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }

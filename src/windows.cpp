@@ -701,6 +701,7 @@ namespace Windows {
             stop_activity = false;
             selected_action = ACTION_NONE;
             Actions::DeleteSelectedLocalFiles();
+            break;
         case ACTION_DELETE_REMOTE:
             activity_inprogess = true;
             stop_activity = false;
