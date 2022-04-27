@@ -501,6 +501,21 @@ namespace Windows {
             ImGui::Dummy(ImVec2(190, 5));
             ImGui::Separator();
 
+            flags = ImGuiSelectableFlags_Disabled;
+            if (local_browser_selected || remote_browser_selected)
+                flags = ImGuiSelectableFlags_None;
+            if (ImGui::Selectable("Properties##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            {
+                if (local_browser_selected && selected_local_file != nullptr)
+                    selected_action = ACTION_SHOW_LOCAL_PROPERTIES;
+                else if (remote_browser_selected && selected_remote_file != nullptr)
+                    selected_action = ACTION_SHOW_REMOTE_PROPERTIES;
+                SetModalMode(false);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::Dummy(ImVec2(190, 5));
+            ImGui::Separator();
+
             if (ImGui::Selectable("Cancel##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
                 SetModalMode(false);
@@ -546,6 +561,55 @@ namespace Windows {
             confirm_state = -1;
         }
 
+    }
+
+    void ShowPropertiesDialog(FsEntry *item)
+    {
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGuiStyle* style = &ImGui::GetStyle();
+        ImVec4* colors = style->Colors;
+
+        if (item == nullptr)
+            selected_action = ACTION_NONE;
+
+        SetModalMode(true);
+        ImGui::OpenPopup("Properties");
+
+        ImGui::SetNextWindowPos(ImVec2(280, 200));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(420,80), ImVec2(430,250), NULL, NULL);
+        if (ImGui::BeginPopupModal("Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Type:"); ImGui::SameLine();
+            ImGui::SetCursorPosX(60);
+            ImGui::Text(item->isDir ? "Folder": "File");
+            ImGui::Separator();
+            
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Name:"); ImGui::SameLine();
+            ImGui::SetCursorPosX(60);
+            ImGui::TextWrapped(item->name);
+            ImGui::Separator();
+
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Size:"); ImGui::SameLine();
+            ImGui::SetCursorPosX(60);
+            ImGui::Text("%lld   (%s)", item->file_size, item->display_size);
+            ImGui::Separator();
+            
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Date:"); ImGui::SameLine();
+            ImGui::SetCursorPosX(60);
+            ImGui::Text("%02d/%02d/%d %02d:%02d:%02d", item->modified.day, item->modified.month, item->modified.year,
+                         item->modified.hours, item->modified.minutes, item->modified.seconds);
+            ImGui::Separator();
+
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
+            if (ImGui::Button("Close"))
+            {
+                SetModalMode(false);
+                selected_action = ACTION_NONE;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
     }
 
     void ShowProgressDialog()
@@ -676,6 +740,12 @@ namespace Windows {
                 Dialog::initImeDialog("Rename", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
                 gui_mode = GUI_MODE_IME;
             }
+            break;
+        case ACTION_SHOW_LOCAL_PROPERTIES:
+            ShowPropertiesDialog(selected_local_file);
+            break;
+        case ACTION_SHOW_REMOTE_PROPERTIES:
+            ShowPropertiesDialog(selected_remote_file);
             break;
         case ACTION_CONNECT_FTP:
             Actions::ConnectFTP();
