@@ -447,7 +447,7 @@ namespace Windows {
                 if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
                 {
                     SetModalMode(false);
-                    selected_action = ACTION_UPLOAD;
+                    selected_action = ACTION_DOWNLOAD;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::Separator();
@@ -712,6 +712,12 @@ namespace Windows {
             stop_activity = false;
             selected_action = ACTION_NONE;
             Actions::UploadFiles();
+            break;
+        case ACTION_DOWNLOAD:
+            activity_inprogess = true;
+            stop_activity = false;
+            selected_action = ACTION_NONE;
+            Actions::DownloadFiles();
             break;
         case ACTION_RENAME_LOCAL:
             if (gui_mode != GUI_MODE_IME)

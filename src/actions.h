@@ -47,6 +47,8 @@ namespace Actions {
     void DeleteSelectedRemotesFiles();
     int UploadFilesThread(SceSize args, void *argp);
     void UploadFiles();
+    int  DownloadFilesThread(SceSize args, void *argp);
+    void DownloadFiles();
     void ConnectFTP();
 }
 

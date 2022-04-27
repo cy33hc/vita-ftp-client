@@ -299,9 +299,11 @@ namespace Actions {
             ret = ftpclient->Put(src.path, new_path, FtpClient::transfermode::image, 0);
             if (ret <= 0)
             {
+                free(new_path);
                 sprintf(status_message, "Failed to upload file %s", src.name);
                 return 0;
             }
+            free(new_path);
         }
         return 1;
     }
@@ -330,6 +332,99 @@ namespace Actions {
     void UploadFiles()
     {
         bk_activity_thid = sceKernelCreateThread("upload_files_thread", (SceKernelThreadEntry)UploadFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (bk_activity_thid >= 0)
+			sceKernelStartThread(bk_activity_thid, 0, NULL);
+    }
+
+    int Download(const FsEntry &src, const char *dest)
+    {
+        if (stop_activity)
+            return 1;
+
+        int ret;
+        if (src.isDir)
+        {
+            int err;
+            std::vector<FsEntry> entries = ftpclient->ListDir(src.path);
+            FS::MkDirs(dest);
+            for (int i=0; i<entries.size(); i++)
+            {
+                if (stop_activity)
+		            return 1;
+
+                int path_length = strlen(dest) + strlen(entries[i].name) + 2;
+                char *new_path = malloc(path_length);
+                snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", entries[i].name);
+
+                if (entries[i].isDir)
+                {
+                    if (strcmp(entries[i].name, "..") == 0)
+                        continue;
+
+                    FS::MkDirs(new_path);
+                    ret = Download(entries[i], new_path);
+                    if (ret <= 0)
+                    {
+                        free(new_path);
+                        return ret;
+                    }
+                }
+                else
+                {
+                    snprintf(activity_message, 1024, "Downloading %s", entries[i].path);
+                    ret = ftpclient->Get(new_path, entries[i].path, FtpClient::transfermode::image, 0);
+                    if (ret <= 0)
+                    {
+                        sprintf(status_message, "Failed to downloadload file %s", entries[i].path);
+                        free(new_path);
+                        return ret;
+                    }
+                }
+                free(new_path);
+            }
+        }
+        else
+        {
+            int path_length = strlen(dest) + strlen(src.name) + 2;
+            char *new_path = malloc(path_length);
+            snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
+            snprintf(activity_message, 1024, "Downloading %s", src.name);
+            ret = ftpclient->Get(new_path, src.path, FtpClient::transfermode::image, 0);
+            if (ret <= 0)
+            {
+                free(new_path);
+                sprintf(status_message, "Failed to download file %s", src.name);
+                return 0;
+            }
+            free(new_path);
+        }
+        return 1;
+    }
+
+    int DownloadFilesThread(SceSize args, void *argp)
+    {
+        for (std::set<FsEntry>::iterator it = multi_selected_remote_files.begin(); it != multi_selected_remote_files.end(); ++it)
+        {
+            if (it->isDir)
+            {
+                char new_dir[512];
+                sprintf(new_dir, "%s%s%s", local_directory, FS::hasEndSlash(local_directory)? "" : "/", it->name);
+                Download(*it, new_dir);
+            }
+            else
+            {
+                Download(*it, local_directory);
+            }
+        }
+        activity_inprogess = false;
+        Windows::SetModalMode(false);
+        selected_action = ACTION_REFRESH_LOCAL_FILES;
+        return sceKernelExitDeleteThread(0);
+    }
+    
+    void DownloadFiles()
+    {
+        bk_activity_thid = sceKernelCreateThread("download_files_thread", (SceKernelThreadEntry)DownloadFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
 		if (bk_activity_thid >= 0)
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
