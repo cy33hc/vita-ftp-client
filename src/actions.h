@@ -25,17 +25,6 @@ enum ACTIONS {
     ACTION_DISCONNECT_FTP
 };
 
-enum CopyType {
-    COPY_TYPE_NONE = 0,
-    COPY_TYPE_LOCAL_ENTRY,
-    COPY_TYPE_REMOTE_ENTRY
-};
-
-struct CopyStruct {
-    std::set<FsEntry> files;
-    CopyType type;
-};
-
 static SceUID delete_files_thid = -1;
 
 namespace Actions {

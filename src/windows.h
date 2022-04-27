@@ -24,7 +24,6 @@ extern std::set<FsEntry> multi_selected_remote_files;
 extern FsEntry *selected_local_file;
 extern FsEntry *selected_remote_file;
 extern ACTIONS selected_action;
-extern CopyStruct copy_set;
 extern char status_message[];
 extern char local_file_to_select[];
 extern char remote_file_to_select[];

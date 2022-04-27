@@ -51,7 +51,6 @@ std::set<FsEntry> multi_selected_remote_files;
 FsEntry *selected_local_file;
 FsEntry *selected_remote_file;
 ACTIONS selected_action;
-CopyStruct copy_set;
 char status_message[1024];
 char local_file_to_select[256];
 char remote_file_to_select[256];
@@ -91,7 +90,6 @@ namespace Windows {
         sprintf(txt_server_port, "%d", ftp_settings.server_port);
 
         Actions::RefreshLocalFiles();
-        copy_set.type = COPY_TYPE_NONE;
     }
 
     void HandleWindowInput()
