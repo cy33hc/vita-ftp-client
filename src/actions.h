@@ -25,7 +25,7 @@ enum ACTIONS {
     ACTION_DISCONNECT_FTP
 };
 
-static SceUID delete_files_thid = -1;
+static SceUID bk_activity_thid = -1;
 
 namespace Actions {
 
@@ -45,6 +45,8 @@ namespace Actions {
     void DeleteSelectedLocalFiles();
     int DeleteSelectedRemotesFilesThread(SceSize args, void *argp);
     void DeleteSelectedRemotesFiles();
+    int UploadFilesThread(SceSize args, void *argp);
+    void UploadFiles();
     void ConnectFTP();
 }
 

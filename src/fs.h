@@ -83,6 +83,7 @@ namespace FS {
 
     void Sort(std::vector<FsEntry> &list);
 
+    int hasEndSlash(const char *path);
 }
 
 #endif

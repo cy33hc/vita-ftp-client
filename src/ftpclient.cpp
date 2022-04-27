@@ -1058,24 +1058,36 @@ int FtpClient::Rmdir(const char *path)
  */
 int FtpClient::Rmdir(const char *path, bool recursive)
 {
+	if (stop_activity)
+		return 1;
+
 	std::vector<FsEntry> list = ListDir(path);
 	int ret;
 	for (int i=0; i<list.size(); i++)
 	{
+		if (stop_activity)
+			return 1;
+
 		if (list[i].isDir && recursive)
 		{
 			if (strcmp(list[i].name, "..") == 0)
 				continue;
 			ret = Rmdir(list[i].path, recursive);
 			if (ret == 0)
+			{
+				sprintf(status_message, "Failed to delete directory %s", list[i].path);
 				return 0;
+			}
 		}
 		else
 		{
+			sprintf(activity_message, "Deleting %s, %s\n", list[i].path);
 			ret = Delete(list[i].path);
 			if (ret == 0)
+			{
+				sprintf(status_message, "Failed to delete file %s", list[i].path);
 				return 0;
-			sprintf(activity_message, "Deleted %s, %s\n", list[i].path);
+			}
 		}
 	}
 	ret = Rmdir(path);

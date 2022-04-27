@@ -216,9 +216,9 @@ namespace Actions {
 
     void DeleteSelectedLocalFiles()
     {
-        delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
-		if (delete_files_thid >= 0)
-			sceKernelStartThread(delete_files_thid, 0, NULL);
+        bk_activity_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (bk_activity_thid >= 0)
+			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
 
     int DeleteSelectedRemotesFilesThread(SceSize args, void *argp)
@@ -238,9 +238,100 @@ namespace Actions {
 
     void DeleteSelectedRemotesFiles()
     {
-        delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedRemotesFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
-		if (delete_files_thid >= 0)
-			sceKernelStartThread(delete_files_thid, 0, NULL);
+        bk_activity_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedRemotesFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (bk_activity_thid >= 0)
+			sceKernelStartThread(bk_activity_thid, 0, NULL);
+    }
+
+    int Upload(const FsEntry &src, const char *dest)
+    {
+        if (stop_activity)
+            return 1;
+
+        int ret;
+        if (src.isDir)
+        {
+            int err;
+            std::vector<FsEntry> entries = FS::ListDir(src.path, &err);
+            ftpclient->Mkdir(dest);
+            for (int i=0; i<entries.size(); i++)
+            {
+                if (stop_activity)
+		            return 1;
+
+                int path_length = strlen(dest) + strlen(entries[i].name) + 2;
+                char *new_path = malloc(path_length);
+                snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", entries[i].name);
+
+                if (entries[i].isDir)
+                {
+                    if (strcmp(entries[i].name, "..") == 0)
+                        continue;
+
+                    ftpclient->Mkdir(new_path);
+                    ret = Upload(entries[i], new_path);
+                    if (ret <= 0)
+                    {
+                        free(new_path);
+                        return ret;
+                    }
+                }
+                else
+                {
+                    snprintf(activity_message, 1024, "Uploading %s", entries[i].path);
+                    ret = ftpclient->Put(entries[i].path, new_path, FtpClient::transfermode::image, 0);
+                    if (ret <= 0)
+                    {
+                        sprintf(status_message, "Failed to upload file %s", entries[i].path);
+                        free(new_path);
+                        return ret;
+                    }
+                }
+                free(new_path);
+            }
+        }
+        else
+        {
+            int path_length = strlen(dest) + strlen(src.name) + 2;
+            char *new_path = malloc(path_length);
+            snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
+            snprintf(activity_message, 1024, "Uploading %s", src.name);
+            ret = ftpclient->Put(src.path, new_path, FtpClient::transfermode::image, 0);
+            if (ret <= 0)
+            {
+                sprintf(status_message, "Failed to upload file %s", src.name);
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    int UploadFilesThread(SceSize args, void *argp)
+    {
+        for (std::set<FsEntry>::iterator it = multi_selected_local_files.begin(); it != multi_selected_local_files.end(); ++it)
+        {
+            if (it->isDir)
+            {
+                char new_dir[512];
+                sprintf(new_dir, "%s%s%s", remote_directory, FS::hasEndSlash(remote_directory)? "" : "/", it->name);
+                Upload(*it, new_dir);
+            }
+            else
+            {
+                Upload(*it, remote_directory);
+            }
+        }
+        activity_inprogess = false;
+        Windows::SetModalMode(false);
+        selected_action = ACTION_REFRESH_REMOTE_FILES;
+        return sceKernelExitDeleteThread(0);
+    }
+    
+    void UploadFiles()
+    {
+        bk_activity_thid = sceKernelCreateThread("upload_files_thread", (SceKernelThreadEntry)UploadFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (bk_activity_thid >= 0)
+			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
 
     void ConnectFTP()

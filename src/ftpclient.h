@@ -1,6 +1,7 @@
 #ifndef FTPCLIENT_H
 #define FTPCLIENT_H
 
+#include <vitasdk.h>
 #include <psp2/net/net.h>
 #include <time.h>
 #include <string>
@@ -30,7 +31,7 @@ struct ftphandle {
 	bool is_connected;
 };
 
-
+static SceUID keep_alive_thid = -1;
 
 class FtpClient {
 public:

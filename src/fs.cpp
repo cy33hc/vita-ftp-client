@@ -309,7 +309,7 @@ namespace FS {
     int RmRecursive(const std::string& path)
     {
         if (stop_activity)
-            return 0;
+            return 1;
         SceUID dfd = sceIoDopen(path.c_str());
         if (dfd >= 0)
         {
@@ -330,6 +330,7 @@ namespace FS {
                     {
                         int ret = RmRecursive(new_path);
                         if (ret <= 0) {
+                            sprintf(status_message, "Failed to delete directory %s", new_path);
                             free(new_path);
                             sceIoDclose(dfd);
                             return ret;
@@ -337,14 +338,15 @@ namespace FS {
                         
                     }
                     else {
+                        snprintf(activity_message, 1024, "Deleting %s", new_path);
                         int ret = sceIoRemove(new_path);
                         if (ret < 0)
                         {
+                            sprintf(status_message, "Failed to delete file %s", new_path);
                             free(new_path);
                             sceIoDclose(dfd);
                             return ret;
                         }
-                        snprintf(activity_message, 1024, "Deleted %s", new_path);
                     }
 
                     free(new_path);
@@ -357,13 +359,19 @@ namespace FS {
                 return 0;
             int ret = sceIoRmdir(path.c_str());
             if (ret < 0)
+            {
+                sprintf(status_message, "Failed to delete directory %s", path.c_str());
                 return ret;
+            }
             snprintf(activity_message, 1024, "Deleted %s", path.c_str());
         } else
         {
             int ret = sceIoRemove(path.c_str());
             if (ret < 0)
-            return ret;
+            {
+                sprintf(status_message, "Failed to delete file %s", path.c_str());
+                return ret;
+            }
             snprintf(activity_message, 1024, "Deleted %s", path.c_str());
         }
 

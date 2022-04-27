@@ -697,21 +697,21 @@ namespace Windows {
             }
             break;
         case ACTION_DELETE_LOCAL:
-            if (multi_selected_local_files.size() > 0)
-            {
-                activity_inprogess = true;
-                stop_activity = false;
-                selected_action = ACTION_NONE;
-                Actions::DeleteSelectedLocalFiles();
-            }
+            activity_inprogess = true;
+            stop_activity = false;
+            selected_action = ACTION_NONE;
+            Actions::DeleteSelectedLocalFiles();
         case ACTION_DELETE_REMOTE:
-            if (multi_selected_remote_files.size() > 0)
-            {
-                activity_inprogess = true;
-                stop_activity = false;
-                selected_action = ACTION_NONE;
-                Actions::DeleteSelectedRemotesFiles();
-            }
+            activity_inprogess = true;
+            stop_activity = false;
+            selected_action = ACTION_NONE;
+            Actions::DeleteSelectedRemotesFiles();
+            break;
+        case ACTION_UPLOAD:
+            activity_inprogess = true;
+            stop_activity = false;
+            selected_action = ACTION_NONE;
+            Actions::UploadFiles();
             break;
         case ACTION_RENAME_LOCAL:
             if (gui_mode != GUI_MODE_IME)
