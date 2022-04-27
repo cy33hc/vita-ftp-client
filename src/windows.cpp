@@ -105,7 +105,6 @@ namespace Windows {
         {
             if ( selected_browser & LOCAL_BROWSER && selected_local_file != nullptr && strcmp(selected_local_file->name, "..") != 0)
             {
-                multi_selected_remote_files.clear();
                 auto search_item = multi_selected_local_files.find(*selected_local_file);
                 if (search_item != multi_selected_local_files.end())
                 {
@@ -118,7 +117,6 @@ namespace Windows {
             }
             if (selected_browser & REMOTE_BROWSER && selected_remote_file != nullptr && strcmp(selected_remote_file->name, "..") != 0)
             {
-                multi_selected_local_files.clear();
                 auto search_item = multi_selected_remote_files.find(*selected_remote_file);
                 if (search_item != multi_selected_remote_files.end())
                 {
@@ -404,93 +402,94 @@ namespace Windows {
         {
             if (!paused)
                 saved_selected_browser = selected_browser;
-            SetModalMode(true);
-            ImGui::OpenPopup("Actions");
+            
+            if (saved_selected_browser > 0)
+            {
+                SetModalMode(true);
+                ImGui::OpenPopup("Actions");
+            }
         }
 
-        ImGui::SetNextWindowPos(ImVec2(340, 150));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(280,200), ImVec2(280,300), NULL, NULL);
+        bool local_browser_selected = saved_selected_browser & LOCAL_BROWSER;
+        bool remote_browser_selected = saved_selected_browser & REMOTE_BROWSER;
+        if (local_browser_selected)
+        {
+            ImGui::SetNextWindowPos(ImVec2(100, 150));
+        }
+        else if (remote_browser_selected)
+        {
+            ImGui::SetNextWindowPos(ImVec2(580, 150));
+        }
+        ImGui::SetNextWindowSizeConstraints(ImVec2(280,150), ImVec2(280,300), NULL, NULL);
         if (ImGui::BeginPopupModal("Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            bool local_browser_selected = saved_selected_browser & LOCAL_BROWSER;
-            bool remote_browser_selected = saved_selected_browser & REMOTE_BROWSER;
-            if (copy_set.type == COPY_TYPE_LOCAL_ENTRY)
-            {
-                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Local file(s)/folder(s) copied.", copy_set.files.size());
-                ImGui::Separator();
-            } else if (copy_set.type == COPY_TYPE_REMOTE_ENTRY)
-            {
-                ImGui::TextColored(ImVec4(0.0f,1.0f,0.0f,1.0f), "%d Remote file(s)/folder(s) copied.", copy_set.files.size());
-                ImGui::Separator();
-            }
-
             flags = ImGuiSelectableFlags_Disabled;
-            if (multi_selected_local_files.size() > 0 || multi_selected_remote_files.size() > 0)
-                flags = ImGuiSelectableFlags_None;
-            if (ImGui::Selectable("Copy##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            if (local_browser_selected)
             {
                 if (multi_selected_local_files.size() > 0)
                 {
-                    copy_set.files.clear();
-                    copy_set.files.insert(multi_selected_local_files.begin(), multi_selected_local_files.end());
-                    copy_set.type = COPY_TYPE_LOCAL_ENTRY;
+                    flags = ImGuiSelectableFlags_None;
                 }
-                else if (multi_selected_remote_files.size() > 0)
+                if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
                 {
-                    copy_set.files.clear();
-                    copy_set.files.insert(multi_selected_remote_files.begin(), multi_selected_remote_files.end());
-                    copy_set.type = COPY_TYPE_REMOTE_ENTRY;
+                    SetModalMode(false);
+                    selected_action = ACTION_UPLOAD;
+                    ImGui::CloseCurrentPopup();
                 }
-                SetModalMode(false);
-                selected_action = ACTION_COPY;
-                ImGui::CloseCurrentPopup();
+                ImGui::Separator();
+                ImGui::Dummy(ImVec2(190, 10));
             }
-            ImGui::Separator();
 
-            char display_text[64];
-            sprintf(display_text, "Paste##settings");
-            flags = ImGuiSelectableFlags_Disabled;
-            if (copy_set.type != COPY_TYPE_NONE && saved_selected_browser > 0)
+            if (remote_browser_selected)
             {
-                flags = ImGuiSelectableFlags_None;
-                // Disable pasting into the folder where files are being copied from
-                if ((copy_set.type == COPY_TYPE_LOCAL_ENTRY && local_browser_selected && strcmp(copy_set.files.begin()->directory, local_directory) == 0) ||
-                    (copy_set.type == COPY_TYPE_REMOTE_ENTRY && remote_browser_selected && strcmp(copy_set.files.begin()->directory, remote_directory) == 0))
+                if (multi_selected_remote_files.size() > 0)
                 {
-                    flags = ImGuiSelectableFlags_Disabled;
+                    flags = ImGuiSelectableFlags_None;
                 }
-                sprintf(display_text, "Paste into %s##settings", local_browser_selected ? "Local" : remote_browser_selected ? "Remote" : "" );
+                if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+                {
+                    SetModalMode(false);
+                    selected_action = ACTION_UPLOAD;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::Separator();
+                ImGui::Dummy(ImVec2(190, 10));
             }
-            if (ImGui::Selectable(display_text, false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
-            {
-                selected_action = ACTION_PASTE;
-            }
-            ImGui::Separator();
-            ImGui::Dummy(ImVec2(190, 10));
+
             flags = ImGuiSelectableFlags_Disabled;
-            if (multi_selected_local_files.size() > 0 || multi_selected_remote_files.size() > 0)
+            if ((local_browser_selected && multi_selected_local_files.size() > 0) ||
+                (remote_browser_selected && multi_selected_remote_files.size() > 0))
                 flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
                 confirm_state = 0;
                 sprintf(confirm_message, "Are you sure you want to delete this file(s)/folder(s) ?");
-                action_to_take = ACTION_DELETE;
-            }
-            ImGui::Separator();
-            if (ImGui::Selectable("Rename##settings", false, ImGuiSelectableFlags_Disabled | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
-            {
-                selected_action = ACTION_RENAME;
+                if (local_browser_selected)
+                    action_to_take = ACTION_DELETE_LOCAL;
+                else if (remote_browser_selected)
+                    action_to_take = ACTION_DELETE_REMOTE;
             }
             ImGui::Separator();
 
-            sprintf(display_text, "New Folder##settings");
             flags = ImGuiSelectableFlags_Disabled;
-            if (saved_selected_browser > 0)
-            {
+            if ((local_browser_selected && multi_selected_local_files.size() == 1) ||
+                (remote_browser_selected && multi_selected_remote_files.size() == 1))
                 flags = ImGuiSelectableFlags_None;
-                sprintf(display_text, "New Folder in %s##settings", local_browser_selected ? "Local" : remote_browser_selected ? "Remote" : "" );
+            if (ImGui::Selectable("Rename##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            {
+                if (local_browser_selected)
+                    selected_action = ACTION_RENAME_LOCAL;
+                else if (remote_browser_selected)
+                    selected_action = ACTION_RENAME_REMOTE;
+                SetModalMode(false);
+                ImGui::CloseCurrentPopup();
             }
-            if (ImGui::Selectable(display_text, false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
+            ImGui::Separator();
+
+            flags = ImGuiSelectableFlags_Disabled;
+            if (local_browser_selected || remote_browser_selected)
+                flags = ImGuiSelectableFlags_None;
+            if (ImGui::Selectable("New Folder##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
                 if (local_browser_selected)
                     selected_action = ACTION_NEW_LOCAL_FOLDER;
@@ -501,6 +500,7 @@ namespace Windows {
             }
             ImGui::Dummy(ImVec2(190, 5));
             ImGui::Separator();
+
             if (ImGui::Selectable("Cancel##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(270, 0)))
             {
                 SetModalMode(false);
@@ -557,16 +557,22 @@ namespace Windows {
         SetModalMode(true);
         ImGui::OpenPopup("Progress");
 
-        ImGui::SetNextWindowPos(ImVec2(230, 200));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(500,200), ImVec2(500,300), NULL, NULL);
+        ImGui::SetNextWindowPos(ImVec2(280, 200));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(420,80), ImVec2(430,150), NULL, NULL);
         if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
             ImGui::Text("%s", activity_message);
+            if (stop_activity)
+            {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
+            }
             ImGui::Separator();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
             if (ImGui::Button("Cancel"))
             {
                 stop_activity = true;
+                SetModalMode(false);
             }
             ImGui::EndPopup();
         }
@@ -628,13 +634,47 @@ namespace Windows {
                 gui_mode = GUI_MODE_IME;
             }
             break;
-        case ACTION_DELETE:
+        case ACTION_DELETE_LOCAL:
             if (multi_selected_local_files.size() > 0)
             {
                 activity_inprogess = true;
                 stop_activity = false;
                 selected_action = ACTION_NONE;
                 Actions::DeleteSelectedLocalFiles();
+            }
+        case ACTION_DELETE_REMOTE:
+            if (multi_selected_remote_files.size() > 0)
+            {
+                activity_inprogess = true;
+                stop_activity = false;
+                selected_action = ACTION_NONE;
+                Actions::DeleteSelectedRemotesFiles();
+            }
+            break;
+        case ACTION_RENAME_LOCAL:
+            if (gui_mode != GUI_MODE_IME)
+            {
+                sprintf(editor_text, multi_selected_local_files.begin()->name);
+                ime_single_field = editor_text;
+                ResetImeCallbacks();
+                ime_after_update = AfterFolderNameCallback;
+                ime_cancelled = CancelActionCallBack;
+                ime_callback = SingleValueImeCallback;
+                Dialog::initImeDialog("Rename", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                gui_mode = GUI_MODE_IME;
+            }
+            break;
+        case ACTION_RENAME_REMOTE:
+            if (gui_mode != GUI_MODE_IME)
+            {
+                sprintf(editor_text, multi_selected_remote_files.begin()->name);
+                ime_single_field = editor_text;
+                ResetImeCallbacks();
+                ime_after_update = AfterFolderNameCallback;
+                ime_cancelled = CancelActionCallBack;
+                ime_callback = SingleValueImeCallback;
+                Dialog::initImeDialog("Rename", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                gui_mode = GUI_MODE_IME;
             }
             break;
         case ACTION_CONNECT_FTP:
@@ -748,6 +788,14 @@ namespace Windows {
         else if (selected_action == ACTION_NEW_REMOTE_FOLDER)
         {
             Actions::CreateNewRemoteFolder(editor_text);
+        }
+        else if (selected_action == ACTION_RENAME_LOCAL)
+        {
+            Actions::RenameLocalFolder(multi_selected_local_files.begin()->path, editor_text);
+        }
+        else if (selected_action == ACTION_RENAME_REMOTE)
+        {
+            Actions::RenameRemoteFolder(multi_selected_remote_files.begin()->path, editor_text);
         }
         selected_action = ACTION_NONE;
     }

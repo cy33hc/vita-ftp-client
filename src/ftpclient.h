@@ -75,6 +75,7 @@ public:
 	int Chdir(const char *path);
 	int Cdup();
 	int Rmdir(const char *path);
+	int Rmdir(const char *path, bool recursive);
 	int Pwd(char *path, int max);
 	int Size(const char *path, int64_t *size, transfermode mode);
 	int ModDate(const char *path, char *dt, int max);

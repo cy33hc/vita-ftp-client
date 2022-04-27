@@ -5,19 +5,22 @@
 
 enum ACTIONS {
     ACTION_NONE = 0,
-    ACTION_CHANGE_LOCAL_DIRECTORY,
-    ACTION_COPY,
-    ACTION_PASTE,
-    ACTION_DELETE,
-    ACTION_RENAME,
+    ACTION_UPLOAD,
+    ACTION_DOWNLOAD,
+    ACTION_DELETE_LOCAL,
+    ACTION_DELETE_REMOTE,
+    ACTION_RENAME_LOCAL,
+    ACTION_RENAME_REMOTE,
     ACTION_NEW_LOCAL_FOLDER,
     ACTION_NEW_REMOTE_FOLDER,
-    ACTION_CLEAR_LOCAL_FILTER,
-    ACTION_REFRESH_LOCAL_FILES,
+    ACTION_CHANGE_LOCAL_DIRECTORY,
     ACTION_CHANGE_REMOTE_DIRECTORY,
+    ACTION_CLEAR_LOCAL_FILTER,
     ACTION_CLEAR_REMOTE_FILTER,
+    ACTION_REFRESH_LOCAL_FILES,
     ACTION_REFRESH_REMOTE_FILES,
-    ACTION_CONNECT_FTP
+    ACTION_CONNECT_FTP,
+    ACTION_DISCONNECT_FTP
 };
 
 enum CopyType {
@@ -45,8 +48,12 @@ namespace Actions {
     void HandleClearRemoteFilter();
     void CreateNewLocalFolder(char *new_folder);
     void CreateNewRemoteFolder(char *new_folder);
-    void DeleteSelectedLocalFiles();
+    void RenameLocalFolder(char *old_path, char *new_path);
+    void RenameRemoteFolder(char *old_path, char *new_path);
     int DeleteSelectedLocalFilesThread(SceSize args, void *argp);
+    void DeleteSelectedLocalFiles();
+    int DeleteSelectedRemotesFilesThread(SceSize args, void *argp);
+    void DeleteSelectedRemotesFiles();
     void ConnectFTP();
 }
 

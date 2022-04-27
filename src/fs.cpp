@@ -311,7 +311,8 @@ namespace FS {
         if (stop_activity)
             return 0;
         SceUID dfd = sceIoDopen(path.c_str());
-        if (dfd >= 0) {
+        if (dfd >= 0)
+        {
             int res = 0;
 
             do 
@@ -333,7 +334,7 @@ namespace FS {
                             sceIoDclose(dfd);
                             return ret;
                         }
-                        snprintf(activity_message, 1024, "Deleted %s", new_path);
+                        
                     }
                     else {
                         int ret = sceIoRemove(new_path);
@@ -343,6 +344,7 @@ namespace FS {
                             sceIoDclose(dfd);
                             return ret;
                         }
+                        snprintf(activity_message, 1024, "Deleted %s", new_path);
                     }
 
                     free(new_path);
@@ -357,7 +359,8 @@ namespace FS {
             if (ret < 0)
                 return ret;
             snprintf(activity_message, 1024, "Deleted %s", path.c_str());
-        } else {
+        } else
+        {
             int ret = sceIoRemove(path.c_str());
             if (ret < 0)
             return ret;

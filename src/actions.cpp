@@ -45,7 +45,6 @@ namespace Actions {
 
         multi_selected_remote_files.clear();
         remote_files.clear();
-        sprintf(status_message, "%s", ftpclient->LastResponse());
         if (strlen(remote_filter)>0)
         {
             std::vector<FsEntry> temp_files = ftpclient->ListDir(remote_directory);
@@ -66,6 +65,7 @@ namespace Actions {
             remote_files = ftpclient->ListDir(remote_directory);
         }
         FS::Sort(remote_files);
+        sprintf(status_message, "%s", ftpclient->LastResponse());
     }
 
     void HandleChangeLocalDirectory(FsEntry *entry)
@@ -182,20 +182,63 @@ namespace Actions {
         sprintf(remote_file_to_select, "%s", folder.c_str());
     }
 
+    void RenameLocalFolder(char *old_path, char *new_path)
+    {
+        std::string new_name = std::string(new_path);
+        new_name = Util::Rtrim(Util::Trim(new_name, " "), "/");
+        std::string path = FS::GetPath(local_directory, new_name);
+        FS::Rename(old_path, path);
+        RefreshLocalFiles();
+        sprintf(local_file_to_select, "%s", new_name.c_str());
+    }
+
+    void RenameRemoteFolder(char *old_path, char *new_path)
+    {
+        std::string new_name = std::string(new_path);
+        new_name = Util::Rtrim(Util::Trim(new_name, " "), "/");
+        std::string path = FS::GetPath(remote_directory, new_name);
+        ftpclient->Rename(old_path, path.c_str());
+        RefreshRemoteFiles();
+        sprintf(remote_file_to_select, "%s", new_name.c_str());
+    }
+
     int DeleteSelectedLocalFilesThread(SceSize args, void *argp)
     {
         for (std::set<FsEntry>::iterator it = multi_selected_local_files.begin(); it != multi_selected_local_files.end(); ++it)
         {
             FS::RmRecursive(it->path);
         }
-        selected_action = ACTION_REFRESH_LOCAL_FILES;
         activity_inprogess = false;
+        Windows::SetModalMode(false);
+        selected_action = ACTION_REFRESH_LOCAL_FILES;
         return sceKernelExitDeleteThread(0);
     }
 
     void DeleteSelectedLocalFiles()
     {
         delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedLocalFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
+		if (delete_files_thid >= 0)
+			sceKernelStartThread(delete_files_thid, 0, NULL);
+    }
+
+    int DeleteSelectedRemotesFilesThread(SceSize args, void *argp)
+    {
+        for (std::set<FsEntry>::iterator it = multi_selected_remote_files.begin(); it != multi_selected_remote_files.end(); ++it)
+        {
+            if (it->isDir)
+                ftpclient->Rmdir(it->path, true);
+            else
+                ftpclient->Delete(it->path);
+        }
+        activity_inprogess = false;
+        Windows::SetModalMode(false);
+        selected_action = ACTION_REFRESH_REMOTE_FILES;
+        return sceKernelExitDeleteThread(0);
+    }
+
+    void DeleteSelectedRemotesFiles()
+    {
+        delete_files_thid = sceKernelCreateThread("delete_files_thread", (SceKernelThreadEntry)DeleteSelectedRemotesFilesThread, 0x10000100, 0x4000, 0, 0, NULL);
 		if (delete_files_thid >= 0)
 			sceKernelStartThread(delete_files_thid, 0, NULL);
     }

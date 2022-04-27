@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <ftpclient.h>
-//#include <debugnet.h>
+#include <windows.h>
+#include <debugnet.h>
 #include <errno.h>
 
 #define FTP_CLIENT_BUFSIZ 16384
@@ -1047,6 +1048,37 @@ int FtpClient::Rmdir(const char *path)
 	if ((strlen(path) + 6) > sizeof(buf)) return 0;
 	sprintf(buf,"RMD %s",path);
 	if (!FtpSendCmd(buf,'2',mp_ftphandle)) return 0;
+	return 1;
+}
+
+/*
+ * FtpRmdir - remove directory and all files under directory at remote
+ *
+ * return 1 if successful, 0 otherwise
+ */
+int FtpClient::Rmdir(const char *path, bool recursive)
+{
+	std::vector<FsEntry> list = ListDir(path);
+	int ret;
+	for (int i=0; i<list.size(); i++)
+	{
+		if (list[i].isDir && recursive)
+		{
+			if (strcmp(list[i].name, "..") == 0)
+				continue;
+			ret = Rmdir(list[i].path, recursive);
+			if (ret == 0)
+				return 0;
+		}
+		else
+		{
+			ret = Delete(list[i].path);
+			if (ret == 0)
+				return 0;
+			sprintf(activity_message, "Deleted %s, %s\n", list[i].path);
+		}
+	}
+	ret = Rmdir(path);
 	return 1;
 }
 
