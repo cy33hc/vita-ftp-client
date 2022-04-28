@@ -22,6 +22,7 @@ extern Tex cross_icon;
 
 extern Tex folder_icon;
 extern Tex file_icon;
+extern Tex update_icon;
 
 namespace Textures {
     void LoadFonts(Tex *font_texture);

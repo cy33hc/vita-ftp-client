@@ -99,4 +99,6 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE icons/cross.png icons/cross.png
   FILE icons/folder.png icons/folder.png
   FILE icons/file.png icons/file.png
+  FILE icons/update.png icons/update.png
+  FILE version.txt version.txt
 )

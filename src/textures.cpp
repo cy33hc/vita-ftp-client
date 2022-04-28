@@ -15,6 +15,7 @@ Tex cross_icon;
 
 Tex folder_icon;
 Tex file_icon;
+Tex update_icon;
 
 namespace Textures {
 	
@@ -60,6 +61,7 @@ namespace Textures {
 		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/cross.png", &cross_icon);
 		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/folder.png", &folder_icon);
 		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/file.png", &file_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/update.png", &update_icon);
 	}
 
 	void Exit(void) {
@@ -73,6 +75,7 @@ namespace Textures {
 		vita2d_free_texture(cross_icon.id);
 		vita2d_free_texture(folder_icon.id);
 		vita2d_free_texture(file_icon.id);
+		vita2d_free_texture(update_icon.id);
 	}
 
 	void Free(Tex *texture) {

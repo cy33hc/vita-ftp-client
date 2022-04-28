@@ -63,6 +63,10 @@ int saved_selected_browser;
 bool activity_inprogess = false;
 bool stop_activity = false;
 
+bool dont_prompt_overwrite = false;
+int confirm_transfer_state = -1;
+int overwrite_type = OVERWRITE_PROMPT;
+
 int confirm_state = -1;
 char confirm_message[256];
 ACTIONS action_to_take = ACTION_NONE;
@@ -88,6 +92,9 @@ namespace Windows {
         sprintf(local_filter, "");
         sprintf(remote_filter, "");
         sprintf(txt_server_port, "%d", ftp_settings.server_port);
+        dont_prompt_overwrite = false;
+        confirm_transfer_state = -1;
+        overwrite_type = OVERWRITE_PROMPT;
 
         Actions::RefreshLocalFiles(false);
     }
@@ -221,6 +228,13 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Pasv:"); ImGui::SameLine();
         ImGui::Checkbox("##PasvMode", &ftp_settings.pasv_mode); ImGui::SameLine();
+
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+ 18);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() -5);
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
+        {
+            selected_action = ACTION_UPDATE_SOFTWARE;
+        }
 
         ImGui::PopStyleVar();
         EndGroupPanel();
@@ -516,37 +530,6 @@ namespace Windows {
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
-            if (local_browser_selected)
-            {
-                if (multi_selected_local_files.size() > 0)
-                {
-                    flags = ImGuiSelectableFlags_None;
-                }
-                if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
-                {
-                    SetModalMode(false);
-                    selected_action = ACTION_UPLOAD;
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::Separator();
-            }
-
-            if (remote_browser_selected)
-            {
-                if (multi_selected_remote_files.size() > 0)
-                {
-                    flags = ImGuiSelectableFlags_None;
-                }
-                if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
-                {
-                    SetModalMode(false);
-                    selected_action = ACTION_DOWNLOAD;
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::Separator();
-            }
-
-            flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() > 0) ||
                 (remote_browser_selected && multi_selected_remote_files.size() > 0))
                 flags = ImGuiSelectableFlags_None;
@@ -591,6 +574,39 @@ namespace Windows {
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
+            if (local_browser_selected)
+            {
+                if (multi_selected_local_files.size() > 0)
+                {
+                    flags = ImGuiSelectableFlags_None;
+                }
+                if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+                {
+                    SetModalMode(false);
+                    selected_action = ACTION_UPLOAD;
+                    confirm_transfer_state = 0;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::Separator();
+            }
+
+            if (remote_browser_selected)
+            {
+                if (multi_selected_remote_files.size() > 0)
+                {
+                    flags = ImGuiSelectableFlags_None;
+                }
+                if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+                {
+                    SetModalMode(false);
+                    selected_action = ACTION_DOWNLOAD;
+                    confirm_transfer_state = 0;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::Separator();
+            }
+
+            flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
                 flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Properties##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
@@ -627,6 +643,7 @@ namespace Windows {
                 ImGui::Text(confirm_message);
                 ImGui::NewLine();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+150);
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
                 if (ImGui::Button("No", ImVec2(60, 0)))
                 {
                     confirm_state = 2;
@@ -650,6 +667,34 @@ namespace Windows {
             confirm_state = -1;
         }
 
+        if (confirm_transfer_state == 0)
+        {
+            ImGui::OpenPopup("Overwrite Options");
+            ImGui::SetNextWindowPos(ImVec2(280, 180));
+            ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(430,400), NULL, NULL);
+            if (ImGui::BeginPopupModal("Overwrite Options", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::RadioButton("Don't Overwrite", &overwrite_type, 0);
+                ImGui::RadioButton("Ask for Confirmation", &overwrite_type, 1);
+                ImGui::RadioButton("Don't Ask for Confirmation", &overwrite_type, 2);
+                ImGui::Checkbox("Always use this option and don't ask again##dontaskagain", &dont_prompt_overwrite);
+
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+120);
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
+                if (ImGui::Button("Cancel", ImVec2(70, 0)))
+                {
+                    confirm_transfer_state = 2;
+                    ImGui::CloseCurrentPopup();
+                };
+                ImGui::SameLine();
+                if (ImGui::Button("Continue", ImVec2(80, 0)))
+                {
+                    confirm_transfer_state = 1;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        }
     }
 
     void ShowPropertiesDialog(FsEntry *item)
@@ -802,16 +847,24 @@ namespace Windows {
             Actions::DeleteSelectedRemotesFiles();
             break;
         case ACTION_UPLOAD:
-            activity_inprogess = true;
-            stop_activity = false;
-            selected_action = ACTION_NONE;
-            Actions::UploadFiles();
+            if (dont_prompt_overwrite || (!dont_prompt_overwrite && confirm_transfer_state == 1))
+            {
+                activity_inprogess = true;
+                stop_activity = false;
+                selected_action = ACTION_NONE;
+                Actions::UploadFiles();
+                confirm_transfer_state = -1;
+            }
             break;
         case ACTION_DOWNLOAD:
-            activity_inprogess = true;
-            stop_activity = false;
-            selected_action = ACTION_NONE;
-            Actions::DownloadFiles();
+            if (dont_prompt_overwrite || (!dont_prompt_overwrite && confirm_transfer_state == 1))
+            {
+                activity_inprogess = true;
+                stop_activity = false;
+                selected_action = ACTION_NONE;
+                Actions::DownloadFiles();
+                confirm_transfer_state = -1;
+            }
             break;
         case ACTION_RENAME_LOCAL:
             if (gui_mode != GUI_MODE_IME)

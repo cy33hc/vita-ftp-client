@@ -32,6 +32,7 @@ extern char remote_filter[];
 extern char activity_message[];
 extern bool activity_inprogess;
 extern bool stop_activity;
+extern int overwrite_type;
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
 
