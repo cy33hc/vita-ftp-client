@@ -89,4 +89,14 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE default_style.ini default_style.ini
   FILE head.bin head.bin
   FILE music.ogg music.ogg
+  FILE icons/connect.png icons/connect.png
+  FILE icons/disconnect.png icons/disconnect.png
+  FILE icons/search.png icons/search.png
+  FILE icons/refresh.png icons/refresh.png
+  FILE icons/square.png icons/square.png
+  FILE icons/circle.png icons/circle.png
+  FILE icons/triangle.png icons/triangle.png
+  FILE icons/cross.png icons/cross.png
+  FILE icons/folder.png icons/folder.png
+  FILE icons/file.png icons/file.png
 )

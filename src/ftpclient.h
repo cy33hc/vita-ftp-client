@@ -31,8 +31,6 @@ struct ftphandle {
 	bool is_connected;
 };
 
-static SceUID keep_alive_thid = -1;
-
 class FtpClient {
 public:
 	enum accesstype
@@ -93,12 +91,14 @@ public:
 	void SetCallbackXferFunction(FtpCallbackXfer pointer);
 	void SetCallbackArg(void *arg);
 	void SetCallbackBytes(int64_t bytes);
+	bool isAlive();
 	bool IsConnected();
 	char* LastResponse();
 	int Quit();
 
 private:
 	ftphandle* mp_ftphandle;
+	SceDateTime time;
 
 	int ReadResponse(char c, ftphandle *nControl);
 	int Readline(char *buf, int max, ftphandle *nControl);

@@ -3,17 +3,18 @@
 
 #include "textures.h"
 
-Tex no_icon;
-Tex favorite_icon;
+Tex connect_icon;
+Tex disconnect_icon;
+Tex search_icon;
+Tex refresh_icon;
+
 Tex square_icon;
 Tex triangle_icon;
 Tex circle_icon;
 Tex cross_icon;
-Tex start_icon;
+
 Tex folder_icon;
-Tex selected_icon;
-Tex redbar_icon;
-Tex greenbar_icon;
+Tex file_icon;
 
 namespace Textures {
 	
@@ -39,6 +40,7 @@ namespace Textures {
 		}
 		int image_width = vita2d_texture_get_width(image);
 		int image_height = vita2d_texture_get_height(image);
+		vita2d_texture_set_filters(image, SCE_GXM_TEXTURE_FILTER_LINEAR, SCE_GXM_TEXTURE_FILTER_LINEAR);
 
 		texture->id = image;
 		texture->width = image_width;
@@ -48,38 +50,33 @@ namespace Textures {
 	}
 	
 	void Init(void) {
-		Textures::LoadImageFile("ux0:app/SMLA00001/noicon.png", &no_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/favorite.png", &favorite_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/square.png", &square_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/triangle.png", &triangle_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/circle.png", &circle_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/cross.png", &cross_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/start.png", &start_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/folder.png", &folder_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/selected.png", &selected_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/redbar.png", &redbar_icon);
-		Textures::LoadImageFile("ux0:app/SMLA00001/greenbar.png", &greenbar_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/connect.png", &connect_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/disconnect.png", &disconnect_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/search.png", &search_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/refresh.png", &refresh_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/square.png", &square_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/circle.png", &circle_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/triangle.png", &triangle_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/cross.png", &cross_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/folder.png", &folder_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/file.png", &file_icon);
 	}
 
 	void Exit(void) {
-		vita2d_free_texture(no_icon.id);
-		vita2d_free_texture(favorite_icon.id);
+		vita2d_free_texture(connect_icon.id);
+		vita2d_free_texture(disconnect_icon.id);
+		vita2d_free_texture(search_icon.id);
+		vita2d_free_texture(refresh_icon.id);
 		vita2d_free_texture(square_icon.id);
-		vita2d_free_texture(triangle_icon.id);
 		vita2d_free_texture(circle_icon.id);
+		vita2d_free_texture(triangle_icon.id);
 		vita2d_free_texture(cross_icon.id);
-		vita2d_free_texture(start_icon.id);
 		vita2d_free_texture(folder_icon.id);
-		vita2d_free_texture(selected_icon.id);
-		vita2d_free_texture(redbar_icon.id);
-		vita2d_free_texture(greenbar_icon.id);
+		vita2d_free_texture(file_icon.id);
 	}
 
 	void Free(Tex *texture) {
-		if (texture->id != no_icon.id)
-		{
-			vita2d_free_texture(texture->id);
-		}
+		vita2d_free_texture(texture->id);
 	}
 	
 }

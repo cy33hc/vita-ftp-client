@@ -30,6 +30,7 @@ FtpClient::FtpClient()
 		free(mp_ftphandle);
 	}
     ClearHandle();
+	sceRtcGetCurrentClock(&time, 0);
 }
 
 FtpClient::~FtpClient()
@@ -917,7 +918,8 @@ int FtpClient::Quit()
 	}
 	FtpSendCmd("QUIT", '2' , mp_ftphandle);
 	sceNetSocketClose(mp_ftphandle->handle);
-
+	mp_ftphandle->is_connected = false;
+	
 	return 1;
 }
 
@@ -1033,6 +1035,17 @@ int FtpClient::Chdir(const char *path)
 int FtpClient::Cdup()
 {
 	if (!FtpSendCmd("CDUP",'2',mp_ftphandle)) return 0;
+	return 1;
+}
+
+/*
+ * isAlive - send a NOOP cmd to check if connection is alive
+ *
+ * return 1 if successful, 0 otherwise
+ */
+bool FtpClient::isAlive()
+{
+	if (!FtpSendCmd("NOOP",'2',mp_ftphandle)) return 0;
 	return 1;
 }
 
@@ -1410,6 +1423,7 @@ int FtpClient::ParseDirEntry(char *line, FsEntry *dirEntry)
           token[2] = '\0';
           dirEntry->modified.hours = (uint8_t) strtoul(token, NULL, 10);
           dirEntry->modified.minutes = (uint8_t) strtoul(token + 3, NULL, 10);
+		  dirEntry->modified.year = time.year;
        }
        else
        {
@@ -1491,6 +1505,7 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 	if (nData != NULL)
 	{
 		ret = FtpRead(buf, 1024, nData);
+		debugNetPrintf(DEBUG, "%s", buf);
 		while (ret > 0)
 		{
 			FsEntry entry;
@@ -1535,10 +1550,6 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 			ret = FtpRead(buf, 1024, nData);
 		}
 		FtpClose(nData);
-	}
-	else
-	{
-		sprintf(mp_ftphandle->response, "300 Connection timeout");
 	}
 
 	return out;

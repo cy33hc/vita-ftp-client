@@ -7,12 +7,12 @@
 
 namespace Actions {
     
-    void RefreshLocalFiles()
+    void RefreshLocalFiles(bool apply_filter)
     {
         multi_selected_local_files.clear();
         local_files.clear();
         int err;
-        if (strlen(local_filter)>0)
+        if (strlen(local_filter)>0 && apply_filter)
         {
             std::vector<FsEntry> temp_files = FS::ListDir(local_directory, &err);
             std::string lower_filter = Util::ToLower(local_filter);
@@ -36,7 +36,7 @@ namespace Actions {
             sprintf(status_message, "Failed to read contents of directory \"%s\" or folder does not exists.", local_directory);
     }
 
-    void RefreshRemoteFiles()
+    void RefreshRemoteFiles(bool apply_filter)
     {
         if (!ftpclient->IsConnected())
         {
@@ -45,7 +45,7 @@ namespace Actions {
 
         multi_selected_remote_files.clear();
         remote_files.clear();
-        if (strlen(remote_filter)>0)
+        if (strlen(remote_filter)>0 && apply_filter)
         {
             std::vector<FsEntry> temp_files = ftpclient->ListDir(remote_directory);
             std::string lower_filter = Util::ToLower(remote_filter);
@@ -83,7 +83,7 @@ namespace Actions {
         {
             sprintf(local_directory, "%s", entry->path);
         }
-        RefreshLocalFiles();
+        RefreshLocalFiles(false);
         if (strcmp(entry->name, "..") != 0)
         {
             sprintf(local_file_to_select, "%s", local_files[0].name);
@@ -117,7 +117,7 @@ namespace Actions {
         {
             sprintf(remote_directory, "%s", entry->path);
         }
-        RefreshRemoteFiles();
+        RefreshRemoteFiles(false);
         if (strcmp(entry->name, "..") != 0)
         {
             sprintf(remote_file_to_select, "%s", remote_files[0].name);
@@ -129,7 +129,7 @@ namespace Actions {
     void HandleRefreshLocalFiles()
     {
         int prev_count = local_files.size();
-        RefreshLocalFiles();
+        RefreshLocalFiles(false);
         int new_count = local_files.size();
         if (prev_count != new_count)
         {
@@ -141,7 +141,7 @@ namespace Actions {
     void HandleRefreshRemoteFiles()
     {
         int prev_count = remote_files.size();
-        RefreshRemoteFiles();
+        RefreshRemoteFiles(false);
         int new_count = remote_files.size();
         if (prev_count != new_count)
         {
@@ -150,25 +150,13 @@ namespace Actions {
         selected_action = ACTION_NONE;
     }
 
-    void HandleClearLocalFilter()
-    {
-        sprintf(local_filter, "");
-        HandleRefreshLocalFiles();
-    }
-
-    void HandleClearRemoteFilter()
-    {
-        sprintf(remote_filter, "");
-        HandleRefreshRemoteFiles();
-    }
-
     void CreateNewLocalFolder(char *new_folder)
     {
         std::string folder = std::string(new_folder);
         folder = Util::Rtrim(Util::Trim(folder, " "), "/");
         std::string path = FS::GetPath(local_directory, folder);
         FS::MkDirs(path);
-        RefreshLocalFiles();
+        RefreshLocalFiles(false);
         sprintf(local_file_to_select, "%s", folder.c_str());
     }
 
@@ -178,7 +166,7 @@ namespace Actions {
         folder = Util::Rtrim(Util::Trim(folder, " "), "/");
         std::string path = FS::GetPath(remote_directory, folder);
         ftpclient->Mkdir(path.c_str());
-        RefreshRemoteFiles();
+        RefreshRemoteFiles(false);
         sprintf(remote_file_to_select, "%s", folder.c_str());
     }
 
@@ -188,7 +176,7 @@ namespace Actions {
         new_name = Util::Rtrim(Util::Trim(new_name, " "), "/");
         std::string path = FS::GetPath(local_directory, new_name);
         FS::Rename(old_path, path);
-        RefreshLocalFiles();
+        RefreshLocalFiles(false);
         sprintf(local_file_to_select, "%s", new_name.c_str());
     }
 
@@ -198,7 +186,7 @@ namespace Actions {
         new_name = Util::Rtrim(Util::Trim(new_name, " "), "/");
         std::string path = FS::GetPath(remote_directory, new_name);
         ftpclient->Rename(old_path, path.c_str());
-        RefreshRemoteFiles();
+        RefreshRemoteFiles(false);
         sprintf(remote_file_to_select, "%s", new_name.c_str());
     }
 
@@ -324,6 +312,7 @@ namespace Actions {
             }
         }
         activity_inprogess = false;
+        multi_selected_local_files.clear();
         Windows::SetModalMode(false);
         selected_action = ACTION_REFRESH_REMOTE_FILES;
         return sceKernelExitDeleteThread(0);
@@ -417,6 +406,7 @@ namespace Actions {
             }
         }
         activity_inprogess = false;
+        multi_selected_remote_files.clear();
         Windows::SetModalMode(false);
         selected_action = ACTION_REFRESH_LOCAL_FILES;
         return sceKernelExitDeleteThread(0);
@@ -429,6 +419,16 @@ namespace Actions {
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
 
+    int KeepAliveThread(SceSize args, void *argp)
+    {
+        if (!ftpclient->isAlive())
+        {
+            ftpclient->Quit();
+            sceKernelExitDeleteThread(0);
+        }
+        sceKernelDelayThread(30000000);
+    }
+
     void ConnectFTP()
     {
         CONFIG::SaveConfig();
@@ -436,8 +436,12 @@ namespace Actions {
         {
             if (ftpclient->Login(ftp_settings.username, ftp_settings.password))
             {
-                RefreshRemoteFiles();
+                RefreshRemoteFiles(false);
                 sprintf(status_message, "%s", ftpclient->LastResponse());
+
+                ftp_keep_alive_thid  = sceKernelCreateThread("download_files_thread", (SceKernelThreadEntry)KeepAliveThread, 0x10000100, 0x4000, 0, 0, NULL);
+		        if (ftp_keep_alive_thid >= 0)
+			        sceKernelStartThread(ftp_keep_alive_thid, 0, NULL);
             }
             else
             {
@@ -450,4 +454,32 @@ namespace Actions {
         }
         selected_action = ACTION_NONE;
     }
+
+    void DisconnectFTP()
+    {
+        ftpclient->Quit();
+        sceKernelDeleteThread(ftp_keep_alive_thid);
+        multi_selected_remote_files.clear();
+        remote_files.clear();
+        ftp_keep_alive_thid = -1;
+    }
+
+    void SelectAllLocalFiles()
+    {
+        for (int i=0; i<local_files.size(); i++)
+        {
+            if (strcmp(local_files[i].name, "..") != 0)
+                multi_selected_local_files.insert(local_files[i]);
+        }
+    }
+
+    void SelectAllRemoteFiles()
+    {
+         for (int i=0; i<remote_files.size(); i++)
+        {
+            if (strcmp(remote_files[i].name, "..") != 0)
+                multi_selected_remote_files.insert(remote_files[i]);
+        }
+    }
+
 }

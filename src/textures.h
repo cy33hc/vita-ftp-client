@@ -10,17 +10,18 @@ typedef struct {
     int height;
 } Tex;
 
-extern Tex no_icon;
-extern Tex favorite_icon;
+extern Tex connect_icon;
+extern Tex disconnect_icon;
+extern Tex search_icon;
+extern Tex refresh_icon;
+
 extern Tex square_icon;
 extern Tex triangle_icon;
 extern Tex circle_icon;
 extern Tex cross_icon;
-extern Tex start_icon;
+
 extern Tex folder_icon;
-extern Tex selected_icon;
-extern Tex redbar_icon;
-extern Tex greenbar_icon;
+extern Tex file_icon;
 
 namespace Textures {
     void LoadFonts(Tex *font_texture);
