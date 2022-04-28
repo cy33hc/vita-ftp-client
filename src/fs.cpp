@@ -241,7 +241,6 @@ namespace FS {
                 else
                 {
                     entry.file_size = dirent.d_stat.st_size;
-                    debugNetPrintf(DEBUG, "name %s, size %lld\n", entry.name, entry.file_size);
                     if (entry.file_size < 1024)
                     {
                         sprintf(entry.display_size, "%lldB", entry.file_size);

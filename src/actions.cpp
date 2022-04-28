@@ -4,7 +4,7 @@
 #include "windows.h"
 #include "ftpclient.h"
 #include "util.h"
-
+#include "debugnet.h"
 namespace Actions {
     
     void RefreshLocalFiles(bool apply_filter)
@@ -421,12 +421,15 @@ namespace Actions {
 
     int KeepAliveThread(SceSize args, void *argp)
     {
-        if (!ftpclient->isAlive())
+        while (true)
         {
-            ftpclient->Quit();
-            sceKernelExitDeleteThread(0);
+            if (!ftpclient->isAlive())
+            {
+                ftpclient->Quit();
+                sceKernelExitDeleteThread(0);
+            }
+            sceKernelDelayThread(30000000);
         }
-        sceKernelDelayThread(30000000);
     }
 
     void ConnectFTP()
@@ -439,7 +442,7 @@ namespace Actions {
                 RefreshRemoteFiles(false);
                 sprintf(status_message, "%s", ftpclient->LastResponse());
 
-                ftp_keep_alive_thid  = sceKernelCreateThread("download_files_thread", (SceKernelThreadEntry)KeepAliveThread, 0x10000100, 0x4000, 0, 0, NULL);
+                ftp_keep_alive_thid  = sceKernelCreateThread("ftp_keep_alive_thread", (SceKernelThreadEntry)KeepAliveThread, 0x10000100, 0x4000, 0, 0, NULL);
 		        if (ftp_keep_alive_thid >= 0)
 			        sceKernelStartThread(ftp_keep_alive_thid, 0, NULL);
             }
