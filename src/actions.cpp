@@ -232,6 +232,40 @@ namespace Actions {
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
 
+    int UploadFile(const char *src, const char* dest)
+    {
+        int ret;
+        int64_t filesize;
+        if (overwrite_type == OVERWRITE_PROMPT && ftpclient->Size(dest, &filesize, FtpClient::transfermode::image))
+        {
+            sprintf(confirm_message, "Overwrite %s?", dest);
+            confirm_state = CONFIRM_WAIT;
+            action_to_take = selected_action;
+            activity_inprogess = false;
+            while (confirm_state == CONFIRM_WAIT)
+            {
+                sceKernelDelayThread(100000);
+            }
+            activity_inprogess = true;
+            selected_action = action_to_take;
+        }
+        else if (overwrite_type == OVERWRITE_NONE && ftpclient->Size(dest, &filesize, FtpClient::transfermode::image))
+        {
+            confirm_state = CONFIRM_NO;
+        }
+        else
+        {
+            confirm_state = CONFIRM_YES;
+        }
+
+        if (confirm_state == CONFIRM_YES)
+        {
+            return ftpclient->Put(src, dest, FtpClient::transfermode::image, 0);
+        }
+
+        return 1;
+    }
+
     int Upload(const FsEntry &src, const char *dest)
     {
         if (stop_activity)
@@ -268,7 +302,7 @@ namespace Actions {
                 else
                 {
                     snprintf(activity_message, 1024, "Uploading %s", entries[i].path);
-                    ret = ftpclient->Put(entries[i].path, new_path, FtpClient::transfermode::image, 0);
+                    ret = UploadFile(entries[i].path, new_path);
                     if (ret <= 0)
                     {
                         sprintf(status_message, "Failed to upload file %s", entries[i].path);
@@ -285,7 +319,7 @@ namespace Actions {
             char *new_path = malloc(path_length);
             snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
             snprintf(activity_message, 1024, "Uploading %s", src.name);
-            ret = ftpclient->Put(src.path, new_path, FtpClient::transfermode::image, 0);
+            ret = UploadFile(src.path, new_path);
             if (ret <= 0)
             {
                 free(new_path);
