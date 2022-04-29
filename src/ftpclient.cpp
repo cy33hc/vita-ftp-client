@@ -101,7 +101,7 @@ int FtpClient::FtpSendCmd(const char *cmd, char expected_resp, ftphandle *nContr
 {
 	char buf[512];
 	int x;
-
+	tick = sceKernelGetProcessTimeWide();
 	if (!nControl->handle) return 0;
     if (nControl->dir != FTP_CLIENT_CONTROL) return 0;
 
@@ -158,7 +158,7 @@ int FtpClient::Readline(char *buf, int max, ftphandle *nControl)
 	int x, retval = 0;
 	char *end, *bp = buf;
 	int eof = 0;
-
+	tick = sceKernelGetProcessTimeWide();
 	if (max == 0) return 0;
 
 	do
@@ -750,7 +750,7 @@ int FtpClient::FtpXfer(const char *localfile, const char *path, ftphandle *nCont
 int FtpClient::FtpWrite(void *buf, int len, ftphandle *nData)
 {
 	int i;
-
+	tick = sceKernelGetProcessTimeWide();
 	if (nData->dir != FTP_CLIENT_WRITE) return 0;
 	if (nData->buf) i = Writeline(static_cast<char*>(buf), len, nData);
 	else
@@ -779,7 +779,7 @@ int FtpClient::FtpWrite(void *buf, int len, ftphandle *nData)
 int FtpClient::FtpRead(void *buf, int max, ftphandle *nData)
 {
 	int i;
-
+	tick = sceKernelGetProcessTimeWide();
 	if (nData->dir != FTP_CLIENT_READ)
 	return 0;
 	if (nData->buf) i = Readline(static_cast<char*>(buf), max, nData);
@@ -1009,11 +1009,11 @@ int FtpClient::Cdup()
 }
 
 /*
- * isAlive - send a NOOP cmd to check if connection is alive
+ * send a NOOP cmd to keep connection alive
  *
  * return 1 if successful, 0 otherwise
  */
-bool FtpClient::isAlive()
+bool FtpClient::Noop()
 {
 	if (!FtpSendCmd("NOOP",'2',mp_ftphandle)) return 0;
 	return 1;
@@ -1064,7 +1064,7 @@ int FtpClient::Rmdir(const char *path, bool recursive)
 		}
 		else
 		{
-			sprintf(activity_message, "Deleting %s, %s\n", list[i].path);
+			sprintf(activity_message, "Deleting %s\n", list[i].path);
 			ret = Delete(list[i].path);
 			if (ret == 0)
 			{
@@ -1537,4 +1537,9 @@ void FtpClient::SetCallbackArg(void *arg)
 void FtpClient::SetCallbackBytes(int64_t bytes)
 {
 	mp_ftphandle->cbbytes = bytes;
+}
+
+int FtpClient::GetIdleTime()
+{
+	return sceKernelGetProcessTimeWide() - tick;
 }

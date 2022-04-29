@@ -65,7 +65,6 @@ public:
     ~FtpClient();
     int Connect(const char *host, unsigned short port);
 	void SetConnmode(connmode mode);
-	int FtpSendCmd(const char *cmd, char expected_resp, ftphandle *nControl);
 	int Login(const char *user, const char *pass);
 	int Site(const char *cmd);
 	int Raw(const char *cmd);
@@ -82,24 +81,27 @@ public:
 	int Put(const char *inputfile, const char *path, transfermode mode, int64_t offset = 0);
 	int Rename(const char *src, const char *dst);
 	int Delete(const char *path);
-	ftphandle* RawOpen(const char *path, accesstype type, transfermode mode);
-	int RawClose(ftphandle* handle);
-	int RawWrite(void* buf, int len, ftphandle* handle);
-	int RawRead(void* buf, int max, ftphandle* handle);
 	std::vector<std::string> ListFiles(const char *path, bool includeSubDir=false);
 	std::vector<FsEntry> ListDir(const char *path);
 	void SetCallbackXferFunction(FtpCallbackXfer pointer);
 	void SetCallbackArg(void *arg);
 	void SetCallbackBytes(int64_t bytes);
-	bool isAlive();
+	bool Noop();
 	bool IsConnected();
 	char* LastResponse();
+	int GetIdleTime();
 	int Quit();
 
 private:
 	ftphandle* mp_ftphandle;
 	SceDateTime time;
+	SceUInt64 tick;
 
+	int FtpSendCmd(const char *cmd, char expected_resp, ftphandle *nControl);
+	ftphandle* RawOpen(const char *path, accesstype type, transfermode mode);
+	int RawClose(ftphandle* handle);
+	int RawWrite(void* buf, int len, ftphandle* handle);
+	int RawRead(void* buf, int max, ftphandle* handle);
 	int ReadResponse(char c, ftphandle *nControl);
 	int Readline(char *buf, int max, ftphandle *nControl);
 	int Writeline(char *buf, int len, ftphandle *nData);

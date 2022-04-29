@@ -40,6 +40,7 @@ namespace Actions {
     {
         if (!ftpclient->IsConnected())
         {
+            sprintf(status_message, "426 Connection closed");
             return;
         }
 
@@ -421,14 +422,19 @@ namespace Actions {
 
     int KeepAliveThread(SceSize args, void *argp)
     {
+        SceUInt64 idle;
         while (true)
         {
-            if (!ftpclient->isAlive())
+            idle = ftpclient->GetIdleTime();
+            if (idle > 30000000)
             {
-                ftpclient->Quit();
-                sceKernelExitDeleteThread(0);
+                if (!ftpclient->Noop())
+                {
+                    ftpclient->Quit();
+                    sceKernelExitDeleteThread(0);
+                }
             }
-            sceKernelDelayThread(30000000);
+            sceKernelDelayThread(500000);
         }
     }
 

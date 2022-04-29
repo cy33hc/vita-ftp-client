@@ -64,6 +64,7 @@ bool activity_inprogess = false;
 bool stop_activity = false;
 
 bool dont_prompt_overwrite = false;
+bool dont_prompt_overwrite_cb = false;
 int confirm_transfer_state = -1;
 int overwrite_type = OVERWRITE_PROMPT;
 
@@ -94,6 +95,7 @@ namespace Windows {
         sprintf(txt_server_port, "%d", ftp_settings.server_port);
         dont_prompt_overwrite = false;
         confirm_transfer_state = -1;
+        dont_prompt_overwrite_cb = false;
         overwrite_type = OVERWRITE_PROMPT;
 
         Actions::RefreshLocalFiles(false);
@@ -158,7 +160,7 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         if (!ftpclient->IsConnected())
         {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
+            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
             {
                 ftp_settings.server_port = atoi(txt_server_port);
                 selected_action = ACTION_CONNECT_FTP;
@@ -166,7 +168,7 @@ namespace Windows {
         }
         else
         {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
+            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
             {
                 selected_action = ACTION_DISCONNECT_FTP;
             }
@@ -585,6 +587,7 @@ namespace Windows {
                     SetModalMode(false);
                     selected_action = ACTION_UPLOAD;
                     confirm_transfer_state = 0;
+                    dont_prompt_overwrite_cb=dont_prompt_overwrite;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::Separator();
@@ -601,6 +604,7 @@ namespace Windows {
                     SetModalMode(false);
                     selected_action = ACTION_DOWNLOAD;
                     confirm_transfer_state = 0;
+                    dont_prompt_overwrite_cb=dont_prompt_overwrite;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::Separator();
@@ -677,19 +681,28 @@ namespace Windows {
                 ImGui::RadioButton("Don't Overwrite", &overwrite_type, 0);
                 ImGui::RadioButton("Ask for Confirmation", &overwrite_type, 1);
                 ImGui::RadioButton("Don't Ask for Confirmation", &overwrite_type, 2);
-                ImGui::Checkbox("Always use this option and don't ask again##dontaskagain", &dont_prompt_overwrite);
+                ImGui::Separator();
+                ImGui::Checkbox("Always use this option and don't ask again##dontaskagain", &dont_prompt_overwrite_cb);
+                ImGui::Separator();
 
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+120);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
                 if (ImGui::Button("Cancel", ImVec2(70, 0)))
                 {
                     confirm_transfer_state = 2;
+                    dont_prompt_overwrite_cb = dont_prompt_overwrite;
+                    selected_action = ACTION_NONE;
                     ImGui::CloseCurrentPopup();
                 };
+                if (ImGui::IsWindowAppearing())
+                {
+                    SetNavFocusHere();
+                }
                 ImGui::SameLine();
                 if (ImGui::Button("Continue", ImVec2(80, 0)))
                 {
                     confirm_transfer_state = 1;
+                    dont_prompt_overwrite = dont_prompt_overwrite_cb;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
@@ -851,9 +864,9 @@ namespace Windows {
             {
                 activity_inprogess = true;
                 stop_activity = false;
-                selected_action = ACTION_NONE;
                 Actions::UploadFiles();
                 confirm_transfer_state = -1;
+                selected_action = ACTION_NONE;
             }
             break;
         case ACTION_DOWNLOAD:
@@ -861,9 +874,9 @@ namespace Windows {
             {
                 activity_inprogess = true;
                 stop_activity = false;
-                selected_action = ACTION_NONE;
                 Actions::DownloadFiles();
                 confirm_transfer_state = -1;
+                selected_action = ACTION_NONE;
             }
             break;
         case ACTION_RENAME_LOCAL:
