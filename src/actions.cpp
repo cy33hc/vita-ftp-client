@@ -498,6 +498,7 @@ namespace Actions {
                 if (!ftpclient->Noop())
                 {
                     ftpclient->Quit();
+                    sprintf(status_message, "Remote Server has terminated the connection");
                     sceKernelExitDeleteThread(0);
                 }
             }
