@@ -162,6 +162,12 @@ namespace Windows {
         {
             selected_action = ACTION_UPDATE_SOFTWARE;
         }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Update Software");
+            ImGui::EndTooltip();
+        }
         ImGui::SameLine();
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+7);
@@ -172,12 +178,24 @@ namespace Windows {
                 ftp_settings.server_port = atoi(txt_server_port);
                 selected_action = ACTION_CONNECT_FTP;
             }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Connect FTP");
+                ImGui::EndTooltip();
+            }
         }
         else
         {
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
             {
                 selected_action = ACTION_DISCONNECT_FTP;
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Disconnect FTP");
+                ImGui::EndTooltip();
             }
             if (ImGui::IsWindowAppearing())
             {
@@ -287,11 +305,24 @@ namespace Windows {
         {
             selected_action = ACTION_APPLY_LOCAL_FILTER;
         }
-        ImGui::PopID(); ImGui::SameLine();
+        ImGui::PopID();
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Search");
+            ImGui::EndTooltip();
+        }
+        ImGui::SameLine();
         ImGui::PushID("refresh##local");
         if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_LOCAL_FILES;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Refresh");
+            ImGui::EndTooltip();
         }
         ImGui::PopID();
 
@@ -395,13 +426,26 @@ namespace Windows {
         {
             selected_action = ACTION_APPLY_REMOTE_FILTER;
         }
-        ImGui::PopID(); ImGui::SameLine();
+        ImGui::PopID();
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Search");
+            ImGui::EndTooltip();
+        }
+        ImGui::SameLine();
         ImGui::PushID("refresh##remote");
         if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_REMOTE_FILES;
         }
         ImGui::PopID();
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Refresh");
+            ImGui::EndTooltip();
+        }
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+10);
         ImGui::BeginChild(ImGui::GetID("Remote##ChildWindow"), ImVec2(452,315));
@@ -761,35 +805,56 @@ namespace Windows {
 
     void ShowProgressDialog()
     {
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        ImGuiStyle* style = &ImGui::GetStyle();
-        ImVec4* colors = style->Colors;
-
-        SetModalMode(true);
-        ImGui::OpenPopup("Progress");
-
-        ImGui::SetNextWindowPos(ImVec2(280, 200));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(430,80), ImVec2(430,200), NULL, NULL);
-        if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        if (activity_inprogess)
         {
-            ImVec2 cur_pos = ImGui::GetCursorPos();
-            ImGui::SetCursorPos(cur_pos);
-            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
-            ImGui::Text("%s", activity_message);
-            ImGui::SetCursorPosY(cur_pos.y + 60);
-            ImGui::Separator();
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-            if (ImGui::Button("Cancel"))
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            ImGuiStyle* style = &ImGui::GetStyle();
+            ImVec4* colors = style->Colors;
+
+            SetModalMode(true);
+            ImGui::OpenPopup("Progress");
+
+            ImGui::SetNextWindowPos(ImVec2(280, 200));
+            ImGui::SetNextWindowSizeConstraints(ImVec2(430,80), ImVec2(430,200), NULL, NULL);
+            if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                stop_activity = true;
-                SetModalMode(false);
+                ImVec2 cur_pos = ImGui::GetCursorPos();
+                ImGui::SetCursorPos(cur_pos);
+                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
+                ImGui::Text("%s", activity_message);
+                ImGui::SetCursorPosY(cur_pos.y + 60);
+                ImGui::Separator();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
+                if (ImGui::Button("Cancel"))
+                {
+                    stop_activity = true;
+                    SetModalMode(false);
+                }
+                if (stop_activity)
+                {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
+                }
+                ImGui::EndPopup();
             }
-            if (stop_activity)
+        }
+    }
+
+    void ShowUpdatesDialog()
+    {
+        if (handle_updates)
+        {
+            SetModalMode(true);
+
+            ImGui::OpenPopup("Updates");
+            ImGui::SetNextWindowPos(ImVec2(300, 200));
+            ImGui::SetNextWindowSize(ImVec2(400,90));
+            if (ImGui::BeginPopupModal("Updates", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar))
             {
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
+                ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(400,140));
+                ImGui::Text("%s", updater_message);
+                ImGui::EndPopup();
             }
-            ImGui::EndPopup();
         }
     }
 
@@ -807,11 +872,9 @@ namespace Windows {
             BrowserPanel();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
             StatusPanel();
-            if (activity_inprogess)
-            {
-                ShowProgressDialog();
-            }
+            ShowProgressDialog();
             ShowActionsDialog();
+            ShowUpdatesDialog();
         }
         ImGui::End();
 
@@ -934,6 +997,11 @@ namespace Windows {
             break;
         case ACTION_DISCONNECT_FTP:
             Actions::DisconnectFTP();
+            break;
+        case ACTION_UPDATE_SOFTWARE:
+            handle_updates = true;
+            selected_action = ACTION_NONE;
+            Updater::StartUpdaterThread();
             break;
         default:
             break;

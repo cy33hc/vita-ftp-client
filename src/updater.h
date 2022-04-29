@@ -11,8 +11,8 @@ extern "C" {
 
 #define ntohl __builtin_bswap32
 
-#define HEAD_BIN_PATH "ux0:app/FTPCLIENT/head.bin"
-#define PACKAGE_DIR "ux0:data/FTPCLIENT/tmp/pkg"
+#define HEAD_BIN_PATH "ux0:app/FTPCLI001/head.bin"
+#define PACKAGE_DIR "ux0:data/FTPCLI001/tmp/pkg"
 #define HEAD_BIN PACKAGE_DIR "/sce_sys/package/head.bin"
 
 typedef struct {

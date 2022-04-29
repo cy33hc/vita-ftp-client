@@ -6,9 +6,16 @@
 #include <algorithm>
 #include "fs.h"
 
-#define APP_ID "FTPCLIENT"
+#define APP_ID "FTPCLI001"
 #define DATA_PATH "ux0:data/" APP_ID
+#define APP_PATH "ux0:app/" APP_ID
 #define CONFIG_INI_FILE  DATA_PATH "/config.ini"
+
+#define FTP_CLIENT_VPK_URL "https://github.com/cy33hc/vita-ftp-client/releases/download/latest/ftpclient.vpk"
+#define FTP_CLIENT_VERSION_URL "https://github.com/cy33hc/vita-ftp-client/releases/download/latest/version.txt"
+#define FTP_CLIENT_VERSION_PATH APP_PATH "/version.txt"
+#define FTP_CLIENT_VERSION_UPDATE_PATH DATA_PATH "/tmp/version.txt"
+#define FTP_CLIENT_VPK_UPDATE_PATH DATA_PATH "/tmp/ftpclient.vpk"
 
 #define CONFIG_GLOBAL "Global"
 

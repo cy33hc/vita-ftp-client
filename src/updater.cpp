@@ -206,6 +206,52 @@ namespace Updater {
         unzClose(zipfile);
     }
 
+    int UpdateFtpClient()
+    {
+        std::vector<char> current_version;
+        std::vector<char> update_version;
+        char cur_ver[4];
+        char upd_ver[4];
+        int ret;
+
+        FS::MkDirs(FTP_CLIENT_VPK_UPDATE_PATH, true);
+        sprintf(updater_message, "Checking for Ftp Client Update");
+        ret = Net::DownloadFile(FTP_CLIENT_VERSION_URL, FTP_CLIENT_VERSION_UPDATE_PATH);
+        if (ret < 0)
+        {
+            sprintf(updater_message, "Failed to get updates");
+            return -1;
+        }
+
+        current_version = FS::Load(FTP_CLIENT_VERSION_PATH);
+        update_version = FS::Load(FTP_CLIENT_VERSION_UPDATE_PATH);
+        snprintf(cur_ver, 4, "%s", current_version.data());
+        snprintf(upd_ver, 4, "%s", update_version.data());
+        ret = 0;
+        if (strcmp(cur_ver, upd_ver) != 0)
+        {
+            sprintf(updater_message, "Downloading Ftp Client update");
+            ret = Net::DownloadFile(FTP_CLIENT_VPK_URL, FTP_CLIENT_VPK_UPDATE_PATH);
+            if (ret < 0)
+            {
+                sprintf(updater_message, "Failed to download update");
+                return -1;
+            }
+
+            sprintf(updater_message, "Extracting files");
+            ExtractFile(FTP_CLIENT_VPK_UPDATE_PATH, APP_PATH "/", nullptr);
+
+            FS::Save(FTP_CLIENT_VERSION_PATH, upd_ver, 4);
+            FS::Rm(FTP_CLIENT_VPK_UPDATE_PATH);
+            FS::Rm(FTP_CLIENT_VERSION_UPDATE_PATH);
+
+            return 1;
+        }
+        FS::Rm(FTP_CLIENT_VERSION_UPDATE_PATH);
+
+        return 0;
+    }
+
     void StartUpdaterThread()
     {
         updater_thid = sceKernelCreateThread("updater_thread", (SceKernelThreadEntry)UpdaterThread, 0x10000100, 0x4000, 0, 0, NULL);
@@ -216,16 +262,25 @@ namespace Updater {
     int UpdaterThread(SceSize args, void *argp)
     {
         int itls_enso_installed = CheckAppExist(ITLS_ENSO_APP_ID);
-        int vita_updated = 0;
+        int updated = 0;
         if (itls_enso_installed)
         {
+            updated = UpdateFtpClient();
         }
 
         if (!itls_enso_installed)
         {
-            sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download icons and updates");
+            sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download updates");
             sceKernelDelayThread(4000000);
         }
+
+        if (updated == 1)
+        {
+            sprintf(updater_message, "FtpClient updated successfully.\nRestarting after 3s");
+            sceKernelDelayThread(3000000);
+            sceAppMgrLoadExec("app0:eboot.bin", NULL, NULL);
+        }
+
         handle_updates = false;
         Windows::SetModalMode(false);
         return sceKernelExitDeleteThread(0);

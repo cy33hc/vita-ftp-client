@@ -47,7 +47,7 @@ namespace CONFIG {
         swap_xo = ReadBool(CONFIG_GLOBAL, CONFIG_SWAP_XO, false);
         WriteBool(CONFIG_GLOBAL, CONFIG_SWAP_XO, swap_xo);
 
-        bg_music_list_str = ReadString(CONFIG_GLOBAL, CONFIG_BACKGROUD_MUSIC, "ux0:/app/FTPCLIENT/music.ogg");
+        bg_music_list_str = ReadString(CONFIG_GLOBAL, CONFIG_BACKGROUD_MUSIC, "ux0:/app/FTPCLI001/music.ogg");
         ParseMultiValueString(bg_music_list_str, bg_music_list, false);
         WriteString(CONFIG_GLOBAL, CONFIG_BACKGROUD_MUSIC, bg_music_list_str);
 

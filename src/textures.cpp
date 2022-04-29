@@ -51,17 +51,17 @@ namespace Textures {
 	}
 	
 	void Init(void) {
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/connect.png", &connect_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/disconnect.png", &disconnect_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/search.png", &search_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/refresh.png", &refresh_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/square.png", &square_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/circle.png", &circle_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/triangle.png", &triangle_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/cross.png", &cross_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/folder.png", &folder_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/file.png", &file_icon);
-		Textures::LoadImageFile("ux0:app/FTPCLIENT/icons/update.png", &update_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/connect.png", &connect_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/disconnect.png", &disconnect_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/search.png", &search_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/refresh.png", &refresh_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/square.png", &square_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/circle.png", &circle_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/triangle.png", &triangle_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/cross.png", &cross_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/folder.png", &folder_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/file.png", &file_icon);
+		Textures::LoadImageFile("ux0:app/FTPCLI001/icons/update.png", &update_icon);
 	}
 
 	void Exit(void) {
