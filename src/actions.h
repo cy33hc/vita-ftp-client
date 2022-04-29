@@ -3,6 +3,11 @@
 
 #include "fs.h"
 
+#define CONFIRM_NONE -1
+#define CONFIRM_WAIT 0
+#define CONFIRM_YES 1
+#define CONFIRM_NO 2
+
 enum ACTIONS {
     ACTION_NONE = 0,
     ACTION_UPLOAD,

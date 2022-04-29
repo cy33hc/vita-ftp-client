@@ -30,9 +30,12 @@ extern char remote_file_to_select[];
 extern char local_filter[];
 extern char remote_filter[];
 extern char activity_message[];
+extern char confirm_message[];
 extern bool activity_inprogess;
 extern bool stop_activity;
+extern int confirm_state;
 extern int overwrite_type;
+extern ACTIONS action_to_take;
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
 

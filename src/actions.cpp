@@ -326,6 +326,39 @@ namespace Actions {
 			sceKernelStartThread(bk_activity_thid, 0, NULL);
     }
 
+    int DownloadFile(const char *src, const char* dest)
+    {
+        int ret;
+        if (overwrite_type == OVERWRITE_PROMPT && FS::FileExists(dest))
+        {
+            sprintf(confirm_message, "Overwrite %s?", dest);
+            confirm_state = CONFIRM_WAIT;
+            action_to_take = selected_action;
+            activity_inprogess = false;
+            while (confirm_state == CONFIRM_WAIT)
+            {
+                sceKernelDelayThread(100000);
+            }
+            activity_inprogess = true;
+            selected_action = action_to_take;
+        }
+        else if (overwrite_type == OVERWRITE_NONE && FS::FileExists(dest))
+        {
+            confirm_state = CONFIRM_NO;
+        }
+        else
+        {
+            confirm_state = CONFIRM_YES;
+        }
+
+        if (confirm_state == CONFIRM_YES)
+        {
+            return ftpclient->Get(dest, src, FtpClient::transfermode::image, 0);
+        }
+
+        return 1;
+    }
+
     int Download(const FsEntry &src, const char *dest)
     {
         if (stop_activity)
@@ -362,7 +395,7 @@ namespace Actions {
                 else
                 {
                     snprintf(activity_message, 1024, "Downloading %s", entries[i].path);
-                    ret = ftpclient->Get(new_path, entries[i].path, FtpClient::transfermode::image, 0);
+                    ret = DownloadFile(entries[i].path, new_path);
                     if (ret <= 0)
                     {
                         sprintf(status_message, "Failed to downloadload file %s", entries[i].path);
@@ -378,12 +411,12 @@ namespace Actions {
             int path_length = strlen(dest) + strlen(src.name) + 2;
             char *new_path = malloc(path_length);
             snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
-            snprintf(activity_message, 1024, "Downloading %s", src.name);
-            ret = ftpclient->Get(new_path, src.path, FtpClient::transfermode::image, 0);
+            snprintf(activity_message, 1024, "Downloading %s", src.path);
+            ret = DownloadFile(src.path, new_path);
             if (ret <= 0)
             {
                 free(new_path);
-                sprintf(status_message, "Failed to download file %s", src.name);
+                sprintf(status_message, "Failed to download file %s", src.path);
                 return 0;
             }
             free(new_path);
@@ -426,7 +459,7 @@ namespace Actions {
         while (true)
         {
             idle = ftpclient->GetIdleTime();
-            if (idle > 30000000)
+            if (idle > 60000000)
             {
                 if (!ftpclient->Noop())
                 {

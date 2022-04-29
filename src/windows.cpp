@@ -68,7 +68,7 @@ bool dont_prompt_overwrite_cb = false;
 int confirm_transfer_state = -1;
 int overwrite_type = OVERWRITE_PROMPT;
 
-int confirm_state = -1;
+int confirm_state = CONFIRM_NONE;
 char confirm_message[256];
 ACTIONS action_to_take = ACTION_NONE;
 
@@ -157,7 +157,14 @@ namespace Windows {
         char id[256];
         std::string hidden_password = std::string("xxxxxxxxxx");
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+7);
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
+        {
+            selected_action = ACTION_UPDATE_SOFTWARE;
+        }
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+7);
         if (!ftpclient->IsConnected())
         {
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
@@ -172,14 +179,18 @@ namespace Windows {
             {
                 selected_action = ACTION_DISCONNECT_FTP;
             }
+            if (ImGui::IsWindowAppearing())
+            {
+                SetNavFocusHere();
+            }
         }
         ImGui::SameLine();
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY()+8);
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
 
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY()+8);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
-        if (ImGui::Button(ftp_settings.server_ip, ImVec2(140, 0)))
+        if (ImGui::Button(ftp_settings.server_ip, ImVec2(160, 0)))
         {
             ime_single_field = ftp_settings.server_ip;
             ResetImeCallbacks();
@@ -191,7 +202,7 @@ namespace Windows {
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Username:"); ImGui::SameLine();
         sprintf(id, "%s##username", ftp_settings.username);
-        if (ImGui::Button(id, ImVec2(120, 0)))
+        if (ImGui::Button(id, ImVec2(110, 0)))
         {
             ime_single_field = ftp_settings.username;
             ResetImeCallbacks();
@@ -204,7 +215,7 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Password:"); ImGui::SameLine();
         sprintf(id, "%s##password", hidden_password.c_str());
-        if (ImGui::Button(id, ImVec2(100, 0)))
+        if (ImGui::Button(id, ImVec2(90, 0)))
         {
             ime_single_field = ftp_settings.password;
             ResetImeCallbacks();
@@ -230,13 +241,6 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Pasv:"); ImGui::SameLine();
         ImGui::Checkbox("##PasvMode", &ftp_settings.pasv_mode); ImGui::SameLine();
-
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+ 18);
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() -5);
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
-        {
-            selected_action = ACTION_UPDATE_SOFTWARE;
-        }
 
         ImGui::PopStyleVar();
         EndGroupPanel();
@@ -474,6 +478,7 @@ namespace Windows {
         ImGui::PushTextWrapPos(925);
         ImGui::Text(status_message);
         ImGui::PopTextWrapPos();
+        ImGui::SameLine();
         EndGroupPanel();
     }
 
@@ -537,7 +542,7 @@ namespace Windows {
                 flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
-                confirm_state = 0;
+                confirm_state = CONFIRM_WAIT;
                 sprintf(confirm_message, "Are you sure you want to delete this file(s)/folder(s) ?");
                 if (local_browser_selected)
                     action_to_take = ACTION_DELETE_LOCAL;
@@ -637,7 +642,7 @@ namespace Windows {
             ImGui::EndPopup();
         }
 
-        if (confirm_state == 0)
+        if (confirm_state == CONFIRM_WAIT)
         {
             ImGui::OpenPopup("Confirm");
             ImGui::SetNextWindowPos(ImVec2(280, 200));
@@ -650,25 +655,19 @@ namespace Windows {
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
                 if (ImGui::Button("No", ImVec2(60, 0)))
                 {
-                    confirm_state = 2;
+                    confirm_state = CONFIRM_NO;
+                    selected_action = ACTION_NONE;
                     ImGui::CloseCurrentPopup();
                 };
                 ImGui::SameLine();
                 if (ImGui::Button("Yes", ImVec2(60, 0)))
                 {
-                    confirm_state = 1;
+                    confirm_state = CONFIRM_YES;
+                    selected_action = action_to_take;
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
             }
-        }
-        else if (confirm_state > 0)
-        {
-            if (confirm_state == 2)
-                selected_action = ACTION_NONE;
-            else
-                selected_action = action_to_take;
-            confirm_state = -1;
         }
 
         if (confirm_transfer_state == 0)
@@ -770,15 +769,14 @@ namespace Windows {
         ImGui::OpenPopup("Progress");
 
         ImGui::SetNextWindowPos(ImVec2(280, 200));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(420,80), ImVec2(430,150), NULL, NULL);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(430,80), ImVec2(430,200), NULL, NULL);
         if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
+            ImVec2 cur_pos = ImGui::GetCursorPos();
+            ImGui::SetCursorPos(cur_pos);
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
             ImGui::Text("%s", activity_message);
-            if (stop_activity)
-            {
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
-            }
+            ImGui::SetCursorPosY(cur_pos.y + 60);
             ImGui::Separator();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
@@ -786,6 +784,10 @@ namespace Windows {
             {
                 stop_activity = true;
                 SetModalMode(false);
+            }
+            if (stop_activity)
+            {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
             }
             ImGui::EndPopup();
         }
