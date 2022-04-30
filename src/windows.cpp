@@ -321,7 +321,6 @@ namespace Windows {
         {
             ime_single_field = local_filter;
             ResetImeCallbacks();
-            ime_after_update = AfterLocalFileChangesCallback;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -454,7 +453,6 @@ namespace Windows {
         {
             ime_single_field = remote_filter;
             ResetImeCallbacks();
-            ime_after_update = AfterRemoteFileChangesCallback;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -952,9 +950,11 @@ namespace Windows {
             break;
         case ACTION_APPLY_LOCAL_FILTER:
             Actions::RefreshLocalFiles(true);
+            selected_action = ACTION_NONE;
             break;
         case ACTION_APPLY_REMOTE_FILTER:
             Actions::RefreshRemoteFiles(true);
+            selected_action = ACTION_NONE;
             break;
         case ACTION_NEW_LOCAL_FOLDER:
         case ACTION_NEW_REMOTE_FOLDER:
