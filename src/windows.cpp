@@ -61,6 +61,8 @@ int saved_selected_browser;
 bool activity_inprogess = false;
 bool stop_activity = false;
 bool file_transfering = false;
+bool set_focus_to_local = false;
+bool set_focus_to_remote = false;
 
 bool dont_prompt_overwrite = false;
 bool dont_prompt_overwrite_cb = false;
@@ -105,7 +107,7 @@ namespace Windows {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         SceCtrlData pad;
 
-        sceCtrlReadBufferPositiveExt2(0, &pad, 1);
+        sceCtrlPeekBufferPositive(0, &pad, 1);
 
         if ((pad_prev.buttons & SCE_CTRL_SQUARE) && !(pad.buttons & SCE_CTRL_SQUARE) && !paused)
         {
@@ -133,8 +135,18 @@ namespace Windows {
                     multi_selected_remote_files.insert(*selected_remote_file);
                 }
             }
-
         }
+
+        if ((pad_prev.buttons & SCE_CTRL_RTRIGGER) && !(pad.buttons & SCE_CTRL_RTRIGGER) && !paused)
+        {
+            set_focus_to_remote = true;
+        }
+
+        if ((pad_prev.buttons & SCE_CTRL_LTRIGGER) && !(pad.buttons & SCE_CTRL_LTRIGGER) && !paused)
+        {
+            set_focus_to_local = true;
+        }
+
 
         pad_prev = pad;
         previous_right = io.NavInputs[ImGuiNavInput_DpadRight];
@@ -350,6 +362,11 @@ namespace Windows {
         ImGui::Separator();
         ImGui::Columns(3, "Local##Columns", true);
         int i = 0;
+        if (set_focus_to_local)
+        {
+            set_focus_to_local = false;
+            ImGui::SetWindowFocus();
+        }
         for (std::vector<FsEntry>::iterator it=local_files.begin(); it!=local_files.end(); )
         {
             ImGui::SetColumnWidth(-1,25);
@@ -475,6 +492,11 @@ namespace Windows {
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+10);
         ImGui::BeginChild(ImGui::GetID("Remote##ChildWindow"), ImVec2(452,315));
+        if (set_focus_to_remote)
+        {
+            set_focus_to_remote = false;
+            ImGui::SetWindowFocus();
+        }
         ImGui::Separator();
         ImGui::Columns(3, "Remote##Columns", true);
         i=99999;
