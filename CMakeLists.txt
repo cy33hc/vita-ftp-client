@@ -13,7 +13,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Ftp Client")
 set(VITA_TITLEID  "FTPCLI001")
-set(VITA_VERSION  "01.11")
+set(VITA_VERSION  "01.12")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
