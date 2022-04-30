@@ -882,7 +882,7 @@ namespace Windows {
                 }
 
                 ImGui::Separator();
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+205);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
                 if (ImGui::Button("Cancel"))
                 {
