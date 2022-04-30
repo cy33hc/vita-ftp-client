@@ -21,7 +21,7 @@ typedef struct
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
-    uint16_t milliseconds;
+    uint32_t microsecond;
 } DateTime;
 
 struct FsEntry {

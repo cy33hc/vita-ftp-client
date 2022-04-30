@@ -6,7 +6,6 @@
 #include <inttypes.h>
 #include <ftpclient.h>
 #include <windows.h>
-#include <debugnet.h>
 #include <errno.h>
 
 #define FTP_CLIENT_BUFSIZ 16384
@@ -1514,7 +1513,8 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 						sprintf(entry.display_size, "%.2fGB", entry.file_size*1.0f/(1024*1024*1024));
 					}
 				}
-				out.push_back(entry);
+				if (strcmp(entry.name, "..")!=0 && strcmp(entry.name, ".")!=0)
+					out.push_back(entry);
 			}
 			ret = FtpRead(buf, 1024, nData);
 		}

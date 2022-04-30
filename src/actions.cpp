@@ -4,7 +4,7 @@
 #include "windows.h"
 #include "ftpclient.h"
 #include "util.h"
-#include "debugnet.h"
+
 namespace Actions {
     
     void RefreshLocalFiles(bool apply_filter)
@@ -302,6 +302,7 @@ namespace Actions {
                 else
                 {
                     snprintf(activity_message, 1024, "Uploading %s", entries[i].path);
+                    bytes_to_download = entries[i].file_size;
                     ret = UploadFile(entries[i].path, new_path);
                     if (ret <= 0)
                     {
@@ -319,6 +320,7 @@ namespace Actions {
             char *new_path = malloc(path_length);
             snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
             snprintf(activity_message, 1024, "Uploading %s", src.name);
+            bytes_to_download = src.file_size;
             ret = UploadFile(src.path, new_path);
             if (ret <= 0)
             {
@@ -333,6 +335,7 @@ namespace Actions {
 
     int UploadFilesThread(SceSize args, void *argp)
     {
+        file_transfering = true;
         for (std::set<FsEntry>::iterator it = multi_selected_local_files.begin(); it != multi_selected_local_files.end(); ++it)
         {
             if (it->isDir)
@@ -347,6 +350,7 @@ namespace Actions {
             }
         }
         activity_inprogess = false;
+        file_transfering = false;
         multi_selected_local_files.clear();
         Windows::SetModalMode(false);
         selected_action = ACTION_REFRESH_REMOTE_FILES;
@@ -363,6 +367,7 @@ namespace Actions {
     int DownloadFile(const char *src, const char* dest)
     {
         int ret;
+        ftpclient->Size(src, &bytes_to_download, FtpClient::transfermode::image);
         if (overwrite_type == OVERWRITE_PROMPT && FS::FileExists(dest))
         {
             sprintf(confirm_message, "Overwrite %s?", dest);
@@ -460,6 +465,7 @@ namespace Actions {
 
     int DownloadFilesThread(SceSize args, void *argp)
     {
+        file_transfering = true;
         for (std::set<FsEntry>::iterator it = multi_selected_remote_files.begin(); it != multi_selected_remote_files.end(); ++it)
         {
             if (it->isDir)
@@ -473,6 +479,7 @@ namespace Actions {
                 Download(*it, local_directory);
             }
         }
+        file_transfering = false;
         activity_inprogess = false;
         multi_selected_remote_files.clear();
         Windows::SetModalMode(false);
@@ -558,5 +565,4 @@ namespace Actions {
                 multi_selected_remote_files.insert(remote_files[i]);
         }
     }
-
 }

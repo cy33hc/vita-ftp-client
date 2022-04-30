@@ -18,8 +18,6 @@
 #include "net.h"
 #include "ftpclient.h"
 
-#include "debugnet.h"
-
 extern "C" {
 	#include "audio.h"
 }
@@ -178,7 +176,7 @@ unsigned int _newlib_heap_size_user = 128 * 1024 * 1024;
 
 int main(int, char **)
 {
-	debugNetInit(ip_server,port_server, DEBUG);
+	//debugNetInit(ip_server,port_server, DEBUG);
 
 	Net::Init();
 	Services::Init();

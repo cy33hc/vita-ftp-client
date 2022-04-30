@@ -13,7 +13,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Ftp Client")
 set(VITA_TITLEID  "FTPCLI001")
-set(VITA_VERSION  "01.00")
+set(VITA_VERSION  "01.10")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
@@ -46,7 +46,6 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  debugnet
   vorbisfile
   vorbis
   ogg

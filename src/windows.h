@@ -36,6 +36,7 @@ extern bool stop_activity;
 extern int confirm_state;
 extern int overwrite_type;
 extern ACTIONS action_to_take;
+extern bool file_transfering;
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
 

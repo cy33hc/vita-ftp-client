@@ -18,7 +18,6 @@
 #include <vitasdk.h>
 #include <cstdlib>
 #include "certs.h"
-//#include "debugnet.h"
 
 #define VITALAUNCHER_USER_AGENT "VitaLauncher/1.00 libhttp/1.1"
 #define NET_MEMORY_SIZE (4 * 1024 * 1024)

@@ -8,7 +8,7 @@
 #include "stdio.h"
 #include "util.h"
 #include "windows.h"
-#include "debugnet.h"
+
 #include <algorithm>
 
 #define ERRNO_EEXIST (int)(0x80010000 + SCE_NET_EEXIST)
@@ -222,7 +222,7 @@ namespace FS {
                 entry.modified.hours = dirent.d_stat.st_mtime.hour;
                 entry.modified.minutes = dirent.d_stat.st_mtime.minute;
                 entry.modified.seconds = dirent.d_stat.st_mtime.second;
-                entry.modified.milliseconds = dirent.d_stat.st_mtime.microsecond;
+                entry.modified.microsecond = dirent.d_stat.st_mtime.microsecond;
                 if (hasEndSlash(path.c_str()))
                 {
                     sprintf(entry.path, "%s%s", path.c_str(), entry.name);
@@ -383,7 +383,9 @@ namespace FS {
         const FsEntry *p2 = (FsEntry *)v2;
     	if (strcasecmp(p1->name, "..") == 0)
 	    	return -1;
-		
+		if (strcasecmp(p2->name, "..") == 0)
+            return 1;
+
         if (p1->isDir && !p2->isDir)
         {
             return -1;

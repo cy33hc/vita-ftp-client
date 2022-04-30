@@ -15,8 +15,6 @@
 #include "actions.h"
 #include "util.h"
 
-#include "debugnet.h"
-
 extern "C" {
 	#include "inifile.h"
 }
@@ -62,6 +60,7 @@ int selected_browser = 0;
 int saved_selected_browser;
 bool activity_inprogess = false;
 bool stop_activity = false;
+bool file_transfering = false;
 
 bool dont_prompt_overwrite = false;
 bool dont_prompt_overwrite_cb = false;
@@ -287,6 +286,7 @@ namespace Windows {
         
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
+        ImVec2 size = ImGui::CalcTextSize(local_directory);
         if (ImGui::Button(local_directory, ImVec2(280, 0)))
         {
             ime_single_field = local_directory;
@@ -295,6 +295,12 @@ namespace Windows {
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
+        }
+        if (size.x > 275 && ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text(local_directory);
+            ImGui::EndTooltip();
         }
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
@@ -408,6 +414,7 @@ namespace Windows {
 
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
+        size = ImGui::CalcTextSize(remote_directory);
         if (ImGui::Button(remote_directory, ImVec2(280, 0)))
         {
             ime_single_field = remote_directory;
@@ -416,6 +423,12 @@ namespace Windows {
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
+        }
+        if (size.x > 275 && ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text(remote_directory);
+            ImGui::EndTooltip();
         }
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
@@ -799,8 +812,10 @@ namespace Windows {
             
             ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Date:"); ImGui::SameLine();
             ImGui::SetCursorPosX(60);
-            ImGui::Text("%02d/%02d/%d %02d:%02d:%02d", item->modified.day, item->modified.month, item->modified.year,
-                         item->modified.hours, item->modified.minutes, item->modified.seconds);
+            SceDateTime local_time;
+            Util::convertUtcToLocalTime(&local_time, &item->modified);
+            ImGui::Text("%02d/%02d/%d %02d:%02d:%02d", local_time.day, local_time.month, local_time.year,
+                         local_time.hour, local_time.minute, local_time.second);
             ImGui::Separator();
 
             ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
@@ -827,7 +842,7 @@ namespace Windows {
             SetModalMode(true);
             ImGui::OpenPopup("Progress");
 
-            ImGui::SetNextWindowPos(ImVec2(250, 200));
+            ImGui::SetNextWindowPos(ImVec2(240, 200));
             ImGui::SetNextWindowSizeConstraints(ImVec2(480,80), ImVec2(480,200), NULL, NULL);
             if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
@@ -836,6 +851,14 @@ namespace Windows {
                 ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 430);
                 ImGui::Text("%s", activity_message);
                 ImGui::SetCursorPosY(cur_pos.y + 60);
+
+                if (file_transfering)
+                {
+                    static float progress = 0.0f;
+                    progress = (float)bytes_transfered / (float)bytes_to_download;
+                    ImGui::ProgressBar(progress, ImVec2(465, 0));
+                }
+
                 ImGui::Separator();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
