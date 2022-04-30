@@ -54,7 +54,7 @@ namespace CONFIG {
         enable_backgrou_music = ReadBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, true);
         WriteBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, enable_backgrou_music);
         
-        sprintf(ftp_settings.server_ip, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, "192.168.100.14"));
+        sprintf(ftp_settings.server_ip, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ""));
         WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ftp_settings.server_ip);
 
         ftp_settings.server_port = ReadInt(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PORT, 21);
@@ -63,10 +63,10 @@ namespace CONFIG {
         ftp_settings.pasv_mode = ReadBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, true);
         WriteBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, ftp_settings.pasv_mode);
         
-        sprintf(ftp_settings.username, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, "demo"));
+        sprintf(ftp_settings.username, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ""));
         WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ftp_settings.username);
 
-        sprintf(ftp_settings.password, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, "12345678"));
+        sprintf(ftp_settings.password, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ""));
         WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ftp_settings.password);
 
         sprintf(local_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, "ux0:"));

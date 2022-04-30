@@ -157,7 +157,7 @@ namespace Windows {
         char id[256];
         std::string hidden_password = std::string("xxxxxxxxxx");
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+7);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+4);
         if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_UPDATE_SOFTWARE;
@@ -168,47 +168,63 @@ namespace Windows {
             ImGui::Text("Update Software");
             ImGui::EndTooltip();
         }
-        ImGui::SameLine();
-
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+7);
-        if (!ftpclient->IsConnected())
+        if (ImGui::IsWindowAppearing())
         {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
-            {
-                ftp_settings.server_port = atoi(txt_server_port);
-                selected_action = ACTION_CONNECT_FTP;
-            }
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::BeginTooltip();
-                ImGui::Text("Connect FTP");
-                ImGui::EndTooltip();
-            }
-        }
-        else
-        {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
-            {
-                selected_action = ACTION_DISCONNECT_FTP;
-            }
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::BeginTooltip();
-                ImGui::Text("Disconnect FTP");
-                ImGui::EndTooltip();
-            }
-            if (ImGui::IsWindowAppearing())
-            {
-                SetNavFocusHere();
-            }
+            SetNavFocusHere();
         }
         ImGui::SameLine();
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
+        bool is_connected = ftpclient->IsConnected();
+        if (is_connected)
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
+        }
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
+        {
+            ftp_settings.server_port = atoi(txt_server_port);
+            selected_action = ACTION_CONNECT_FTP;
+        }
+        if (is_connected)
+        {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Connect FTP");
+            ImGui::EndTooltip();
+        }
+        ImGui::SameLine();
+
+        if (!is_connected)
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
+        }
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
+        {
+            selected_action = ACTION_DISCONNECT_FTP;
+        }
+        if (!is_connected)
+        {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Disconnect FTP");
+            ImGui::EndTooltip();
+        }
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+3);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+8);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
-        if (ImGui::Button(ftp_settings.server_ip, ImVec2(160, 0)))
+        if (ImGui::Button(ftp_settings.server_ip, ImVec2(155, 0)))
         {
             ime_single_field = ftp_settings.server_ip;
             ResetImeCallbacks();
@@ -230,7 +246,6 @@ namespace Windows {
         }
         ImGui::SameLine();
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Password:"); ImGui::SameLine();
         sprintf(id, "%s##password", hidden_password.c_str());
         if (ImGui::Button(id, ImVec2(90, 0)))
@@ -243,10 +258,9 @@ namespace Windows {
         }
         ImGui::SameLine();
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Port:"); ImGui::SameLine();
         sprintf(id, "%s##ServerPort", txt_server_port);
-        if (ImGui::Button(id, ImVec2(30, 0)))
+        if (ImGui::Button(id, ImVec2(50, 0)))
         {
             ime_single_field = txt_server_port;
             ResetImeCallbacks();
@@ -256,7 +270,6 @@ namespace Windows {
         }
         ImGui::SameLine();
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+10);
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Pasv:"); ImGui::SameLine();
         ImGui::Checkbox("##PasvMode", &ftp_settings.pasv_mode); ImGui::SameLine();
 
@@ -814,13 +827,13 @@ namespace Windows {
             SetModalMode(true);
             ImGui::OpenPopup("Progress");
 
-            ImGui::SetNextWindowPos(ImVec2(280, 200));
-            ImGui::SetNextWindowSizeConstraints(ImVec2(430,80), ImVec2(430,200), NULL, NULL);
+            ImGui::SetNextWindowPos(ImVec2(250, 200));
+            ImGui::SetNextWindowSizeConstraints(ImVec2(480,80), ImVec2(480,200), NULL, NULL);
             if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
                 ImVec2 cur_pos = ImGui::GetCursorPos();
                 ImGui::SetCursorPos(cur_pos);
-                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 480);
+                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 430);
                 ImGui::Text("%s", activity_message);
                 ImGui::SetCursorPosY(cur_pos.y + 60);
                 ImGui::Separator();
