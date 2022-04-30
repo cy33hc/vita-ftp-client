@@ -48,8 +48,8 @@ namespace Actions {
 
     void RefreshLocalFiles(bool apply_filter);
     void RefreshRemoteFiles(bool apply_filter);
-    void HandleChangeLocalDirectory(FsEntry *entry);
-    void HandleChangeRemoteDirectory(FsEntry *entry);
+    void HandleChangeLocalDirectory(const FsEntry entry);
+    void HandleChangeRemoteDirectory(const FsEntry entry);
     void HandleRefreshLocalFiles();
     void HandleRefreshRemoteFiles();
     void CreateNewLocalFolder(char *new_folder);

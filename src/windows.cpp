@@ -937,10 +937,10 @@ namespace Windows {
         switch (selected_action)
         {
         case ACTION_CHANGE_LOCAL_DIRECTORY:
-            Actions::HandleChangeLocalDirectory(selected_local_file);
+            Actions::HandleChangeLocalDirectory(*selected_local_file);
             break;
         case ACTION_CHANGE_REMOTE_DIRECTORY:
-            Actions::HandleChangeRemoteDirectory(selected_remote_file);
+            Actions::HandleChangeRemoteDirectory(*selected_remote_file);
             break;
         case ACTION_REFRESH_LOCAL_FILES:
             Actions::HandleRefreshLocalFiles();

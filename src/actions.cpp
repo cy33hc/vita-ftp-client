@@ -69,23 +69,23 @@ namespace Actions {
         sprintf(status_message, "%s", ftpclient->LastResponse());
     }
 
-    void HandleChangeLocalDirectory(FsEntry *entry)
+    void HandleChangeLocalDirectory(const FsEntry entry)
     {
-        if (!entry->isDir)
+        if (!entry.isDir)
             return;
 
-        if (strcmp(entry->name, "..") == 0)
+        if (strcmp(entry.name, "..") == 0)
         {
-            std::string temp_path = std::string(entry->directory);
+            std::string temp_path = std::string(entry.directory);
             sprintf(local_directory, "%s", temp_path.substr(0, temp_path.find_last_of("/")).c_str());
             sprintf(local_file_to_select, "%s", temp_path.substr(temp_path.find_last_of("/")+1).c_str());
         }
         else
         {
-            sprintf(local_directory, "%s", entry->path);
+            sprintf(local_directory, "%s", entry.path);
         }
         RefreshLocalFiles(false);
-        if (strcmp(entry->name, "..") != 0)
+        if (strcmp(entry.name, "..") != 0)
         {
             sprintf(local_file_to_select, "%s", local_files[0].name);
         }
@@ -93,14 +93,14 @@ namespace Actions {
         selected_action = ACTION_NONE;
     }
 
-    void HandleChangeRemoteDirectory(FsEntry *entry)
+    void HandleChangeRemoteDirectory(const FsEntry entry)
     {
-        if (!entry->isDir)
+        if (!entry.isDir)
             return;
             
-        if (strcmp(entry->name, "..") == 0)
+        if (strcmp(entry.name, "..") == 0)
         {
-            std::string temp_path = std::string(entry->directory);
+            std::string temp_path = std::string(entry.directory);
             if (temp_path.size()>1)
             {
                 if (temp_path.find_last_of("/") == 0)
@@ -116,10 +116,10 @@ namespace Actions {
         }
         else
         {
-            sprintf(remote_directory, "%s", entry->path);
+            sprintf(remote_directory, "%s", entry.path);
         }
         RefreshRemoteFiles(false);
-        if (strcmp(entry->name, "..") != 0)
+        if (strcmp(entry.name, "..") != 0)
         {
             sprintf(remote_file_to_select, "%s", remote_files[0].name);
         }
