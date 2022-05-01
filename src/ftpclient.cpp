@@ -316,6 +316,10 @@ int FtpClient::FtpAccess(const char *path, accesstype type, transfermode mode, f
 		strcpy(buf,"LIST");
 		dir = FTP_CLIENT_READ;
 		break;
+	case FtpClient::dirmlsd:
+		strcpy(buf,"MLSD");
+		dir = FTP_CLIENT_READ;
+		break;
 	case FtpClient::filereadappend:
 	case FtpClient::fileread:
 		strcpy(buf,"RETR");
@@ -694,7 +698,7 @@ int FtpClient::FtpXfer(const char *localfile, const char *path, ftphandle *nCont
 	if (localfile != NULL)
 	{
 		char ac[3] = "  ";
-		if ((type == FtpClient::dir) || (type == FtpClient::dirverbose)) { ac[0] = 'w'; ac[1] = '\0'; }
+		if ((type == FtpClient::dir) || (type == FtpClient::dirverbose) || (type == FtpClient::dirmlsd)) { ac[0] = 'w'; ac[1] = '\0'; }
 		if (type == FtpClient::fileread) { ac[0] = 'w'; ac[1] = '\0'; }
 		if (type == FtpClient::filewriteappend) { ac[0] = 'r'; ac[1] = '\0'; }
 		if (type == FtpClient::filereadappend) { ac[0] = 'a'; ac[1] = '\0'; }
@@ -1420,6 +1424,47 @@ int FtpClient::ParseDirEntry(char *line, FsEntry *dirEntry)
     //The directory entry is valid
     return 1;
  }
+
+int FtpClient::ParseMLSDDirEntry(char *line, FsEntry *dirEntry)
+{
+    char *p;
+    char *token;
+	char *facts;
+	char *keypair;
+	char key[128];
+	char value[128];
+
+    //Spilt string by space
+    facts = strtok_r(line, " ", &p);
+
+	// path is the rest of the line after space
+	token = strtok_r(p, "\r\n", &p);
+	snprintf(dirEntry->name, 256, "%s", token);
+
+	// split properties by semi-colon and get the key value pair
+	while ((keypair = strtok_r(facts, ";", &facts)))
+	{
+		sscanf(keypair, "%[^=]=%s", key, value);
+		if (strcasecmp(key, "type") == 0)
+		{
+			dirEntry->isDir = false;
+			if (strcasecmp(value, "dir")==0)
+			{
+				dirEntry->isDir = true;
+			}
+		}
+		else if (strcasecmp(key, "size")==0)
+		{
+			dirEntry->file_size = atoll(value);
+		}
+		else if (strcasecmp(key, "modify")==0)
+		{
+			sscanf(value, "%4d%2d%2d%2d%2d%2d", &dirEntry->modified.year, &dirEntry->modified.month, &dirEntry->modified.day,
+			                  &dirEntry->modified.hours, &dirEntry->modified.minutes, &dirEntry->modified.seconds);
+		}
+	}
+	return 1;
+}
 
 std::vector<std::string> FtpClient::ListFiles(const char *path, bool includeSubDir)
 {

@@ -37,6 +37,7 @@ public:
 	{
 		dir = 1,
 		dirverbose,
+		dirmlsd,
 		fileread,
 		filewrite,
 		filereadappend,
@@ -116,6 +117,7 @@ private:
 	int FtpRead(void *buf, int max, ftphandle *nData);
 	int FtpClose(ftphandle *nData);
 	int ParseDirEntry(char *line, FsEntry *dirEntry);
+	int ParseMLSDDirEntry(char *line, FsEntry *dirEntry);
 };
 
 #endif
