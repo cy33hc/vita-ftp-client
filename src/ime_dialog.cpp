@@ -22,7 +22,7 @@
 static int ime_dialog_running = 0;
 static int ime_dialog_option = 0;
 
-static const char *ime_initial_text = NULL;
+static char *ime_initial_text = NULL;
 static uint16_t ime_title_utf16[SCE_IME_DIALOG_MAX_TITLE_LENGTH];
 static uint16_t ime_initial_text_utf16[SCE_IME_DIALOG_MAX_TEXT_LENGTH];
 static uint16_t ime_input_text_utf16[SCE_IME_DIALOG_MAX_TEXT_LENGTH + 1];

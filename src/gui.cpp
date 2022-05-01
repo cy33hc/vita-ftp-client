@@ -17,24 +17,17 @@ namespace GUI {
 			vita2d_start_drawing();
 			vita2d_clear_screen();
 
-			if (gui_mode < GUI_MODE_IME)
-			{
-				ImGui_ImplVita2D_NewFrame();
-			}
-			
 			if (gui_mode == GUI_MODE_BROWSER)
 			{
+				ImGui_ImplVita2D_NewFrame();
 				Windows::HandleWindowInput();
 				Windows::MainWindow();
-			} else if (gui_mode == GUI_MODE_IME)
-			{
-				Windows::HandleImeInput();
-			}
-			
-			if (gui_mode < GUI_MODE_IME)
-			{
 				ImGui::Render();
 				ImGui_ImplVita2D_RenderDrawData(ImGui::GetDrawData());
+			}
+			else if (gui_mode == GUI_MODE_IME)
+			{
+				Windows::HandleImeInput();
 			}
 
 			vita2d_end_drawing();

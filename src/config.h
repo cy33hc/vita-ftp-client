@@ -46,9 +46,9 @@ extern bool swap_xo;
 extern std::vector<std::string> bg_music_list;
 extern bool enable_backgrou_music;
 extern FtpSettings ftp_settings;
-extern char local_directory[];
-extern char remote_directory[];
-extern char app_ver[];
+extern char local_directory[MAX_PATH_LENGTH];
+extern char remote_directory[MAX_PATH_LENGTH];
+extern char app_ver[6];
 
 namespace CONFIG {
     void LoadConfig();

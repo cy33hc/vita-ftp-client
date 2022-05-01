@@ -26,9 +26,10 @@ static ime_callback_t ime_callback = nullptr;
 static ime_callback_t ime_after_update = nullptr;
 static ime_callback_t ime_before_update = nullptr;
 static ime_callback_t ime_cancelled = nullptr;
-
 static std::vector<std::string> *ime_multi_field;
 static char* ime_single_field;
+static int ime_field_size;
+
 static char txt_server_port[6];
 
 bool handle_updates = false;
@@ -157,9 +158,7 @@ namespace Windows {
     {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
-        static char title[32];
-        sprintf(title, "v%s   Connection Settings", app_ver);
-        BeginGroupPanel(title, ImVec2(945, 100));
+        BeginGroupPanel("Connection Settings", ImVec2(945, 100));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
         char id[256];
         std::string hidden_password = std::string("xxxxxxxxxx");
@@ -235,6 +234,7 @@ namespace Windows {
         {
             ime_single_field = ftp_settings.server_ip;
             ResetImeCallbacks();
+            ime_field_size = 16;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server IP", ftp_settings.server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -247,6 +247,7 @@ namespace Windows {
         {
             ime_single_field = ftp_settings.username;
             ResetImeCallbacks();
+            ime_field_size = 32;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Username", ftp_settings.username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -259,6 +260,7 @@ namespace Windows {
         {
             ime_single_field = ftp_settings.password;
             ResetImeCallbacks();
+            ime_field_size = 24;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Password", ftp_settings.password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -271,6 +273,7 @@ namespace Windows {
         {
             ime_single_field = txt_server_port;
             ResetImeCallbacks();
+            ime_field_size = 5;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Server Port", txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -299,6 +302,7 @@ namespace Windows {
         {
             ime_single_field = local_directory;
             ResetImeCallbacks();
+            ime_field_size = 255;
             ime_after_update = AfterLocalFileChangesCallback;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
@@ -317,6 +321,7 @@ namespace Windows {
         {
             ime_single_field = local_filter;
             ResetImeCallbacks();
+            ime_field_size = 31;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -431,6 +436,7 @@ namespace Windows {
         {
             ime_single_field = remote_directory;
             ResetImeCallbacks();
+            ime_field_size = 255;
             ime_after_update = AfterRemoteFileChangesCallback;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
@@ -449,6 +455,7 @@ namespace Windows {
         {
             ime_single_field = remote_filter;
             ResetImeCallbacks();
+            ime_field_size = 31;
             ime_callback = SingleValueImeCallback;
             Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
@@ -915,7 +922,6 @@ namespace Windows {
     {
         Windows::SetupWindow();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-
         ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
         if (ImGui::Begin("Ftp Client", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar))
@@ -960,6 +966,7 @@ namespace Windows {
                 sprintf(editor_text, "");
                 ime_single_field = editor_text;
                 ResetImeCallbacks();
+                ime_field_size = 128;
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
@@ -1005,6 +1012,7 @@ namespace Windows {
                 sprintf(editor_text, multi_selected_local_files.begin()->name);
                 ime_single_field = editor_text;
                 ResetImeCallbacks();
+                ime_field_size = 128;
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
@@ -1018,6 +1026,7 @@ namespace Windows {
                 sprintf(editor_text, multi_selected_remote_files.begin()->name);
                 ime_single_field = editor_text;
                 ResetImeCallbacks();
+                ime_field_size = 128;
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
@@ -1070,37 +1079,40 @@ namespace Windows {
         ime_after_update = nullptr;
         ime_before_update = nullptr;
         ime_cancelled = nullptr;
+        ime_field_size = 1;
     }
 
     void HandleImeInput()
     {
-        int ime_result = Dialog::updateImeDialog();
-
-        if (ime_result == IME_DIALOG_RESULT_FINISHED || ime_result == IME_DIALOG_RESULT_CANCELED)
+        if (Dialog::isImeDialogRunning())
         {
-            if (ime_result == IME_DIALOG_RESULT_FINISHED)
+            int ime_result = Dialog::updateImeDialog();
+            if (ime_result == IME_DIALOG_RESULT_FINISHED || ime_result == IME_DIALOG_RESULT_CANCELED)
             {
-                if (ime_before_update != nullptr)
+                if (ime_result == IME_DIALOG_RESULT_FINISHED)
                 {
-                    ime_before_update(ime_result);
+                    if (ime_before_update != nullptr)
+                    {
+                        ime_before_update(ime_result);
+                    }
+
+                    if (ime_callback != nullptr)
+                    {
+                        ime_callback(ime_result);
+                    }
+
+                    if (ime_after_update != nullptr)
+                    {
+                        ime_after_update(ime_result);
+                    }
+                }
+                else if (ime_cancelled != nullptr)
+                {
+                    ime_cancelled(ime_result);
                 }
 
-                if (ime_callback != nullptr)
-                {
-                    ime_callback(ime_result);
-                }
-
-                if (ime_after_update != nullptr)
-                {
-                    ime_after_update(ime_result);
-                }
+                gui_mode = GUI_MODE_BROWSER;
             }
-            else if (ime_cancelled != nullptr)
-            {
-                ime_cancelled(ime_result);
-            }
-
-            gui_mode = GUI_MODE_BROWSER;
         }
     }
 
@@ -1109,7 +1121,7 @@ namespace Windows {
         if (ime_result == IME_DIALOG_RESULT_FINISHED)
         {
             char *new_value = (char *)Dialog::getImeDialogInputTextUTF8();
-            sprintf(ime_single_field, "%s", new_value);
+            snprintf(ime_single_field, ime_field_size, "%s", new_value);
         }
     }
 
@@ -1121,7 +1133,7 @@ namespace Windows {
             char *initial_value = (char *)Dialog::getImeDialogInitialText();
             if (strlen(initial_value) == 0)
             {
-                ime_multi_field->push_back(new_value);
+                ime_multi_field->push_back(std::string(new_value));
             }
             else
             {
@@ -1129,7 +1141,7 @@ namespace Windows {
                 {
                     if (strcmp((*ime_multi_field)[i].c_str(), initial_value)==0)
                     {
-                        (*ime_multi_field)[i] = new_value;
+                        (*ime_multi_field)[i] = std::string(new_value);
                     }
                 }
             }
@@ -1174,20 +1186,4 @@ namespace Windows {
     {
         selected_action = ACTION_NONE;
     }
-
-    void HandleUpdates()
-    {
-        SetModalMode(true);
-
-        ImGui::OpenPopup("Updates");
-        ImGui::SetNextWindowPos(ImVec2(300, 200));
-        ImGui::SetNextWindowSize(ImVec2(400,90));
-        if (ImGui::BeginPopupModal("Updates", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar))
-        {
-            ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(400,140));
-            ImGui::Text("%s", updater_message);
-            ImGui::EndPopup();
-        }
-    }
-
 }
