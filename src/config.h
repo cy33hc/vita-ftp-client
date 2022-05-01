@@ -19,7 +19,6 @@
 
 #define CONFIG_GLOBAL "Global"
 
-#define CONFIG_STYLE_NAME "style"
 #define CONFIG_DEFAULT_STYLE_NAME "Default"
 #define CONFIG_SWAP_XO "swap_xo"
 
