@@ -732,9 +732,10 @@ namespace Windows {
         {
             ImGui::OpenPopup("Confirm");
             ImGui::SetNextWindowPos(ImVec2(280, 200));
-            ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(430,200), NULL, NULL);
+            ImGui::SetNextWindowSizeConstraints(ImVec2(430,100), ImVec2(430,200), NULL, NULL);
             if (ImGui::BeginPopupModal("Confirm", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
+                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 420);
                 ImGui::Text(confirm_message);
                 ImGui::NewLine();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+150);
