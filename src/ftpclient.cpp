@@ -1470,7 +1470,8 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 	int ret;
 	mp_ftphandle->offset = 0;
 
-	nData = RawOpen(path, FtpClient::dirverbose, FtpClient::ascii);
+	Chdir(path);
+	nData = RawOpen("", FtpClient::dirverbose, FtpClient::ascii);
 	if (nData != NULL)
 	{
 		ret = FtpRead(buf, 1024, nData);
