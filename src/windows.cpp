@@ -162,8 +162,9 @@ namespace Windows {
     {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
-
-        BeginGroupPanel("Connection Settings", ImVec2(945, 100));
+        static char title[32];
+        sprintf(title, "v%s   Connection Settings", app_ver);
+        BeginGroupPanel(title, ImVec2(945, 100));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
         char id[256];
         std::string hidden_password = std::string("xxxxxxxxxx");

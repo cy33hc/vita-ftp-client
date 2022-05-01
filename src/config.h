@@ -49,6 +49,7 @@ extern bool enable_backgrou_music;
 extern FtpSettings ftp_settings;
 extern char local_directory[];
 extern char remote_directory[];
+extern char app_ver[];
 
 namespace CONFIG {
     void LoadConfig();

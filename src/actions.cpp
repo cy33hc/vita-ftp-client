@@ -543,6 +543,7 @@ namespace Actions {
     {
         ftpclient->Quit();
         sceKernelDeleteThread(ftp_keep_alive_thid);
+        selected_remote_file = nullptr;
         multi_selected_remote_files.clear();
         remote_files.clear();
         sprintf(remote_directory, "/");
