@@ -12,7 +12,6 @@
 
 #include "textures.h"
 #include "config.h"
-#include "style.h"
 #include "gui.h"
 #include "fs.h"
 #include "net.h"

@@ -5,7 +5,6 @@
 #include "windows.h"
 #include "textures.h"
 #include "fs.h"
-#include "style.h"
 #include "config.h"
 #include "ime_dialog.h"
 #include "gui.h"

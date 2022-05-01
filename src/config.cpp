@@ -5,7 +5,6 @@
 
 #include "config.h"
 #include "fs.h"
-#include "style.h"
 
 
 extern "C" {
@@ -32,17 +31,6 @@ namespace CONFIG {
         }
 
 		OpenIniFile (CONFIG_INI_FILE);
-
-        // Load styles
-        if (!FS::FolderExists(STYLES_FOLDER))
-        {
-            FS::MkDirs(STYLES_FOLDER);
-        }
-
-        char* style_value = ReadString(CONFIG_GLOBAL, CONFIG_STYLE_NAME, CONFIG_DEFAULT_STYLE_NAME);
-        sprintf(style_name, "%s", style_value);
-        WriteString(CONFIG_GLOBAL, CONFIG_STYLE_NAME, style_name);
-        Style::SetStylePath(style_name);
 
         // Load global config
         swap_xo = ReadBool(CONFIG_GLOBAL, CONFIG_SWAP_XO, false);
