@@ -85,6 +85,12 @@ namespace CONFIG {
         WriteIniFile(CONFIG_INI_FILE);
         CloseIniFile();
 
+        void *f = FS::OpenRead(FTP_CLIENT_VERSION_PATH);
+        memset(app_ver, 0, sizeof(app_ver));
+        FS::Read(f, app_ver, 3);
+        FS::Close(f);
+        float ver = atof(app_ver)/100;
+        sprintf(app_ver, "%.2f", ver);
     }
 
     void SaveConfig()
