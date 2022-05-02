@@ -39,8 +39,30 @@ extern ACTIONS action_to_take;
 extern bool file_transfering;
 
 static ImVector<ImRect> s_GroupPanelLabelStack;
+static SceKernelLwMutexWork local_lock;
+static SceKernelLwMutexWork remote_lock;
 
 namespace Windows {
+
+    inline void LockLocal()
+    {
+        sceKernelLockLwMutex(&local_lock, 1, NULL);
+    }
+
+    inline void UnlockLocal()
+    {
+        sceKernelUnlockLwMutex(&local_lock, 1);
+    }
+
+    inline void LockRemote()
+    {
+        sceKernelLockLwMutex(&remote_lock, 1, NULL);
+    }
+
+    inline void UnlockRemote()
+    {
+        sceKernelUnlockLwMutex(&remote_lock, 1);
+    }
 
     inline void SetupWindow(void) {
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Once);

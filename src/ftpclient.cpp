@@ -893,6 +893,12 @@ int FtpClient::Quit()
 	sceNetSocketClose(mp_ftphandle->handle);
 	mp_ftphandle->is_connected = false;
 
+	if (ftp_keep_alive_thid >= 0)
+	{
+		sceKernelDeleteThread(ftp_keep_alive_thid);
+		ftp_keep_alive_thid = -1;
+	}
+
 	return 1;
 }
 

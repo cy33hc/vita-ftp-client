@@ -9,6 +9,7 @@ namespace Actions {
     
     void RefreshLocalFiles(bool apply_filter)
     {
+        Windows::LockLocal();
         multi_selected_local_files.clear();
         local_files.clear();
         int err;
@@ -32,18 +33,21 @@ namespace Actions {
             local_files = FS::ListDir(local_directory, &err);
         }
         FS::Sort(local_files);
+        Windows::UnlockLocal();
         if (err != 0)
             sprintf(status_message, "Failed to read contents of directory \"%s\" or folder does not exists.", local_directory);
     }
 
     void RefreshRemoteFiles(bool apply_filter)
     {
-        if (!ftpclient->IsConnected())
+        if (!ftpclient->Noop())
         {
+            ftpclient->Quit();
             sprintf(status_message, "426 Connection closed");
             return;
         }
 
+        Windows::LockRemote();
         multi_selected_remote_files.clear();
         remote_files.clear();
         if (strlen(remote_filter)>0 && apply_filter)
@@ -66,6 +70,7 @@ namespace Actions {
             remote_files = ftpclient->ListDir(remote_directory);
         }
         FS::Sort(remote_files);
+        Windows::UnlockRemote();
         sprintf(status_message, "%s", ftpclient->LastResponse());
     }
 
@@ -212,16 +217,25 @@ namespace Actions {
 
     int DeleteSelectedRemotesFilesThread(SceSize args, void *argp)
     {
-        for (std::set<FsEntry>::iterator it = multi_selected_remote_files.begin(); it != multi_selected_remote_files.end(); ++it)
+        if (ftpclient->Noop())
         {
-            if (it->isDir)
-                ftpclient->Rmdir(it->path, true);
-            else
-                ftpclient->Delete(it->path);
+            for (std::set<FsEntry>::iterator it = multi_selected_remote_files.begin(); it != multi_selected_remote_files.end(); ++it)
+            {
+                if (it->isDir)
+                    ftpclient->Rmdir(it->path, true);
+                else
+                    ftpclient->Delete(it->path);
+            }
+            selected_action = ACTION_REFRESH_REMOTE_FILES;
+        }
+        else
+        {
+            ftpclient->Quit();
+            sprintf(status_message, "426 Connection closed");
+            DisconnectFTP();
         }
         activity_inprogess = false;
         Windows::SetModalMode(false);
-        selected_action = ACTION_REFRESH_REMOTE_FILES;
         return sceKernelExitDeleteThread(0);
     }
 
@@ -236,6 +250,14 @@ namespace Actions {
     {
         int ret;
         int64_t filesize;
+        ret = ftpclient->Noop();
+        if (ret == 0)
+        {
+            ftpclient->Quit();
+            sprintf(status_message, "426 Connection closed");
+            return ret;
+        }
+            
         if (overwrite_type == OVERWRITE_PROMPT && ftpclient->Size(dest, &filesize, FtpClient::transfermode::image))
         {
             sprintf(confirm_message, "Overwrite %s?", dest);
@@ -367,7 +389,13 @@ namespace Actions {
     int DownloadFile(const char *src, const char* dest)
     {
         int ret;
-        ftpclient->Size(src, &bytes_to_download, FtpClient::transfermode::image);
+        ret = ftpclient->Size(src, &bytes_to_download, FtpClient::transfermode::image);
+        if (ret == 0)
+        {
+            sprintf(status_message, "426 Connection closed");
+            return ret;
+        }
+
         if (overwrite_type == OVERWRITE_PROMPT && FS::FileExists(dest))
         {
             sprintf(confirm_message, "Overwrite %s?", dest);
@@ -481,7 +509,9 @@ namespace Actions {
         }
         file_transfering = false;
         activity_inprogess = false;
+        Windows::LockRemote();
         multi_selected_remote_files.clear();
+        Windows::UnlockRemote();
         Windows::SetModalMode(false);
         selected_action = ACTION_REFRESH_LOCAL_FILES;
         return sceKernelExitDeleteThread(0);
@@ -505,7 +535,7 @@ namespace Actions {
                 if (!ftpclient->Noop())
                 {
                     ftpclient->Quit();
-                    sprintf(status_message, "Remote Server has terminated the connection");
+                    sprintf(status_message, "426 Remote Server has terminated the connection");
                     sceKernelExitDeleteThread(0);
                 }
             }
@@ -534,7 +564,7 @@ namespace Actions {
         }
         else
         {
-            sprintf(status_message, "300 Failed. Connection timeout.");
+            sprintf(status_message, "426 Failed. Connection timeout.");
         }
         selected_action = ACTION_NONE;
     }
@@ -542,13 +572,11 @@ namespace Actions {
     void DisconnectFTP()
     {
         ftpclient->Quit();
-        sceKernelDeleteThread(ftp_keep_alive_thid);
         selected_remote_file = nullptr;
         multi_selected_remote_files.clear();
         remote_files.clear();
         sprintf(remote_directory, "/");
         sprintf(status_message, "");
-        ftp_keep_alive_thid = -1;
     }
 
     void SelectAllLocalFiles()
