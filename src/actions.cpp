@@ -98,7 +98,14 @@ namespace Actions {
     {
         if (!entry.isDir)
             return;
-            
+        
+        if (!ftpclient->Noop())
+        {
+            ftpclient->Quit();
+            sprintf(status_message, "426 Connection closed");
+            return;
+        }
+
         if (strcmp(entry.name, "..") == 0)
         {
             std::string temp_path = std::string(entry.directory);
