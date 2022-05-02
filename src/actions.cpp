@@ -9,7 +9,6 @@ namespace Actions {
     
     void RefreshLocalFiles(bool apply_filter)
     {
-        Windows::LockLocal();
         multi_selected_local_files.clear();
         local_files.clear();
         int err;
@@ -33,7 +32,6 @@ namespace Actions {
             local_files = FS::ListDir(local_directory, &err);
         }
         FS::Sort(local_files);
-        Windows::UnlockLocal();
         if (err != 0)
             sprintf(status_message, "Failed to read contents of directory \"%s\" or folder does not exists.", local_directory);
     }
@@ -47,7 +45,6 @@ namespace Actions {
             return;
         }
 
-        Windows::LockRemote();
         multi_selected_remote_files.clear();
         remote_files.clear();
         if (strlen(remote_filter)>0 && apply_filter)
@@ -70,7 +67,6 @@ namespace Actions {
             remote_files = ftpclient->ListDir(remote_directory);
         }
         FS::Sort(remote_files);
-        Windows::UnlockRemote();
         sprintf(status_message, "%s", ftpclient->LastResponse());
     }
 
@@ -509,9 +505,7 @@ namespace Actions {
         }
         file_transfering = false;
         activity_inprogess = false;
-        Windows::LockRemote();
         multi_selected_remote_files.clear();
-        Windows::UnlockRemote();
         Windows::SetModalMode(false);
         selected_action = ACTION_REFRESH_LOCAL_FILES;
         return sceKernelExitDeleteThread(0);

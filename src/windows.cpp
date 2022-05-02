@@ -94,8 +94,6 @@ namespace Windows {
         confirm_transfer_state = -1;
         dont_prompt_overwrite_cb = false;
         overwrite_type = OVERWRITE_PROMPT;
-        sceKernelCreateLwMutex(&local_lock, "local_lock", 2, 0, NULL);
-        sceKernelCreateLwMutex(&remote_lock, "remote_lock", 2, 0, NULL);
 
         Actions::RefreshLocalFiles(false);
     }
@@ -369,7 +367,6 @@ namespace Windows {
             set_focus_to_local = false;
             ImGui::SetWindowFocus();
         }
-        LockLocal();
         for (std::vector<FsEntry>::iterator it=local_files.begin(); it!=local_files.end(); )
         {
             ImGui::SetColumnWidth(-1,25);
@@ -425,7 +422,6 @@ namespace Windows {
             ++it;
             i++;
         }
-        UnlockLocal();
         ImGui::Columns(1);
         ImGui::EndChild();
         EndGroupPanel();
@@ -505,7 +501,6 @@ namespace Windows {
         ImGui::Separator();
         ImGui::Columns(3, "Remote##Columns", true);
         i=99999;
-        LockRemote();
         for (std::vector<FsEntry>::iterator it=remote_files.begin(); it!=remote_files.end(); )
         {
             ImGui::SetColumnWidth(-1,25);
@@ -562,7 +557,6 @@ namespace Windows {
             ++it;
             i++;
         }
-        UnlockRemote();
         ImGui::Columns(1);
         ImGui::EndChild();
         EndGroupPanel();
@@ -1064,15 +1058,11 @@ namespace Windows {
             selected_action = ACTION_NONE;
             break;
         case ACTION_LOCAL_CLEAR_ALL:
-            LockLocal();
             multi_selected_local_files.clear();
-            UnlockLocal();
             selected_action = ACTION_NONE;
             break;
         case ACTION_REMOTE_CLEAR_ALL:
-            LockRemote();
             multi_selected_remote_files.clear();
-            UnlockRemote();
             selected_action = ACTION_NONE;
             break;
         case ACTION_CONNECT_FTP:
