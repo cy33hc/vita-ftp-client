@@ -2,8 +2,8 @@
 #define LAUNCHER_WINDOWS_H
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui_vita2d/imgui_vita.h>
-#include <imgui_vita2d/imgui_internal.h>
+#include <imgui_vita.h>
+#include <imgui_internal.h>
 #include <set>
 #include "fs.h"
 #include "ftpclient.h"

@@ -1,22 +1,21 @@
-#include <imgui_vita2d/imgui_vita.h>
+#include <imgui_vita.h>
 #include <vita2d.h>
-
 #include "textures.h"
 
-Tex connect_icon;
-Tex disconnect_icon;
-Tex search_icon;
-Tex refresh_icon;
+GLuint connect_icon;
+GLuint disconnect_icon;
+GLuint search_icon;
+GLuint refresh_icon;
 
-Tex square_icon;
-Tex triangle_icon;
-Tex circle_icon;
-Tex cross_icon;
+GLuint square_icon;
+GLuint triangle_icon;
+GLuint circle_icon;
+GLuint cross_icon;
 
-Tex folder_icon;
-Tex file_icon;
-Tex update_icon;
-Tex catalog_icon;
+GLuint folder_icon;
+GLuint file_icon;
+GLuint update_icon;
+GLuint catalog_icon;
 
 namespace Textures {
 	
@@ -33,21 +32,20 @@ namespace Textures {
 					io.Fonts->GetGlyphRangesDefault());
 	}
 
-	bool LoadImageFile(const std::string filename, Tex *texture)
+	bool LoadImageFile(const std::string filename, GLuint *texture)
 	{
 		// Load from file
 		vita2d_texture *image = vita2d_load_PNG_file(filename.c_str());
 		if (image == NULL) {
-			return false;
+				return false;
 		}
-		int image_width = vita2d_texture_get_width(image);
-		int image_height = vita2d_texture_get_height(image);
-		vita2d_texture_set_filters(image, SCE_GXM_TEXTURE_FILTER_LINEAR, SCE_GXM_TEXTURE_FILTER_LINEAR);
+		int width = vita2d_texture_get_width(image);
+		int height = vita2d_texture_get_height(image);
 
-		texture->id = image;
-		texture->width = image_width;
-		texture->height = image_height;
-
+		glGenTextures(1, texture);
+		glBindTexture(GL_TEXTURE_2D, *texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, vita2d_texture_get_datap(image));
+		vita2d_free_texture(image);
 		return true;
 	}
 	
@@ -67,6 +65,7 @@ namespace Textures {
 	}
 
 	void Exit(void) {
+		/*
 		vita2d_free_texture(connect_icon.id);
 		vita2d_free_texture(disconnect_icon.id);
 		vita2d_free_texture(search_icon.id);
@@ -79,6 +78,7 @@ namespace Textures {
 		vita2d_free_texture(file_icon.id);
 		vita2d_free_texture(update_icon.id);
 		vita2d_free_texture(catalog_icon.id);
+		*/
 	}
 
 	void Free(Tex *texture) {

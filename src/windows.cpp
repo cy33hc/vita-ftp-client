@@ -1,4 +1,4 @@
-#include <imgui_vita2d/imgui_vita.h>
+#include <imgui_vita.h>
 #include <stdio.h>
 #include <algorithm>
 #include <set>
@@ -166,7 +166,7 @@ namespace Windows {
         std::string hidden_password = std::string("xxxxxxx");
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+4);
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)update_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_UPDATE_SOFTWARE;
         }
@@ -188,7 +188,7 @@ namespace Windows {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)connect_icon, ImVec2(25,25)))
         {
             ftp_settings->server_port = atoi(txt_server_port);
             selected_action = ACTION_CONNECT_FTP;
@@ -211,7 +211,7 @@ namespace Windows {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)disconnect_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_DISCONNECT_FTP;
         }
@@ -229,7 +229,7 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-        ImGui::SetNextItemWidth(70);
+        ImGui::PushItemWidth(70);
         if (ImGui::BeginCombo("##Site", last_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
         {
             for (int n = 0; n < sites.size(); n++)
@@ -248,6 +248,7 @@ namespace Windows {
             }
             ImGui::EndCombo();
         }
+        ImGui::PopItemWidth();
         ImGui::SameLine();
         //ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
@@ -353,7 +354,7 @@ namespace Windows {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()-17);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+5);
         ImGui::PushID("search##local");
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(search_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)search_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_APPLY_LOCAL_FILTER;
         }
@@ -366,7 +367,7 @@ namespace Windows {
         }
         ImGui::SameLine();
         ImGui::PushID("refresh##local");
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)refresh_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_LOCAL_FILES;
         }
@@ -396,11 +397,11 @@ namespace Windows {
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
             if (item.isDir)
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
+                ImGui::Image((void*)folder_icon, ImVec2(20,20));
             }
             else
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
+                ImGui::Image((void*)file_icon, ImVec2(20,20));
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,318);
@@ -425,7 +426,7 @@ namespace Windows {
                 if (strcmp(local_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.0f);
+                    //ImGui::SetScrollHereY(0.0f);
                     sprintf(local_file_to_select, "");
                 }
                 selected_browser |= LOCAL_BROWSER;
@@ -487,7 +488,7 @@ namespace Windows {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()-17);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+5);
         ImGui::PushID("search##remote");
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(search_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)search_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_APPLY_REMOTE_FILTER;
         }
@@ -500,7 +501,7 @@ namespace Windows {
         }
         ImGui::SameLine();
         ImGui::PushID("refresh##remote");
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
+        if (ImGui::ImageButton((void*)refresh_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_REMOTE_FILES;
         }
@@ -530,11 +531,11 @@ namespace Windows {
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
             if (item.isDir)
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
+                ImGui::Image((void*)folder_icon, ImVec2(20,20));
             }
             else
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
+                ImGui::Image((void*)file_icon, ImVec2(20,20));
             }
             ImGui::NextColumn();
 
@@ -560,7 +561,7 @@ namespace Windows {
                 if (strcmp(remote_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.0f);
+                    //ImGui::SetScrollHereY(0.0f);
                     sprintf(remote_file_to_select, "");
                 }
                 selected_browser |= REMOTE_BROWSER;
@@ -660,7 +661,7 @@ namespace Windows {
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() > 0) ||
                 (remote_browser_selected && multi_selected_remote_files.size() > 0))
-                flags = ImGuiSelectableFlags_None;
+                flags = 0;
             if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 confirm_state = CONFIRM_WAIT;
@@ -675,7 +676,7 @@ namespace Windows {
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() == 1) ||
                 (remote_browser_selected && multi_selected_remote_files.size() == 1))
-                flags = ImGuiSelectableFlags_None;
+                flags = 0;
             if (ImGui::Selectable("Rename##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -689,7 +690,7 @@ namespace Windows {
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
-                flags = ImGuiSelectableFlags_None;
+                flags = 0;
             if (ImGui::Selectable("New Folder##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -706,7 +707,7 @@ namespace Windows {
             {
                 if (multi_selected_local_files.size() > 0)
                 {
-                    flags = ImGuiSelectableFlags_None;
+                    flags = 0;
                 }
                 if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
@@ -723,7 +724,7 @@ namespace Windows {
             {
                 if (multi_selected_remote_files.size() > 0)
                 {
-                    flags = ImGuiSelectableFlags_None;
+                    flags = 0;
                 }
                 if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
@@ -738,7 +739,7 @@ namespace Windows {
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
-                flags = ImGuiSelectableFlags_None;
+                flags = 0;
             if (ImGui::Selectable("Properties##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -950,7 +951,7 @@ namespace Windows {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
-        if (ImGui::Begin("Ftp Client", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar))
+        if (ImGui::Begin("Ftp Client", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar))
         {
             ConnectionPanel();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);

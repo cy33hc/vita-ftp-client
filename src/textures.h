@@ -10,24 +10,24 @@ typedef struct {
     int height;
 } Tex;
 
-extern Tex connect_icon;
-extern Tex disconnect_icon;
-extern Tex search_icon;
-extern Tex refresh_icon;
+extern GLuint connect_icon;
+extern GLuint disconnect_icon;
+extern GLuint search_icon;
+extern GLuint refresh_icon;
 
-extern Tex square_icon;
-extern Tex triangle_icon;
-extern Tex circle_icon;
-extern Tex cross_icon;
+extern GLuint square_icon;
+extern GLuint triangle_icon;
+extern GLuint circle_icon;
+extern GLuint cross_icon;
 
-extern Tex folder_icon;
-extern Tex file_icon;
-extern Tex update_icon;
-extern Tex catalog_icon;
+extern GLuint folder_icon;
+extern GLuint file_icon;
+extern GLuint update_icon;
+extern GLuint catalog_icon;
 
 namespace Textures {
     void LoadFonts(Tex *font_texture);
-    bool LoadImageFile(const std::string filename, Tex *texture);
+    bool LoadImageFile(const std::string filename, GLuint *texture);
     void Init(void);
     void Exit(void);
     void Free(Tex *texture);

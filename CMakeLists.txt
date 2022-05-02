@@ -45,18 +45,22 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
+  imgui
   vorbisfile
   vorbis
   ogg
   vita2d
+  vitaGL
+  vitashark
+  mathneon
   png
-  imgui_vita2d
   stdc++
   c
   z
   SceCommonDialog_stub
   SceLibKernel_stub
   SceDisplay_stub
+  SceKernelDmacMgr_stub
   SceGxm_stub
   SceSysmodule_stub
   SceCtrl_stub
