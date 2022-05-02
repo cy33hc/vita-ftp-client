@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <map>
 #include "fs.h"
 
 #define APP_ID "FTPCLI001"
@@ -25,16 +26,20 @@
 #define CONFIG_BACKGROUD_MUSIC "backgroud_music"
 #define CONFIG_ENABLE_BACKGROUND_MUSIC "enable_backgroud_music"
 
+#define CONFIG_FTP_SERVER_NAME "ftp_server_name"
 #define CONFIG_FTP_SERVER_IP "ftp_server_ip"
 #define CONFIG_FTP_SERVER_PORT "ftp_server_port"
 #define CONFIG_FTP_SERVER_USER "ftp_server_user"
 #define CONFIG_FTP_SERVER_PASSWORD "ftp_server_password"
 #define CONFIG_FTP_TRANSFER_MODE "ftp_transfer_mode"
 
+#define CONFIG_LAST_SITE "last_site"
+
 #define CONFIG_LOCAL_DIRECTORY "local_directory"
 #define CONFIG_REMOTE_DIRECTORY "remote_directory"
 
 struct FtpSettings {
+    char site_name[32];
     char server_ip[16];
     char username[33];
     char password[25];
@@ -45,10 +50,13 @@ struct FtpSettings {
 extern bool swap_xo;
 extern std::vector<std::string> bg_music_list;
 extern bool enable_backgrou_music;
-extern FtpSettings ftp_settings;
+extern std::vector<std::string> sites;
+extern std::map<std::string,FtpSettings> site_settings;
 extern char local_directory[MAX_PATH_LENGTH];
 extern char remote_directory[MAX_PATH_LENGTH];
 extern char app_ver[6];
+extern char last_site[32];
+extern FtpSettings *ftp_settings;
 
 namespace CONFIG {
     void LoadConfig();

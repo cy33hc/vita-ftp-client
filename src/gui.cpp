@@ -22,6 +22,7 @@ namespace GUI {
 				ImGui_ImplVita2D_NewFrame();
 				Windows::HandleWindowInput();
 				Windows::MainWindow();
+				Windows::ExecuteActions();
 				ImGui::Render();
 				ImGui_ImplVita2D_RenderDrawData(ImGui::GetDrawData());
 			}

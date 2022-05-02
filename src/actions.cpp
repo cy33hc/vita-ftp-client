@@ -90,7 +90,6 @@ namespace Actions {
         {
             sprintf(local_file_to_select, "%s", local_files[0].name);
         }
-        selected_local_file = nullptr;
         selected_action = ACTION_NONE;
     }
 
@@ -131,7 +130,6 @@ namespace Actions {
         {
             sprintf(remote_file_to_select, "%s", remote_files[0].name);
         }
-        selected_remote_file = nullptr;
         selected_action = ACTION_NONE;
     }
 
@@ -548,9 +546,9 @@ namespace Actions {
     void ConnectFTP()
     {
         CONFIG::SaveConfig();
-        if (ftpclient->Connect(ftp_settings.server_ip, ftp_settings.server_port))
+        if (ftpclient->Connect(ftp_settings->server_ip, ftp_settings->server_port))
         {
-            if (ftpclient->Login(ftp_settings.username, ftp_settings.password))
+            if (ftpclient->Login(ftp_settings->username, ftp_settings->password))
             {
                 RefreshRemoteFiles(false);
                 sprintf(status_message, "%s", ftpclient->LastResponse());
@@ -574,7 +572,6 @@ namespace Actions {
     void DisconnectFTP()
     {
         ftpclient->Quit();
-        selected_remote_file = nullptr;
         multi_selected_remote_files.clear();
         remote_files.clear();
         sprintf(remote_directory, "/");

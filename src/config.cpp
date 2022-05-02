@@ -14,10 +14,13 @@ extern "C" {
 bool swap_xo;
 std::vector<std::string> bg_music_list;
 bool enable_backgrou_music;
-FtpSettings ftp_settings;
+FtpSettings *ftp_settings;
 char local_directory[MAX_PATH_LENGTH];
 char remote_directory[MAX_PATH_LENGTH];
 char app_ver[6];
+char last_site[32];
+std::vector<std::string> sites;
+std::map<std::string,FtpSettings> site_settings;
 
 namespace CONFIG {
 
@@ -29,6 +32,8 @@ namespace CONFIG {
         {
             FS::MkDirs(DATA_PATH);
         }
+
+        sites = { "Site 1", "Site 2", "Site 3", "Site 4", "Site 5", "Site 6", "Site 7", "Site 8", "Site 9"};
 
 		OpenIniFile (CONFIG_INI_FILE);
 
@@ -43,26 +48,39 @@ namespace CONFIG {
         enable_backgrou_music = ReadBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, false);
         WriteBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, enable_backgrou_music);
         
-        sprintf(ftp_settings.server_ip, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ""));
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ftp_settings.server_ip);
-
-        ftp_settings.server_port = ReadInt(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PORT, 21);
-        WriteInt(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PORT, ftp_settings.server_port);
-
-        ftp_settings.pasv_mode = ReadBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, true);
-        WriteBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, ftp_settings.pasv_mode);
-        
-        sprintf(ftp_settings.username, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ""));
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ftp_settings.username);
-
-        sprintf(ftp_settings.password, "%s", ReadString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ""));
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ftp_settings.password);
-
         sprintf(local_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, "ux0:"));
         WriteString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, local_directory);
 
         sprintf(remote_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_REMOTE_DIRECTORY, "/"));
         WriteString(CONFIG_GLOBAL, CONFIG_REMOTE_DIRECTORY, remote_directory);
+
+        for (int i=0; i <sites.size(); i++)
+        {
+            FtpSettings setting;
+            sprintf(setting.site_name, "%s", sites[i].c_str());
+
+            sprintf(setting.server_ip, "%s", ReadString(sites[i].c_str(), CONFIG_FTP_SERVER_IP, ""));
+            WriteString(sites[i].c_str(), CONFIG_FTP_SERVER_IP, setting.server_ip);
+
+            setting.server_port = ReadInt(sites[i].c_str(), CONFIG_FTP_SERVER_PORT, 21);
+            WriteInt(sites[i].c_str(), CONFIG_FTP_SERVER_PORT, setting.server_port);
+
+            setting.pasv_mode = ReadBool(sites[i].c_str(), CONFIG_FTP_TRANSFER_MODE, true);
+            WriteBool(sites[i].c_str(), CONFIG_FTP_TRANSFER_MODE, setting.pasv_mode);
+            
+            sprintf(setting.username, "%s", ReadString(sites[i].c_str(), CONFIG_FTP_SERVER_USER, ""));
+            WriteString(sites[i].c_str(), CONFIG_FTP_SERVER_USER, setting.username);
+
+            sprintf(setting.password, "%s", ReadString(sites[i].c_str(), CONFIG_FTP_SERVER_PASSWORD, ""));
+            WriteString(sites[i].c_str(), CONFIG_FTP_SERVER_PASSWORD, setting.password);
+
+            site_settings.insert(std::make_pair(sites[i], setting));
+        }
+
+        sprintf(last_site, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LAST_SITE, sites[0].c_str()));
+        WriteString(CONFIG_GLOBAL, CONFIG_LAST_SITE, last_site);
+
+        ftp_settings = &site_settings[std::string(last_site)];
 
         WriteIniFile(CONFIG_INI_FILE);
         CloseIniFile();
@@ -73,12 +91,12 @@ namespace CONFIG {
     {
 		OpenIniFile (CONFIG_INI_FILE);
 
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_IP, ftp_settings.server_ip);
-        WriteInt(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PORT, ftp_settings.server_port);
-        WriteBool(CONFIG_GLOBAL, CONFIG_FTP_TRANSFER_MODE, ftp_settings.pasv_mode);
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_USER, ftp_settings.username);
-        WriteString(CONFIG_GLOBAL, CONFIG_FTP_SERVER_PASSWORD, ftp_settings.password);
-
+        WriteString(last_site, CONFIG_FTP_SERVER_IP, ftp_settings->server_ip);
+        WriteInt(last_site, CONFIG_FTP_SERVER_PORT, ftp_settings->server_port);
+        WriteBool(last_site, CONFIG_FTP_TRANSFER_MODE, ftp_settings->pasv_mode);
+        WriteString(last_site, CONFIG_FTP_SERVER_USER, ftp_settings->username);
+        WriteString(last_site, CONFIG_FTP_SERVER_PASSWORD, ftp_settings->password);
+        WriteString(CONFIG_GLOBAL, CONFIG_LAST_SITE, last_site);
         WriteIniFile(CONFIG_INI_FILE);
         CloseIniFile();
     }

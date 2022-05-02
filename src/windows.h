@@ -21,8 +21,8 @@ extern std::vector<FsEntry> local_files;
 extern std::vector<FsEntry> remote_files;
 extern std::set<FsEntry> multi_selected_local_files;
 extern std::set<FsEntry> multi_selected_remote_files;
-extern FsEntry *selected_local_file;
-extern FsEntry *selected_remote_file;
+extern FsEntry selected_local_file;
+extern FsEntry selected_remote_file;
 extern ACTIONS selected_action;
 extern char status_message[];
 extern char local_file_to_select[];
@@ -45,11 +45,6 @@ namespace Windows {
     inline void SetupWindow(void) {
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y), ImGuiCond_Once);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    };
-
-    inline void EndSetupWindow(void) {
-        ImGui::PopStyleVar();
     };
 
     inline void SetNavFocusHere()
@@ -182,6 +177,7 @@ namespace Windows {
     void HandleWindowInput();
     void MainWindow();
     void HandleImeInput();
+    void ExecuteActions();
     void ResetImeCallbacks();
     void SetModalMode(bool modal);
 
