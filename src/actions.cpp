@@ -388,6 +388,7 @@ namespace Actions {
         ret = ftpclient->Size(src, &bytes_to_download, FtpClient::transfermode::image);
         if (ret == 0)
         {
+            ftpclient->Quit();
             sprintf(status_message, "426 Connection closed");
             return ret;
         }
