@@ -426,7 +426,7 @@ namespace Windows {
                 if (strcmp(local_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    //ImGui::SetScrollHereY(0.0f);
+                    ImGui::SetScrollHereY(0.0f);
                     sprintf(local_file_to_select, "");
                 }
                 selected_browser |= LOCAL_BROWSER;
@@ -561,7 +561,7 @@ namespace Windows {
                 if (strcmp(remote_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    //ImGui::SetScrollHereY(0.0f);
+                    ImGui::SetScrollHereY(0.0f);
                     sprintf(remote_file_to_select, "");
                 }
                 selected_browser |= REMOTE_BROWSER;
@@ -951,7 +951,7 @@ namespace Windows {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
-        if (ImGui::Begin("Ftp Client", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar))
+        if (ImGui::Begin("Ftp Client", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar))
         {
             ConnectionPanel();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);

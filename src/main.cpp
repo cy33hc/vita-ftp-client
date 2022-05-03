@@ -34,6 +34,18 @@ namespace Services
 		io.KeyRepeatRate = 0.005f;
 		ImGui::StyleColorsDark();
 		auto &style = ImGui::GetStyle();
+		ImGui::GetIO().Fonts->Clear();
+        ImFontConfig font_config;
+        font_config.OversampleH = 1;
+        font_config.OversampleV = 1;
+        font_config.PixelSnapH = 1;
+
+        io.Fonts->AddFontFromFileTTF(
+                    "sa0:/data/font/pvf/jpn0.pvf",
+                    16.0f,
+                    &font_config,
+                    io.Fonts->GetGlyphRangesJapanese());
+
 		//style.AntiAliasedLinesUseTex = false;
 		style.AntiAliasedLines = true;
 		style.AntiAliasedFill = true;
