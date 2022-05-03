@@ -45,7 +45,7 @@ namespace CONFIG {
         ParseMultiValueString(bg_music_list_str, bg_music_list, false);
         WriteString(CONFIG_GLOBAL, CONFIG_BACKGROUD_MUSIC, bg_music_list_str);
 
-        enable_backgrou_music = ReadBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, false);
+        enable_backgrou_music = ReadBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, true);
         WriteBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, enable_backgrou_music);
         
         sprintf(local_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, "ux0:"));
