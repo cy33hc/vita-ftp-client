@@ -12,6 +12,7 @@ namespace GUI {
 	int RenderLoop(void) 
 	{
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
 		Windows::Init();
 		while (!done) {
 			if (gui_mode == GUI_MODE_BROWSER)
@@ -23,15 +24,12 @@ namespace GUI {
 				glViewport(0, 0, static_cast<int>(ImGui::GetIO().DisplaySize.x), static_cast<int>(ImGui::GetIO().DisplaySize.y));
 				ImGui::Render();
 				ImGui_ImplVitaGL_RenderDrawData(ImGui::GetDrawData());
+				vglSwapBuffers(GL_FALSE);
 			}
 			else if (gui_mode == GUI_MODE_IME)
 			{
 				Windows::HandleImeInput();
 			}
-
-			vita2d_common_dialog_update();
-			vglSwapBuffers(GL_FALSE);
-			sceDisplayWaitVblankStart();
 		}
 		
 		return 0;

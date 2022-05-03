@@ -29,28 +29,28 @@ namespace Services
 		ImGui::CreateContext();
 
 		ImGuiIO &io = ImGui::GetIO();
-		(void)io;
 		io.MouseDrawCursor = false;
 		io.KeyRepeatRate = 0.005f;
 		ImGui::StyleColorsDark();
 		auto &style = ImGui::GetStyle();
 		ImGui::GetIO().Fonts->Clear();
-        ImFontConfig font_config;
-        font_config.OversampleH = 1;
-        font_config.OversampleV = 1;
-        font_config.PixelSnapH = 1;
+		ImFontConfig font_config;
+		font_config.OversampleH = 1;
+		font_config.OversampleV = 1;
+		font_config.PixelSnapH = 1;
 
-        io.Fonts->AddFontFromFileTTF(
-                    "sa0:/data/font/pvf/jpn0.pvf",
-                    16.0f,
-                    &font_config,
-                    io.Fonts->GetGlyphRangesJapanese());
+		io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/jpn0.pvf",
+					16.0f,
+					&font_config,
+					io.Fonts->GetGlyphRangesJapanese());
 
-		//style.AntiAliasedLinesUseTex = false;
+		style.AntiAliasedLinesUseTex = false;
 		style.AntiAliasedLines = true;
 		style.AntiAliasedFill = true;
-        style.FrameRounding = 2.0f;
-        style.GrabRounding = 2.0f;
+		style.WindowRounding = 0.0f;
+		style.FrameRounding = 2.0f;
+		style.GrabRounding = 2.0f;
 
 		//Style::LoadStyle(style_path);
         ImVec4 *colors = ImGui::GetStyle().Colors;
@@ -87,6 +87,11 @@ namespace Services
         colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.25f);
         colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
         colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+        colors[ImGuiCol_Tab] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+        colors[ImGuiCol_TabHovered] = ImVec4(0.00f, 0.50f, 0.50f, 1.0f);
+        colors[ImGuiCol_TabActive] = ImVec4(0.00f, 0.50f, 0.50f, 1.0f);
+        colors[ImGuiCol_TabUnfocused] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
         colors[ImGuiCol_PlotLines] = ImVec4(0.00f, 0.50f, 0.50f, 1.0f);
         colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
         colors[ImGuiCol_PlotHistogram] = ImVec4(0.00f, 0.50f, 0.50f, 1.0f);
@@ -95,6 +100,8 @@ namespace Services
         colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
         colors[ImGuiCol_NavHighlight] = ImVec4(0.00f, 0.50f, 0.50f, 1.0f);
         colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
 		vglInitExtended(0, 960, 544, 0x1800000, SCE_GXM_MULTISAMPLE_4X);
 		ImGui::CreateContext();
@@ -105,9 +112,8 @@ namespace Services
 		ImGui_ImplVitaGL_UseRearTouch(false);
 		ImGui_ImplVitaGL_GamepadUsage(true);
 		ImGui_ImplVitaGL_MouseStickUsage(false);
-		//ImGui_ImplVita2D_DisableButtons(SCE_CTRL_SQUARE);
-		//ImGui_ImplVita2D_SwapXO(swap_xo);
-		//ImGui_ImplVita2D_SetAnalogRepeatDelay(1000);
+		ImGui_ImplVita2D_DisableButtons(SCE_CTRL_SQUARE);
+		ImGui_ImplVita2D_SetAnalogRepeatDelay(1000);
 
 		Textures::Init();
 

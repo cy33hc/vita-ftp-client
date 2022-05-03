@@ -229,7 +229,7 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-        ImGui::PushItemWidth(70);
+        ImGui::SetNextItemWidth(70);
         if (ImGui::BeginCombo("##Site", last_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
         {
             for (int n = 0; n < sites.size(); n++)
@@ -248,7 +248,6 @@ namespace Windows {
             }
             ImGui::EndCombo();
         }
-        ImGui::PopItemWidth();
         ImGui::SameLine();
         //ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
@@ -661,7 +660,7 @@ namespace Windows {
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() > 0) ||
                 (remote_browser_selected && multi_selected_remote_files.size() > 0))
-                flags = 0;
+                flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 confirm_state = CONFIRM_WAIT;
@@ -676,7 +675,7 @@ namespace Windows {
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() == 1) ||
                 (remote_browser_selected && multi_selected_remote_files.size() == 1))
-                flags = 0;
+                flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Rename##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -690,7 +689,7 @@ namespace Windows {
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
-                flags = 0;
+                flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("New Folder##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -707,7 +706,7 @@ namespace Windows {
             {
                 if (multi_selected_local_files.size() > 0)
                 {
-                    flags = 0;
+                    flags = ImGuiSelectableFlags_None;
                 }
                 if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
@@ -724,7 +723,7 @@ namespace Windows {
             {
                 if (multi_selected_remote_files.size() > 0)
                 {
-                    flags = 0;
+                    flags = ImGuiSelectableFlags_None;
                 }
                 if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
@@ -739,7 +738,7 @@ namespace Windows {
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
-                flags = 0;
+                flags = ImGuiSelectableFlags_None;
             if (ImGui::Selectable("Properties##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
@@ -1140,6 +1139,7 @@ namespace Windows {
                     ime_cancelled(ime_result);
                 }
 
+                ResetImeCallbacks();
                 gui_mode = GUI_MODE_BROWSER;
             }
         }
