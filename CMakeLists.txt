@@ -13,7 +13,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Ftp Client")
 set(VITA_TITLEID  "FTPCLI001")
-set(VITA_VERSION  "01.30")
+set(VITA_VERSION  "01.31")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
@@ -65,6 +65,7 @@ target_link_libraries(${PROJECT_NAME}
   SceKernelDmacMgr_stub
   SceGxm_stub
   SceSysmodule_stub
+  SceVshBridge_stub 
   SceCtrl_stub
   SceTouch_stub
   SceAudio_stub

@@ -1,3 +1,4 @@
+#include <psp2/vshbridge.h> 
 #include "config.h"
 #include "updater.h"
 #include "sfo.h"
@@ -261,14 +262,17 @@ namespace Updater {
 
     int UpdaterThread(SceSize args, void *argp)
     {
+        SceKernelFwInfo fw;
+        fw.size = sizeof(SceKernelFwInfo);
+        _vshSblGetSystemSwVersion(&fw);
         int itls_enso_installed = CheckAppExist(ITLS_ENSO_APP_ID);
         int updated = 0;
-        if (itls_enso_installed)
+        if (itls_enso_installed || fw.version > 0x3650000)
         {
             updated = UpdateFtpClient();
         }
 
-        if (!itls_enso_installed)
+        if (!itls_enso_installed && fw.version <= 0x3650000)
         {
             sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download updates");
             sceKernelDelayThread(4000000);
