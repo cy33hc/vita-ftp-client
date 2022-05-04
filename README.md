@@ -4,7 +4,7 @@ Simple FTP Client App for Vita
 ![Preview](/screenshot/preview.jpg)
 
 # Requirements
-The app is built with imgui-vita which needs the libshacccg.suprx extracted. If you are experiencing a crash after upgrading to 1.21. Please follow the following guide to get that extracted.
+The app is built with imgui-vita which needs the **libshacccg.suprx** extracted. If you are experiencing a crash after upgrading to 1.21. Please follow the following guide to get that extracted.
 
 https://samilops2.gitbook.io/vita-troubleshooting-guide/shader-compiler/extract-libshacccg.suprx
 
