@@ -60,10 +60,10 @@ char lang_strings[LANG_STRINGS_NUM][LANG_STR_SIZE] = {
 	"Are you sure you want to delete this file(s)/folder(s)?", // STR_DEL_CONFIRM_MSG
 	"Canceling. Waiting for last action to complete", // STR_CANCEL_ACTION_MSG
 	"Failed to upload file", // STR_FAIL_UPLOAD_MSG
-	"Failed to downloadload file", // STR_FAIL_DOWNLOAD_MSG
-	"Failed to read contents of directory or folder does not exists.", // STR_FAIL_READ_LOCAL_DIR_MSG
-	"426 Connection closed", // STR_CONNECTION_CLOSE_ERR_MSG
-	"426 Remote Server has terminated the connection", // STR_REMOTE_TERM_CONN_MSG
+	"Failed to download file", // STR_FAIL_DOWNLOAD_MSG
+	"Failed to read contents of directory or folder does not exist.", // STR_FAIL_READ_LOCAL_DIR_MSG
+	"426 Connection closed.", // STR_CONNECTION_CLOSE_ERR_MSG
+	"426 Remote Server has terminated the connection.", // STR_REMOTE_TERM_CONN_MSG
 	"300 Failed Login. Please check your username or password.", // STR_FAIL_LOGIN_MSG
 	"426 Failed. Connection timeout." // STR_FAIL_TIMEOUT_MSG
 };
