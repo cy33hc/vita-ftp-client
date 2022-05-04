@@ -267,12 +267,12 @@ namespace Updater {
         _vshSblGetSystemSwVersion(&fw);
         int itls_enso_installed = CheckAppExist(ITLS_ENSO_APP_ID);
         int updated = 0;
-        if (itls_enso_installed || fw.version > 0x3650000)
+        if (itls_enso_installed || fw.version > 0x03650000)
         {
             updated = UpdateFtpClient();
         }
 
-        if (!itls_enso_installed && fw.version <= 0x3650000)
+        if (!itls_enso_installed && fw.version <= 0x03650000)
         {
             sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download updates");
             sceKernelDelayThread(4000000);
