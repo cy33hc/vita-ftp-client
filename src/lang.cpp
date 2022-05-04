@@ -9,53 +9,54 @@ char lang_identifiers[LANG_STRINGS_NUM][LANG_ID_SIZE] = {
 
 // This is properly populated so that emulator won't crash if an user launches it without language INI files.
 char lang_strings[LANG_STRINGS_NUM][LANG_STR_SIZE] = {
-	"Connection Settings", // STR_GP_CONNECTION_SETTINGS
-	"Local", // STR_GP_LOCAL
-	"Remote", // STR_GP_REMOTE
-	"Messages", // STR_GP_MESSAGES
-	"Update Software", // STR_TT_UPDATE_SOFTWARE
-	"Connect FTP", // STR_TT_CONNECT_FTP
-	"Disconnect FTP", // STR_TT_DISCONNECT_FTP
-	"Search",  // STR_TT_SEARCH
-	"Refresh",  // STR_TT_REFRESH
-	"Server", // STR_TT_SERVER
-	"Username",  // STR_LB_USERNAME
-	"Password",  // STR_LB_PASSWORD
-	"Port", // STR_LB_PORT
-	"Pasv", // STR_LB_PASV
-	"Directory",  // STR_LB_DIRECTORY
-	"Filter", // STR_LB_FILTER
-	"Yes", // STR_LB_YES
-	"No", // STR_LB_NO
-	"Cancel", // STR_LB_CANCEL
-	"Continue", // STR_LB_CONTINUE
-	"Close", // STR_LB_CLOSE
-	"Folder", // STR_LB_FOLDER
-	"File", // STR_LB_FILE
-	"Type", // STR_LB_TYPE
-	"Name", // STR_LB_NAME
-	"Size", // STR_LB_SIZE
-	"Date", // STR_LB_DATE
-	"New Folder", // STR_LB_NEW_FOLDER
-	"Rename", // STR_LB_RENAME
-	"Delete", // STR_LB_DELETE
-	"Upload", // STR_LB_UPLOAD
-	"Download", // STR_LB_DOWNLOAD
-	"Select All", // STR_LB_SELECT_ALL
-	"Clear All", // STR_LB_CLEAR_ALL
-	"Uploading", // STR_LB_UPLOADING
-	"Downloading", // STR_LB_DOWNLOADING
-	"Overwrite", // STR_LB_OVERWRITE
-	"Don't Overwrite", // STR_LB_DONT_OVERWRITE
-	"Ask for Confirmation", // STR_LB_ASK_FOR_CONFIRM
-	"Don't Ask for Confirmation", // STR_LB_DONT_ASK_CONFIRM
-	"Always use this option and don't ask again", // STR_LB_ALLWAYS_USE_OPTION
-	"Actions", // STR_DLG_LB_ACTIONS
-	"Confirm", // STR_DLG_LB_CONFIRM
-	"Overwrite Options", // STR_DLG_LB_OVERWRITE_OPTIONS
-	"Properties", // STR_DLG_LB_PROPERTIES
-	"Progress", // STR_DLG_LB_PROGRESS
-	"Updates", // STR_DLG_LB_UPDATES
+	"Connection Settings", // STR_CONNECTION_SETTINGS
+	"Site", // STR_SITE
+	"Local", // STR_LOCAL
+	"Remote", // STR_REMOTE
+	"Messages", // STR_MESSAGES
+	"Update Software", // STR_UPDATE_SOFTWARE
+	"Connect FTP", // STR_CONNECT_FTP
+	"Disconnect FTP", // STR_DISCONNECT_FTP
+	"Search",  // STR_SEARCH
+	"Refresh",  // STR_REFRESH
+	"Server", // STR_SERVER
+	"Username",  // STR_USERNAME
+	"Password",  // STR_PASSWORD
+	"Port", // STR_PORT
+	"Pasv", // STR_PASV
+	"Directory",  // STR_DIRECTORY
+	"Filter", // STR_FILTER
+	"Yes", // STR_YES
+	"No", // STR_NO
+	"Cancel", // STR_CANCEL
+	"Continue", // STR_CONTINUE
+	"Close", // STR_CLOSE
+	"Folder", // STR_FOLDER
+	"File", // STR_FILE
+	"Type", // STR_TYPE
+	"Name", // STR_NAME
+	"Size", // STR_SIZE
+	"Date", // STR_DATE
+	"New Folder", // STR_NEW_FOLDER
+	"Rename", // STR_RENAME
+	"Delete", // STR_DELETE
+	"Upload", // STR_UPLOAD
+	"Download", // STR_DOWNLOAD
+	"Select All", // STR_SELECT_ALL
+	"Clear All", // STR_CLEAR_ALL
+	"Uploading", // STR_UPLOADING
+	"Downloading", // STR_DOWNLOADING
+	"Overwrite", // STR_OVERWRITE
+	"Don't Overwrite", // STR_DONT_OVERWRITE
+	"Ask for Confirmation", // STR_ASK_FOR_CONFIRM
+	"Don't Ask for Confirmation", // STR_DONT_ASK_CONFIRM
+	"Always use this option and don't ask again", // STR_ALLWAYS_USE_OPTION
+	"Actions", // STR_ACTIONS
+	"Confirm", // STR_CONFIRM
+	"Overwrite Options", // STR_OVERWRITE_OPTIONS
+	"Properties", // STR_PROPERTIES
+	"Progress", // STR_PROGRESS
+	"Updates", // STR_UPDATES
 	"Are you sure you want to delete this file(s)/folder(s)?", // STR_DEL_CONFIRM_MSG
 	"Canceling. Waiting for last action to complete", // STR_CANCEL_ACTION_MSG
 	"Failed to upload file", // STR_FAIL_UPLOAD_MSG

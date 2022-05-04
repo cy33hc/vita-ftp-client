@@ -1,10 +1,9 @@
 #ifndef __LANG_H__
 #define __LANG_H__
 
-#define LANG_STRINGS_NUM 56
-
 #define FOREACH_STR(FUNC) \
 	FUNC(STR_CONNECTION_SETTINGS) \
+	FUNC(STR_SITE) \
 	FUNC(STR_LOCAL) \
 	FUNC(STR_REMOTE) \
 	FUNC(STR_MESSAGES) \
@@ -72,7 +71,8 @@ enum {
 	SCE_SYSTEM_PARAM_LANG_UKRAINIAN = 20,
 };
 
-#define LANG_ID_SIZE   56
+#define LANG_STRINGS_NUM 57
+#define LANG_ID_SIZE   57
 #define LANG_STR_SIZE 256
 extern char lang_identifiers[LANG_STRINGS_NUM][LANG_ID_SIZE];
 extern char lang_strings[LANG_STRINGS_NUM][LANG_STR_SIZE];

@@ -231,12 +231,14 @@ namespace Windows {
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
         ImGui::SetNextItemWidth(70);
-        if (ImGui::BeginCombo("##Site", last_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
+        if (ImGui::BeginCombo("##Site", last_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightLargest | ImGuiComboFlags_NoArrowButton))
         {
+            static char site_id[16];
             for (int n = 0; n < sites.size(); n++)
             {
                 const bool is_selected = strcmp(sites[n].c_str(), last_site)==0;
-                if (ImGui::Selectable(sites[n].c_str(), is_selected))
+                sprintf(site_id, "%s %d", lang_strings[STR_SITE], n+1);
+                if (ImGui::Selectable(site_id, is_selected))
                 {
                     sprintf(last_site, "%s", sites[n].c_str());
                     ftp_settings = &site_settings[sites[n]];
