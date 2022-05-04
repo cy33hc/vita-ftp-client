@@ -13,6 +13,7 @@
 #include "updater.h"
 #include "actions.h"
 #include "util.h"
+#include "lang.h"
 
 extern "C" {
 	#include "inifile.h"
@@ -159,7 +160,7 @@ namespace Windows {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
         static char title[32];
-        sprintf(title, "v%s  Connection Settings", app_ver);
+        sprintf(title, "v%s  %s", app_ver, lang_strings[STR_CONNECTION_SETTINGS]);
         BeginGroupPanel(title, ImVec2(945, 100));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
         char id[256];
@@ -173,7 +174,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Update Software");
+            ImGui::Text(lang_strings[STR_UPDATE_SOFTWARE]);
             ImGui::EndTooltip();
         }
         if (ImGui::IsWindowAppearing())
@@ -201,7 +202,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Connect FTP");
+            ImGui::Text(lang_strings[STR_CONNECT_FTP]);
             ImGui::EndTooltip();
         }
         ImGui::SameLine();
@@ -223,7 +224,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Disconnect FTP");
+            ImGui::Text(lang_strings[STR_DISCONNECT_FTP]);
             ImGui::EndTooltip();
         }
         ImGui::SameLine();
@@ -257,12 +258,12 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 16;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Server IP", ftp_settings->server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_SERVER], ftp_settings->server_ip, 15, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         ImGui::SameLine();
 
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Username:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_USERNAME]); ImGui::SameLine();
         sprintf(id, "%s##username", ftp_settings->username);
         if (ImGui::Button(id, ImVec2(110, 0)))
         {
@@ -270,12 +271,12 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 32;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Username", ftp_settings->username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_USERNAME], ftp_settings->username, 32, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         ImGui::SameLine();
 
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Password:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PASSWORD]); ImGui::SameLine();
         sprintf(id, "%s##password", hidden_password.c_str());
         if (ImGui::Button(id, ImVec2(80, 0)))
         {
@@ -283,12 +284,12 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 24;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Password", ftp_settings->password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_PASSWORD], ftp_settings->password, 24, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         ImGui::SameLine();
 
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Port:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PORT]); ImGui::SameLine();
         sprintf(id, "%s##ServerPort", txt_server_port);
         if (ImGui::Button(id, ImVec2(50, 0)))
         {
@@ -296,12 +297,12 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 5;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Server Port", txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_PORT], txt_server_port, 5, SCE_IME_TYPE_NUMBER, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         ImGui::SameLine();
 
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Pasv:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PASV]); ImGui::SameLine();
         ImGui::Checkbox("##PasvMode", &ftp_settings->pasv_mode); ImGui::SameLine();
 
         ImGui::PopStyleVar();
@@ -314,10 +315,10 @@ namespace Windows {
         ImVec4* colors = style->Colors;
         selected_browser = 0;
 
-        BeginGroupPanel("Local", ImVec2(452, 420));
+        BeginGroupPanel(lang_strings[STR_LOCAL], ImVec2(452, 420));
         
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DIRECTORY]); ImGui::SameLine();
         ImVec2 size = ImGui::CalcTextSize(local_directory);
         if (ImGui::Button(local_directory, ImVec2(280, 0)))
         {
@@ -326,7 +327,7 @@ namespace Windows {
             ime_field_size = 255;
             ime_after_update = AfterLocalFileChangesCallback;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Directory", local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_DIRECTORY], local_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         if (size.x > 275 && ImGui::IsItemHovered())
@@ -335,7 +336,7 @@ namespace Windows {
             ImGui::Text(local_directory);
             ImGui::EndTooltip();
         }
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_FILTER]); ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
         ImGui::PushID("local_filter##remote");
         if (ImGui::Button(local_filter, ImVec2(280, 0)))
@@ -344,7 +345,7 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 31;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Filter", local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_FILTER], local_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         ImGui::PopID(); ImGui::SameLine();
@@ -361,7 +362,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Search");
+            ImGui::Text(lang_strings[STR_SEARCH]);
             ImGui::EndTooltip();
         }
         ImGui::SameLine();
@@ -373,7 +374,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Refresh");
+            ImGui::Text(lang_strings[STR_REFRESH]);
             ImGui::EndTooltip();
         }
         ImGui::PopID();
@@ -448,10 +449,10 @@ namespace Windows {
         EndGroupPanel();
         ImGui::SameLine();
 
-        BeginGroupPanel("Remote", ImVec2(452, 420));
+        BeginGroupPanel(lang_strings[STR_REMOTE], ImVec2(452, 420));
 
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Directory:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DIRECTORY]); ImGui::SameLine();
         size = ImGui::CalcTextSize(remote_directory);
         if (ImGui::Button(remote_directory, ImVec2(280, 0)))
         {
@@ -460,7 +461,7 @@ namespace Windows {
             ime_field_size = 255;
             ime_after_update = AfterRemoteFileChangesCallback;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Directory", remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_DIRECTORY], remote_directory, 256, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         }
         if (size.x > 275 && ImGui::IsItemHovered())
@@ -469,7 +470,7 @@ namespace Windows {
             ImGui::Text(remote_directory);
             ImGui::EndTooltip();
         }
-        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Filter:"); ImGui::SameLine();
+        ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_FILTER]); ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
         ImGui::PushID("remote_filter##remote");
         if (ImGui::Button(remote_filter, ImVec2(280, 0)))
@@ -478,7 +479,7 @@ namespace Windows {
             ResetImeCallbacks();
             ime_field_size = 31;
             ime_callback = SingleValueImeCallback;
-            Dialog::initImeDialog("Directory", remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
+            Dialog::initImeDialog(lang_strings[STR_FILTER], remote_filter, 31, SCE_IME_TYPE_DEFAULT, 0, 0);
             gui_mode = GUI_MODE_IME;
         };
         ImGui::PopID(); ImGui::SameLine();
@@ -495,7 +496,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Search");
+            ImGui::Text(lang_strings[STR_SEARCH]);
             ImGui::EndTooltip();
         }
         ImGui::SameLine();
@@ -508,7 +509,7 @@ namespace Windows {
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("Refresh");
+            ImGui::Text(lang_strings[STR_REFRESH]);
             ImGui::EndTooltip();
         }
 
@@ -585,7 +586,7 @@ namespace Windows {
 
     void StatusPanel()
     {
-        BeginGroupPanel("Messages", ImVec2(945, 100));
+        BeginGroupPanel(lang_strings[STR_MESSAGES], ImVec2(945, 100));
         ImVec2 pos = ImGui::GetCursorPos();
         ImGui::Dummy(ImVec2(925,30));
         ImGui::SetCursorPos(pos);
@@ -618,7 +619,7 @@ namespace Windows {
             if (saved_selected_browser > 0)
             {
                 SetModalMode(true);
-                ImGui::OpenPopup("Actions");
+                ImGui::OpenPopup(lang_strings[STR_ACTIONS]);
             }
         }
 
@@ -633,9 +634,10 @@ namespace Windows {
             ImGui::SetNextWindowPos(ImVec2(600, 150));
         }
         ImGui::SetNextWindowSizeConstraints(ImVec2(230,150), ImVec2(230,300), NULL, NULL);
-        if (ImGui::BeginPopupModal("Actions", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal(lang_strings[STR_ACTIONS], NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            if (ImGui::Selectable("Select All##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Select All##settings");
+            if (ImGui::Selectable(lang_strings[STR_SELECT_ALL], false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 SetModalMode(false);
                 if (local_browser_selected)
@@ -644,9 +646,11 @@ namespace Windows {
                     selected_action = ACTION_REMOTE_SELECT_ALL;
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
             ImGui::Separator();
 
-            if (ImGui::Selectable("Clear All##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Clear All##settings");
+            if (ImGui::Selectable(lang_strings[STR_CLEAR_ALL], false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 SetModalMode(false);
                 if (local_browser_selected)
@@ -655,28 +659,32 @@ namespace Windows {
                     selected_action = ACTION_REMOTE_CLEAR_ALL;
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() > 0) ||
                 (remote_browser_selected && multi_selected_remote_files.size() > 0))
                 flags = ImGuiSelectableFlags_None;
-            if (ImGui::Selectable("Delete##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Delete##settings");
+            if (ImGui::Selectable(lang_strings[STR_DELETE], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 confirm_state = CONFIRM_WAIT;
-                sprintf(confirm_message, "Are you sure you want to delete this file(s)/folder(s) ?");
+                sprintf(confirm_message, lang_strings[STR_DEL_CONFIRM_MSG]);
                 if (local_browser_selected)
                     action_to_take = ACTION_DELETE_LOCAL;
                 else if (remote_browser_selected)
                     action_to_take = ACTION_DELETE_REMOTE;
             }
+            ImGui::PopID();
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
             if ((local_browser_selected && multi_selected_local_files.size() == 1) ||
                 (remote_browser_selected && multi_selected_remote_files.size() == 1))
                 flags = ImGuiSelectableFlags_None;
-            if (ImGui::Selectable("Rename##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Rename##settings");
+            if (ImGui::Selectable(lang_strings[STR_RENAME], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
                     selected_action = ACTION_RENAME_LOCAL;
@@ -685,12 +693,14 @@ namespace Windows {
                 SetModalMode(false);
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
                 flags = ImGuiSelectableFlags_None;
-            if (ImGui::Selectable("New Folder##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("New Folder##settings");
+            if (ImGui::Selectable(lang_strings[STR_NEW_FOLDER], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
                     selected_action = ACTION_NEW_LOCAL_FOLDER;
@@ -699,6 +709,7 @@ namespace Windows {
                 SetModalMode(false);
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
             ImGui::Separator();
 
             flags = ImGuiSelectableFlags_Disabled;
@@ -708,7 +719,8 @@ namespace Windows {
                 {
                     flags = ImGuiSelectableFlags_None;
                 }
-                if (ImGui::Selectable("Upload##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+                ImGui::PushID("Upload##settings");
+                if (ImGui::Selectable(lang_strings[STR_UPLOAD], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
                     SetModalMode(false);
                     selected_action = ACTION_UPLOAD;
@@ -716,6 +728,7 @@ namespace Windows {
                     dont_prompt_overwrite_cb=dont_prompt_overwrite;
                     ImGui::CloseCurrentPopup();
                 }
+                ImGui::PopID();
                 ImGui::Separator();
             }
 
@@ -725,7 +738,8 @@ namespace Windows {
                 {
                     flags = ImGuiSelectableFlags_None;
                 }
-                if (ImGui::Selectable("Download##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+                ImGui::PushID("Download##settings");
+                if (ImGui::Selectable(lang_strings[STR_DOWNLOAD], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
                 {
                     SetModalMode(false);
                     selected_action = ACTION_DOWNLOAD;
@@ -733,13 +747,15 @@ namespace Windows {
                     dont_prompt_overwrite_cb=dont_prompt_overwrite;
                     ImGui::CloseCurrentPopup();
                 }
+                ImGui::PopID();
                 ImGui::Separator();
             }
 
             flags = ImGuiSelectableFlags_Disabled;
             if (local_browser_selected || remote_browser_selected)
                 flags = ImGuiSelectableFlags_None;
-            if (ImGui::Selectable("Properties##settings", false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Properties##settings");
+            if (ImGui::Selectable(lang_strings[STR_PROPERTIES], false, flags | ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 if (local_browser_selected)
                     selected_action = ACTION_SHOW_LOCAL_PROPERTIES;
@@ -748,14 +764,17 @@ namespace Windows {
                 SetModalMode(false);
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
 
             ImGui::Separator();
 
-            if (ImGui::Selectable("Cancel##settings", false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
+            ImGui::PushID("Cancel##settings");
+            if (ImGui::Selectable(lang_strings[STR_CANCEL], false, ImGuiSelectableFlags_DontClosePopups, ImVec2(220, 0)))
             {
                 SetModalMode(false);
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::PopID();
             if (ImGui::IsWindowAppearing())
             {
                 SetNavFocusHere();
@@ -765,10 +784,10 @@ namespace Windows {
 
         if (confirm_state == CONFIRM_WAIT)
         {
-            ImGui::OpenPopup("Confirm");
+            ImGui::OpenPopup(lang_strings[STR_CONFIRM]);
             ImGui::SetNextWindowPos(ImVec2(280, 200));
             ImGui::SetNextWindowSizeConstraints(ImVec2(430,100), ImVec2(430,200), NULL, NULL);
-            if (ImGui::BeginPopupModal("Confirm", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            if (ImGui::BeginPopupModal(lang_strings[STR_CONFIRM], NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
                 ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 420);
                 ImGui::Text(confirm_message);
@@ -776,14 +795,14 @@ namespace Windows {
                 ImGui::NewLine();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+150);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-                if (ImGui::Button("No", ImVec2(60, 0)))
+                if (ImGui::Button(lang_strings[STR_NO], ImVec2(60, 0)))
                 {
                     confirm_state = CONFIRM_NO;
                     selected_action = ACTION_NONE;
                     ImGui::CloseCurrentPopup();
                 };
                 ImGui::SameLine();
-                if (ImGui::Button("Yes", ImVec2(60, 0)))
+                if (ImGui::Button(lang_strings[STR_YES], ImVec2(60, 0)))
                 {
                     confirm_state = CONFIRM_YES;
                     selected_action = action_to_take;
@@ -795,21 +814,21 @@ namespace Windows {
 
         if (confirm_transfer_state == 0)
         {
-            ImGui::OpenPopup("Overwrite Options");
+            ImGui::OpenPopup(lang_strings[STR_OVERWRITE_OPTIONS]);
             ImGui::SetNextWindowPos(ImVec2(280, 180));
             ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(430,400), NULL, NULL);
-            if (ImGui::BeginPopupModal("Overwrite Options", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            if (ImGui::BeginPopupModal(lang_strings[STR_OVERWRITE_OPTIONS], NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                ImGui::RadioButton("Don't Overwrite", &overwrite_type, 0);
-                ImGui::RadioButton("Ask for Confirmation", &overwrite_type, 1);
-                ImGui::RadioButton("Don't Ask for Confirmation", &overwrite_type, 2);
+                ImGui::RadioButton(lang_strings[STR_DONT_OVERWRITE], &overwrite_type, 0);
+                ImGui::RadioButton(lang_strings[STR_ASK_FOR_CONFIRM], &overwrite_type, 1);
+                ImGui::RadioButton(lang_strings[STR_DONT_ASK_CONFIRM], &overwrite_type, 2);
                 ImGui::Separator();
-                ImGui::Checkbox("Always use this option and don't ask again##dontaskagain", &dont_prompt_overwrite_cb);
+                ImGui::Checkbox(lang_strings[STR_ALLWAYS_USE_OPTION], &dont_prompt_overwrite_cb);
                 ImGui::Separator();
 
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+120);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-                if (ImGui::Button("Cancel", ImVec2(70, 0)))
+                if (ImGui::Button(lang_strings[STR_CANCEL], ImVec2(70, 0)))
                 {
                     confirm_transfer_state = 2;
                     dont_prompt_overwrite_cb = dont_prompt_overwrite;
@@ -821,7 +840,7 @@ namespace Windows {
                     SetNavFocusHere();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Continue", ImVec2(80, 0)))
+                if (ImGui::Button(lang_strings[STR_CONTINUE], ImVec2(80, 0)))
                 {
                     confirm_transfer_state = 1;
                     dont_prompt_overwrite = dont_prompt_overwrite_cb;
@@ -838,28 +857,28 @@ namespace Windows {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
         SetModalMode(true);
-        ImGui::OpenPopup("Properties");
+        ImGui::OpenPopup(lang_strings[STR_PROPERTIES]);
 
         ImGui::SetNextWindowPos(ImVec2(280, 200));
         ImGui::SetNextWindowSizeConstraints(ImVec2(420,80), ImVec2(430,250), NULL, NULL);
-        if (ImGui::BeginPopupModal("Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal(lang_strings[STR_PROPERTIES], NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Type:"); ImGui::SameLine();
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_TYPE]); ImGui::SameLine();
             ImGui::SetCursorPosX(60);
-            ImGui::Text(item.isDir ? "Folder": "File");
+            ImGui::Text(item.isDir ? lang_strings[STR_FOLDER]: lang_strings[STR_FILE]);
             ImGui::Separator();
             
-            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Name:"); ImGui::SameLine();
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_NAME]); ImGui::SameLine();
             ImGui::SetCursorPosX(60);
             ImGui::TextWrapped(item.name);
             ImGui::Separator();
 
-            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Size:"); ImGui::SameLine();
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_SIZE]); ImGui::SameLine();
             ImGui::SetCursorPosX(60);
             ImGui::Text("%lld   (%s)", item.file_size, item.display_size);
             ImGui::Separator();
             
-            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Date:"); ImGui::SameLine();
+            ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DATE]); ImGui::SameLine();
             ImGui::SetCursorPosX(60);
             SceDateTime local_time;
             Util::convertUtcToLocalTime(&local_time, &item.modified);
@@ -869,7 +888,7 @@ namespace Windows {
 
             ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-            if (ImGui::Button("Close"))
+            if (ImGui::Button(lang_strings[STR_CLOSE]))
             {
                 SetModalMode(false);
                 selected_action = ACTION_NONE;
@@ -889,11 +908,11 @@ namespace Windows {
             ImVec4* colors = style->Colors;
 
             SetModalMode(true);
-            ImGui::OpenPopup("Progress");
+            ImGui::OpenPopup(lang_strings[STR_PROGRESS]);
 
             ImGui::SetNextWindowPos(ImVec2(240, 200));
             ImGui::SetNextWindowSizeConstraints(ImVec2(480,80), ImVec2(480,200), NULL, NULL);
-            if (ImGui::BeginPopupModal("Progress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            if (ImGui::BeginPopupModal(lang_strings[STR_PROGRESS], NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
                 ImVec2 cur_pos = ImGui::GetCursorPos();
                 ImGui::SetCursorPos(cur_pos);
@@ -912,14 +931,14 @@ namespace Windows {
                 ImGui::Separator();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX()+205);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-                if (ImGui::Button("Cancel"))
+                if (ImGui::Button(lang_strings[STR_CANCEL]))
                 {
                     stop_activity = true;
                     SetModalMode(false);
                 }
                 if (stop_activity)
                 {
-                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Canceling. Waiting for last action to complete");
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), lang_strings[STR_CANCEL_ACTION_MSG]);
                 }
                 ImGui::EndPopup();
             }
@@ -932,10 +951,10 @@ namespace Windows {
         {
             SetModalMode(true);
 
-            ImGui::OpenPopup("Updates");
+            ImGui::OpenPopup(lang_strings[STR_UPDATES]);
             ImGui::SetNextWindowPos(ImVec2(300, 200));
             ImGui::SetNextWindowSize(ImVec2(400,90));
-            if (ImGui::BeginPopupModal("Updates", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar))
+            if (ImGui::BeginPopupModal(lang_strings[STR_UPDATES], nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar))
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(400,140));
                 ImGui::Text("%s", updater_message);
@@ -999,7 +1018,7 @@ namespace Windows {
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
-                Dialog::initImeDialog("New Folder", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                Dialog::initImeDialog(lang_strings[STR_NEW_FOLDER], editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
                 gui_mode = GUI_MODE_IME;
             }
             break;
@@ -1045,7 +1064,7 @@ namespace Windows {
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
-                Dialog::initImeDialog("Rename", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                Dialog::initImeDialog(lang_strings[STR_RENAME], editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
                 gui_mode = GUI_MODE_IME;
             }
             break;
@@ -1059,7 +1078,7 @@ namespace Windows {
                 ime_after_update = AfterFolderNameCallback;
                 ime_cancelled = CancelActionCallBack;
                 ime_callback = SingleValueImeCallback;
-                Dialog::initImeDialog("Rename", editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
+                Dialog::initImeDialog(lang_strings[STR_RENAME], editor_text, 128, SCE_IME_TYPE_DEFAULT, 0, 0);
                 gui_mode = GUI_MODE_IME;
             }
             break;

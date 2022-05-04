@@ -16,10 +16,14 @@
 #include "fs.h"
 #include "net.h"
 #include "ftpclient.h"
+#include "lang.h"
+#include "debugScreen.h"
 
 extern "C" {
 	#include "audio.h"
 }
+
+int console_language;
 namespace Services
 {
 	int InitImGui(void)
@@ -137,6 +141,7 @@ namespace Services
 		memset(&init_param, 0, sizeof(SceAppUtilInitParam));
 		memset(&boot_param, 0, sizeof(SceAppUtilBootParam));
 		sceAppUtilInit(&init_param, &boot_param);
+		sceAppUtilSystemParamGetInt(SCE_SYSTEM_PARAM_ID_LANG, &console_language);
 
 		// Set common dialog config
 		SceCommonDialogConfigParam config;
@@ -167,6 +172,7 @@ namespace Services
 		initSceAppUtil();
 
 		CONFIG::LoadConfig();
+		Lang::SetTranslation(console_language);
 
 		return 0;
 	}
@@ -189,6 +195,15 @@ unsigned int _newlib_heap_size_user = 128 * 1024 * 1024;
 int main(int, char **)
 {
 	//debugNetInit(ip_server,port_server, DEBUG);
+	if (!FS::FileExists("ur0:/data/libshacccg.suprx") && !FS::FileExists("ur0:/data/external/libshacccg.suprx"))
+	{
+		psvDebugScreenInit();
+		psvDebugScreenSetFont(psvDebugScreenScaleFont2x(psvDebugScreenGetFont()));
+		psvDebugScreenPrintf("\n\nlibshacccg.suprx is missing.\n\n");
+		psvDebugScreenPrintf("Please extract it before proceeding");
+		sceKernelDelayThread(5000000);
+		sceKernelExitProcess(0);
+	}
 
 	Net::Init();
 	Services::Init();

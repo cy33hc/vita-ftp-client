@@ -35,6 +35,7 @@ add_executable(${PROJECT_NAME}
   src/windows.cpp
   src/actions.cpp
   src/updater.cpp
+  src/lang.cpp
   src/sfo.cpp
   src/audio.c
   src/ogg.c
@@ -42,6 +43,7 @@ add_executable(${PROJECT_NAME}
   src/zip.c
   src/unzip.c
   src/ioapi.c
+  src/debugScreen.c
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -103,5 +105,6 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE icons/file.png icons/file.png
   FILE icons/update.png icons/update.png
   FILE icons/catalog.png icons/catalog.png
+  FILE lang/English.ini lang/English.ini
   FILE version.txt version.txt
 )

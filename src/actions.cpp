@@ -4,6 +4,7 @@
 #include "windows.h"
 #include "ftpclient.h"
 #include "util.h"
+#include "lang.h"
 
 namespace Actions {
     
@@ -33,7 +34,7 @@ namespace Actions {
         }
         FS::Sort(local_files);
         if (err != 0)
-            sprintf(status_message, "Failed to read contents of directory \"%s\" or folder does not exists.", local_directory);
+            sprintf(status_message, lang_strings[STR_FAIL_READ_LOCAL_DIR_MSG]);
     }
 
     void RefreshRemoteFiles(bool apply_filter)
@@ -41,7 +42,7 @@ namespace Actions {
         if (!ftpclient->Noop())
         {
             ftpclient->Quit();
-            sprintf(status_message, "426 Connection closed");
+            sprintf(status_message, lang_strings[STR_CONNECTION_CLOSE_ERR_MSG]);
             return;
         }
 
@@ -101,7 +102,7 @@ namespace Actions {
         if (!ftpclient->Noop())
         {
             ftpclient->Quit();
-            sprintf(status_message, "426 Connection closed");
+            sprintf(status_message, lang_strings[STR_CONNECTION_CLOSE_ERR_MSG]);
             return;
         }
 
@@ -232,7 +233,7 @@ namespace Actions {
         else
         {
             ftpclient->Quit();
-            sprintf(status_message, "426 Connection closed");
+            sprintf(status_message, lang_strings[STR_CONNECTION_CLOSE_ERR_MSG]);
             DisconnectFTP();
         }
         activity_inprogess = false;
@@ -255,13 +256,13 @@ namespace Actions {
         if (ret == 0)
         {
             ftpclient->Quit();
-            sprintf(status_message, "426 Connection closed");
+            sprintf(status_message, lang_strings[STR_CONNECTION_CLOSE_ERR_MSG]);
             return ret;
         }
             
         if (overwrite_type == OVERWRITE_PROMPT && ftpclient->Size(dest, &filesize, FtpClient::transfermode::image))
         {
-            sprintf(confirm_message, "Overwrite %s?", dest);
+            sprintf(confirm_message, "%s %s?", lang_strings[STR_OVERWRITE], dest);
             confirm_state = CONFIRM_WAIT;
             action_to_take = selected_action;
             activity_inprogess = false;
@@ -324,12 +325,12 @@ namespace Actions {
                 }
                 else
                 {
-                    snprintf(activity_message, 1024, "Uploading %s", entries[i].path);
+                    snprintf(activity_message, 1024, "%s %s", lang_strings[STR_UPLOADING], entries[i].path);
                     bytes_to_download = entries[i].file_size;
                     ret = UploadFile(entries[i].path, new_path);
                     if (ret <= 0)
                     {
-                        sprintf(status_message, "Failed to upload file %s", entries[i].path);
+                        sprintf(status_message, "%s %s", lang_strings[STR_FAIL_UPLOAD_MSG], entries[i].path);
                         free(new_path);
                         return ret;
                     }
@@ -342,13 +343,13 @@ namespace Actions {
             int path_length = strlen(dest) + strlen(src.name) + 2;
             char *new_path = malloc(path_length);
             snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
-            snprintf(activity_message, 1024, "Uploading %s", src.name);
+            snprintf(activity_message, 1024, "%s %s", lang_strings[STR_UPLOADING], src.name);
             bytes_to_download = src.file_size;
             ret = UploadFile(src.path, new_path);
             if (ret <= 0)
             {
                 free(new_path);
-                sprintf(status_message, "Failed to upload file %s", src.name);
+                sprintf(status_message, "%s %s", lang_strings[STR_FAIL_UPLOAD_MSG], src.name);
                 return 0;
             }
             free(new_path);
@@ -394,13 +395,13 @@ namespace Actions {
         if (ret == 0)
         {
             ftpclient->Quit();
-            sprintf(status_message, "426 Connection closed");
+            sprintf(status_message, lang_strings[STR_CONNECTION_CLOSE_ERR_MSG]);
             return ret;
         }
 
         if (overwrite_type == OVERWRITE_PROMPT && FS::FileExists(dest))
         {
-            sprintf(confirm_message, "Overwrite %s?", dest);
+            sprintf(confirm_message, "%s %s?", lang_strings[STR_OVERWRITE], dest);
             confirm_state = CONFIRM_WAIT;
             action_to_take = selected_action;
             activity_inprogess = false;
@@ -463,11 +464,11 @@ namespace Actions {
                 }
                 else
                 {
-                    snprintf(activity_message, 1024, "Downloading %s", entries[i].path);
+                    snprintf(activity_message, 1024, "%s %s", lang_strings[STR_DOWNLOADING], entries[i].path);
                     ret = DownloadFile(entries[i].path, new_path);
                     if (ret <= 0)
                     {
-                        sprintf(status_message, "Failed to downloadload file %s", entries[i].path);
+                        sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DOWNLOAD_MSG], entries[i].path);
                         free(new_path);
                         return ret;
                     }
@@ -480,12 +481,12 @@ namespace Actions {
             int path_length = strlen(dest) + strlen(src.name) + 2;
             char *new_path = malloc(path_length);
             snprintf(new_path, path_length, "%s%s%s", dest, FS::hasEndSlash(dest) ? "" : "/", src.name);
-            snprintf(activity_message, 1024, "Downloading %s", src.path);
+            snprintf(activity_message, 1024, "%s %s", lang_strings[STR_DOWNLOADING], src.path);
             ret = DownloadFile(src.path, new_path);
             if (ret <= 0)
             {
                 free(new_path);
-                sprintf(status_message, "Failed to download file %s", src.path);
+                sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DOWNLOAD_MSG], src.path);
                 return 0;
             }
             free(new_path);
@@ -535,7 +536,7 @@ namespace Actions {
                 if (!ftpclient->Noop())
                 {
                     ftpclient->Quit();
-                    sprintf(status_message, "426 Remote Server has terminated the connection");
+                    sprintf(status_message, lang_strings[STR_REMOTE_TERM_CONN_MSG]);
                     sceKernelExitDeleteThread(0);
                 }
             }
@@ -559,12 +560,12 @@ namespace Actions {
             }
             else
             {
-                sprintf(status_message, "300 Failed Login. Please check your username or password.");
+                sprintf(status_message, lang_strings[STR_FAIL_LOGIN_MSG]);
             }
         }
         else
         {
-            sprintf(status_message, "426 Failed. Connection timeout.");
+            sprintf(status_message, lang_strings[STR_FAIL_TIMEOUT_MSG]);
         }
         selected_action = ACTION_NONE;
     }
