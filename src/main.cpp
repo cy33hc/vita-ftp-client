@@ -52,8 +52,10 @@ namespace Services
 			0x2E80, 0x2EFF, // CJK Radicals Supplement
 			0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
 			0x31F0, 0x31FF, // Katakana Phonetic Extensions
-			0x4E00, 0x9FAF, // CJK Ideograms
+			0x3400, 0x4DBF, // CJK Rare
+			0x4E00, 0x9FFF, // CJK Ideograms
 			0xA640, 0xA69F, // Cyrillic Extended-B
+			0xF900, 0xFAFF, // CJK Compatibility Ideographs
 			0xFF00, 0xFFEF, // Half-width characters
 			0,
 		};
@@ -61,12 +63,18 @@ namespace Services
 		switch (console_language)
 		{
 		case SCE_SYSTEM_PARAM_LANG_CHINESE_S:
+			io.Fonts->AddFontFromFileTTF(
+				"sa0:/data/font/pvf/cn0.pvf",
+				17.0f,
+				NULL,
+				io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+			break;
 		case SCE_SYSTEM_PARAM_LANG_CHINESE_T:
 			io.Fonts->AddFontFromFileTTF(
 				"sa0:/data/font/pvf/cn0.pvf",
 				16.0f,
 				NULL,
-				ranges);
+				io.Fonts->GetGlyphRangesChineseFull());
 			break;
 		case SCE_SYSTEM_PARAM_LANG_KOREAN:
 			{
@@ -243,7 +251,7 @@ namespace Services
 #define ip_server "192.168.100.14"
 #define port_server 18194
 
-unsigned int _newlib_heap_size_user = 128 * 1024 * 1024;
+unsigned int _newlib_heap_size_user = 164 * 1024 * 1024;
 
 int main(int, char **)
 {
