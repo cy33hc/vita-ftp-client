@@ -16,7 +16,7 @@ Opening the Input Editor multiple times crashes the application. I can't figure 
 
 # Credits
 Thx to the following people for translating the string used in the app.
-@jojahn @dampestwriter @dinckelman @TheFrutz @hiroSzymon @Fiodorwellfme @AndreDK7 @IlDucci
+@jojahn @dampestwriter @dinckelman @TheFrutz @hiroSzymon @Fiodorwellfme @AndreDK7 @IlDucci @kuragehimekurara1 @Qingyu510 
 
 Borrowed the Theme colors and Folder/File icon from NXShell. https://github.com/joel16/NX-Shell/releases
 Copied some of the language code from yoyoloader https://github.com/Rinnegatamante/yoyoloader_vita
