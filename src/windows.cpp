@@ -432,6 +432,15 @@ namespace Windows {
             {
                 selected_local_file = item;
             }
+            if (ImGui::IsItemHovered())
+            {
+                if (ImGui::CalcTextSize(item.name).x>310)
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text(item.name);
+                    ImGui::EndTooltip();
+                }
+            }
             if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
             {
                 if (strcmp(local_file_to_select, item.name)==0)
@@ -562,6 +571,15 @@ namespace Windows {
             {
                 selected_remote_file = item;
                 selected_action = ACTION_CHANGE_REMOTE_DIRECTORY;
+            }
+            if (ImGui::IsItemHovered())
+            {
+                if (ImGui::CalcTextSize(item.name).x>310)
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text(item.name);
+                    ImGui::EndTooltip();
+                }
             }
             ImGui::PopID();
             if (ImGui::IsItemFocused())
