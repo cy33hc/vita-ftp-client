@@ -56,6 +56,7 @@ extern char local_directory[MAX_PATH_LENGTH];
 extern char remote_directory[MAX_PATH_LENGTH];
 extern char app_ver[6];
 extern char last_site[32];
+extern char display_site[32];
 extern FtpSettings *ftp_settings;
 
 namespace CONFIG {

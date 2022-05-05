@@ -8,6 +8,7 @@
 #include "stdio.h"
 #include "util.h"
 #include "windows.h"
+#include "lang.h"
 
 #include <algorithm>
 
@@ -186,7 +187,7 @@ namespace FS {
         memset(&entry, 0, sizeof(FsEntry));
         sprintf(entry.directory, "%s", path.c_str());
         sprintf(entry.name, "..");
-        sprintf(entry.display_size, "Folder");
+        sprintf(entry.display_size, lang_strings[STR_FOLDER]);
         sprintf(entry.path, "%s", path.c_str());
         entry.file_size = 0;
         entry.isDir = true;
@@ -236,7 +237,7 @@ namespace FS {
                 {
                     entry.isDir = true;
                     entry.file_size = 0;
-                    sprintf(entry.display_size, "Folder");
+                    sprintf(entry.display_size, lang_strings[STR_FOLDER]);
                 }
                 else
                 {
@@ -329,7 +330,7 @@ namespace FS {
                     {
                         int ret = RmRecursive(new_path);
                         if (ret <= 0) {
-                            sprintf(status_message, "Failed to delete directory %s", new_path);
+                            sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_DIR_MSG], new_path);
                             free(new_path);
                             sceIoDclose(dfd);
                             return ret;
@@ -337,11 +338,11 @@ namespace FS {
                         
                     }
                     else {
-                        snprintf(activity_message, 1024, "Deleting %s", new_path);
+                        snprintf(activity_message, 1024, "%s %s", lang_strings[STR_DELETING], new_path);
                         int ret = sceIoRemove(new_path);
                         if (ret < 0)
                         {
-                            sprintf(status_message, "Failed to delete file %s", new_path);
+                            sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_FILE_MSG], new_path);
                             free(new_path);
                             sceIoDclose(dfd);
                             return ret;
@@ -359,19 +360,19 @@ namespace FS {
             int ret = sceIoRmdir(path.c_str());
             if (ret < 0)
             {
-                sprintf(status_message, "Failed to delete directory %s", path.c_str());
+                sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_DIR_MSG], path.c_str());
                 return ret;
             }
-            snprintf(activity_message, 1024, "Deleted %s", path.c_str());
+            snprintf(activity_message, 1024, "%s %s", lang_strings[STR_DELETED], path.c_str());
         } else
         {
             int ret = sceIoRemove(path.c_str());
             if (ret < 0)
             {
-                sprintf(status_message, "Failed to delete file %s", path.c_str());
+                sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_FILE_MSG], path.c_str());
                 return ret;
             }
-            snprintf(activity_message, 1024, "Deleted %s", path.c_str());
+            snprintf(activity_message, 1024, "%s %s", lang_strings[STR_DELETED], path.c_str());
         }
 
         return 1;

@@ -189,6 +189,7 @@ namespace Windows {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
         if (ImGui::ImageButton((void*)connect_icon, ImVec2(25,25)))
         {
             ftp_settings->server_port = atoi(txt_server_port);
@@ -212,6 +213,7 @@ namespace Windows {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
         if (ImGui::ImageButton((void*)disconnect_icon, ImVec2(25,25)))
         {
             selected_action = ACTION_DISCONNECT_FTP;
@@ -231,7 +233,8 @@ namespace Windows {
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
         ImGui::SetNextItemWidth(70);
-        if (ImGui::BeginCombo("##Site", last_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightLargest | ImGuiComboFlags_NoArrowButton))
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
+        if (ImGui::BeginCombo("##Site", display_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightLargest | ImGuiComboFlags_NoArrowButton))
         {
             static char site_id[16];
             for (int n = 0; n < sites.size(); n++)
@@ -241,6 +244,7 @@ namespace Windows {
                 if (ImGui::Selectable(site_id, is_selected))
                 {
                     sprintf(last_site, "%s", sites[n].c_str());
+                    sprintf(display_site, site_id);
                     ftp_settings = &site_settings[sites[n]];
                     sprintf(txt_server_port, "%d", ftp_settings->server_port);
                 }
@@ -254,7 +258,7 @@ namespace Windows {
         ImGui::SameLine();
         //ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "Server:"); ImGui::SameLine();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
-        if (ImGui::Button(ftp_settings->server_ip, ImVec2(155, 0)))
+        if (ImGui::Button(ftp_settings->server_ip, ImVec2(145, 0)))
         {
             ime_single_field = ftp_settings->server_ip;
             ResetImeCallbacks();
@@ -266,8 +270,9 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_USERNAME]); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-4);
         sprintf(id, "%s##username", ftp_settings->username);
-        if (ImGui::Button(id, ImVec2(110, 0)))
+        if (ImGui::Button(id, ImVec2(95, 0)))
         {
             ime_single_field = ftp_settings->username;
             ResetImeCallbacks();
@@ -279,8 +284,9 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PASSWORD]); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-4);
         sprintf(id, "%s##password", hidden_password.c_str());
-        if (ImGui::Button(id, ImVec2(80, 0)))
+        if (ImGui::Button(id, ImVec2(60, 0)))
         {
             ime_single_field = ftp_settings->password;
             ResetImeCallbacks();
@@ -292,6 +298,7 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PORT]); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-4);
         sprintf(id, "%s##ServerPort", txt_server_port);
         if (ImGui::Button(id, ImVec2(50, 0)))
         {
@@ -305,6 +312,7 @@ namespace Windows {
         ImGui::SameLine();
 
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_PASV]); ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX()-4);
         ImGui::Checkbox("##PasvMode", &ftp_settings->pasv_mode); ImGui::SameLine();
 
         ImGui::PopStyleVar();
@@ -318,11 +326,12 @@ namespace Windows {
         selected_browser = 0;
 
         BeginGroupPanel(lang_strings[STR_LOCAL], ImVec2(452, 420));
-        
+        float posX = ImGui::GetCursorPosX();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DIRECTORY]); ImGui::SameLine();
         ImVec2 size = ImGui::CalcTextSize(local_directory);
-        if (ImGui::Button(local_directory, ImVec2(280, 0)))
+        ImGui::SetCursorPosX(posX+110);
+        if (ImGui::Button(local_directory, ImVec2(250, 0)))
         {
             ime_single_field = local_directory;
             ResetImeCallbacks();
@@ -339,9 +348,9 @@ namespace Windows {
             ImGui::EndTooltip();
         }
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_FILTER]); ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
+        ImGui::SetCursorPosX(posX+110);
         ImGui::PushID("local_filter##remote");
-        if (ImGui::Button(local_filter, ImVec2(280, 0)))
+        if (ImGui::Button(local_filter, ImVec2(250, 0)))
         {
             ime_single_field = local_filter;
             ResetImeCallbacks();
@@ -452,11 +461,12 @@ namespace Windows {
         ImGui::SameLine();
 
         BeginGroupPanel(lang_strings[STR_REMOTE], ImVec2(452, 420));
-
+        posX = ImGui::GetCursorPosX();
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 1.0f));
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DIRECTORY]); ImGui::SameLine();
         size = ImGui::CalcTextSize(remote_directory);
-        if (ImGui::Button(remote_directory, ImVec2(280, 0)))
+        ImGui::SetCursorPosX(posX+110);
+        if (ImGui::Button(remote_directory, ImVec2(250, 0)))
         {
             ime_single_field = remote_directory;
             ResetImeCallbacks();
@@ -473,9 +483,9 @@ namespace Windows {
             ImGui::EndTooltip();
         }
         ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_FILTER]); ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX()+30);
+        ImGui::SetCursorPosX(posX+110);
         ImGui::PushID("remote_filter##remote");
-        if (ImGui::Button(remote_filter, ImVec2(280, 0)))
+        if (ImGui::Button(remote_filter, ImVec2(250, 0)))
         {
             ime_single_field = remote_filter;
             ResetImeCallbacks();
@@ -818,19 +828,23 @@ namespace Windows {
         {
             ImGui::OpenPopup(lang_strings[STR_OVERWRITE_OPTIONS]);
             ImGui::SetNextWindowPos(ImVec2(280, 180));
-            ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(430,400), NULL, NULL);
+            ImGui::SetNextWindowSizeConstraints(ImVec2(420,100), ImVec2(420,400), NULL, NULL);
             if (ImGui::BeginPopupModal(lang_strings[STR_OVERWRITE_OPTIONS], NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
                 ImGui::RadioButton(lang_strings[STR_DONT_OVERWRITE], &overwrite_type, 0);
                 ImGui::RadioButton(lang_strings[STR_ASK_FOR_CONFIRM], &overwrite_type, 1);
                 ImGui::RadioButton(lang_strings[STR_DONT_ASK_CONFIRM], &overwrite_type, 2);
                 ImGui::Separator();
-                ImGui::Checkbox(lang_strings[STR_ALLWAYS_USE_OPTION], &dont_prompt_overwrite_cb);
+                ImGui::Checkbox("##AlwaysUseOption", &dont_prompt_overwrite_cb);
+                ImGui::SameLine();
+                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 380);
+                ImGui::Text(lang_strings[STR_ALLWAYS_USE_OPTION]);
+                ImGui::PopTextWrapPos();
                 ImGui::Separator();
 
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+120);
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()+110);
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-                if (ImGui::Button(lang_strings[STR_CANCEL], ImVec2(70, 0)))
+                if (ImGui::Button(lang_strings[STR_CANCEL], ImVec2(100, 0)))
                 {
                     confirm_transfer_state = 2;
                     dont_prompt_overwrite_cb = dont_prompt_overwrite;
@@ -842,7 +856,7 @@ namespace Windows {
                     SetNavFocusHere();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button(lang_strings[STR_CONTINUE], ImVec2(80, 0)))
+                if (ImGui::Button(lang_strings[STR_CONTINUE], ImVec2(100, 0)))
                 {
                     confirm_transfer_state = 1;
                     dont_prompt_overwrite = dont_prompt_overwrite_cb;
@@ -861,36 +875,36 @@ namespace Windows {
         SetModalMode(true);
         ImGui::OpenPopup(lang_strings[STR_PROPERTIES]);
 
-        ImGui::SetNextWindowPos(ImVec2(280, 200));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(420,80), ImVec2(430,250), NULL, NULL);
+        ImGui::SetNextWindowPos(ImVec2(240, 200));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(500,80), ImVec2(500,250), NULL, NULL);
         if (ImGui::BeginPopupModal(lang_strings[STR_PROPERTIES], NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_TYPE]); ImGui::SameLine();
-            ImGui::SetCursorPosX(60);
+            ImGui::SetCursorPosX(105);
             ImGui::Text(item.isDir ? lang_strings[STR_FOLDER]: lang_strings[STR_FILE]);
             ImGui::Separator();
             
             ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_NAME]); ImGui::SameLine();
-            ImGui::SetCursorPosX(60);
+            ImGui::SetCursorPosX(105);
             ImGui::TextWrapped(item.name);
             ImGui::Separator();
 
             ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_SIZE]); ImGui::SameLine();
-            ImGui::SetCursorPosX(60);
+            ImGui::SetCursorPosX(105);
             ImGui::Text("%lld   (%s)", item.file_size, item.display_size);
             ImGui::Separator();
             
             ImGui::TextColored(colors[ImGuiCol_ButtonHovered], "%s:", lang_strings[STR_DATE]); ImGui::SameLine();
-            ImGui::SetCursorPosX(60);
+            ImGui::SetCursorPosX(105);
             SceDateTime local_time;
             Util::convertUtcToLocalTime(&local_time, &item.modified);
             ImGui::Text("%02d/%02d/%d %02d:%02d:%02d", local_time.day, local_time.month, local_time.year,
                          local_time.hour, local_time.minute, local_time.second);
             ImGui::Separator();
 
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX()+180);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX()+200);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
-            if (ImGui::Button(lang_strings[STR_CLOSE]))
+            if (ImGui::Button(lang_strings[STR_CLOSE], ImVec2(100,0)))
             {
                 SetModalMode(false);
                 selected_action = ACTION_NONE;
@@ -940,7 +954,9 @@ namespace Windows {
                 }
                 if (stop_activity)
                 {
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPosX()+460);
                     ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), lang_strings[STR_CANCEL_ACTION_MSG]);
+                    ImGui::PopTextWrapPos();
                 }
                 ImGui::EndPopup();
             }

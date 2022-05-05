@@ -7,6 +7,7 @@
 #include <ftpclient.h>
 #include <windows.h>
 #include <errno.h>
+#include "lang.h"
 
 #define FTP_CLIENT_BUFSIZ 16384
 #define ACCEPT_TIMEOUT 30
@@ -75,7 +76,7 @@ int FtpClient::Connect(const char *host, unsigned short port)
     retval = sceNetConnect(sControl, (SceNetSockaddr *)&server_addr, sizeof(server_addr));
     if (retval == -1)
     {
-		sprintf(mp_ftphandle->response, "Connection timeout\n");
+		sprintf(mp_ftphandle->response, "%s", lang_strings[STR_FAIL_TIMEOUT_MSG]);
         sceNetSocketClose(sControl);
         return 0;
     }
@@ -1067,17 +1068,17 @@ int FtpClient::Rmdir(const char *path, bool recursive)
 			ret = Rmdir(list[i].path, recursive);
 			if (ret == 0)
 			{
-				sprintf(status_message, "Failed to delete directory %s", list[i].path);
+				sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_DIR_MSG], list[i].path);
 				return 0;
 			}
 		}
 		else
 		{
-			sprintf(activity_message, "Deleting %s\n", list[i].path);
+			sprintf(activity_message, "%s %s\n", lang_strings[STR_DELETING], list[i].path);
 			ret = Delete(list[i].path);
 			if (ret == 0)
 			{
-				sprintf(status_message, "Failed to delete file %s", list[i].path);
+				sprintf(status_message, "%s %s", lang_strings[STR_FAIL_DEL_FILE_MSG], list[i].path);
 				return 0;
 			}
 		}
@@ -1511,7 +1512,7 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 	}
 	sprintf(entry.name, "..");
 	sprintf(entry.path, "%s", entry.directory);
-	sprintf(entry.display_size, "Folder");
+	sprintf(entry.display_size, lang_strings[STR_FOLDER]);
 	entry.file_size = 0;
 	entry.isDir = true;
 	out.push_back(entry);
@@ -1544,7 +1545,7 @@ std::vector<FsEntry> FtpClient::ListDir(const char *path)
 
 				if (entry.isDir)
 				{
-					sprintf(entry.display_size, "Folder");
+					sprintf(entry.display_size, lang_strings[STR_FOLDER]);
 				}
 				else
 				{

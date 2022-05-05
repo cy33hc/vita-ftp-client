@@ -38,16 +38,69 @@ namespace Services
 		ImGui::StyleColorsDark();
 		auto &style = ImGui::GetStyle();
 		ImGui::GetIO().Fonts->Clear();
-		ImFontConfig font_config;
-		font_config.OversampleH = 1;
-		font_config.OversampleV = 1;
-		font_config.PixelSnapH = 1;
 
-		io.Fonts->AddFontFromFileTTF(
-					"sa0:/data/font/pvf/jpn0.pvf",
+		static const ImWchar ranges[] = { // All languages with chinese included
+			0x0020, 0x00FF, // Basic Latin + Latin Supplement
+			0x0100, 0x024F, // Latin Extended
+			0x0370, 0x03FF, // Greek
+			0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+			0x0590, 0x05FF, // Hebrew
+			0x1E00, 0x1EFF, // Latin Extended Additional
+			0x1F00, 0x1FFF, // Greek Extended
+			0x2000, 0x206F, // General Punctuation
+			0x2DE0, 0x2DFF, // Cyrillic Extended-A
+			0x2E80, 0x2EFF, // CJK Radicals Supplement
+			0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
+			0x31F0, 0x31FF, // Katakana Phonetic Extensions
+			0x4E00, 0x9FAF, // CJK Ideograms
+			0xA640, 0xA69F, // Cyrillic Extended-B
+			0xFF00, 0xFFEF, // Half-width characters
+			0,
+		};
+
+		switch (console_language)
+		{
+		case SCE_SYSTEM_PARAM_LANG_CHINESE_S:
+		case SCE_SYSTEM_PARAM_LANG_CHINESE_T:
+			io.Fonts->AddFontFromFileTTF(
+				"sa0:/data/font/pvf/cn0.pvf",
+				16.0f,
+				NULL,
+				ranges);
+			break;
+		case SCE_SYSTEM_PARAM_LANG_KOREAN:
+			{
+				ImFontConfig config;
+				config.MergeMode = true;
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/ltn0.pvf",
 					16.0f,
-					&font_config,
-					io.Fonts->GetGlyphRangesJapanese());
+					NULL,
+					io.Fonts->GetGlyphRangesDefault());
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/kr0.pvf",
+					16.0f,
+					&config,
+					io.Fonts->GetGlyphRangesKorean());
+				io.Fonts->Build();
+			}
+			break;
+		case SCE_SYSTEM_PARAM_LANG_JAPANESE:
+			io.Fonts->AddFontFromFileTTF(
+				"sa0:/data/font/pvf/jpn0.pvf",
+				16.0f,
+				NULL,
+				io.Fonts->GetGlyphRangesJapanese());
+			break;
+		default:
+			io.Fonts->AddFontFromFileTTF(
+				"sa0:/data/font/pvf/ltn0.pvf",
+				16.0f,
+				NULL,
+				ranges);
+			break;
+		}
+
 
 		style.AntiAliasedLinesUseTex = false;
 		style.AntiAliasedLines = true;
@@ -171,8 +224,8 @@ namespace Services
 
 		initSceAppUtil();
 
-		CONFIG::LoadConfig();
 		Lang::SetTranslation(console_language);
+		CONFIG::LoadConfig();
 
 		return 0;
 	}

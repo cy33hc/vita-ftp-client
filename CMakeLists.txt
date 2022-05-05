@@ -107,5 +107,14 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE icons/update.png icons/update.png
   FILE icons/catalog.png icons/catalog.png
   FILE lang/English.ini lang/English.ini
+  FILE lang/Spanish.ini lang/Spanish.ini
+  FILE lang/Dutch.ini lang/Dutch.ini
+  FILE lang/French.ini lang/French.ini
+  FILE lang/German.ini lang/German.ini
+  FILE lang/Italiano.ini lang/Italiano.ini
+  FILE lang/Polish.ini lang/Polish.ini
+  FILE lang/Portuguese_BR.ini lang/Portuguese_BR.ini
+  FILE lang/Russian.ini lang/Russian.ini
+  FILE lang/Korean.ini lang/Korean.ini
   FILE version.txt version.txt
 )

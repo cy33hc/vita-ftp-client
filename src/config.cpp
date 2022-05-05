@@ -5,7 +5,7 @@
 
 #include "config.h"
 #include "fs.h"
-
+#include "lang.h"
 
 extern "C" {
 	#include "inifile.h"
@@ -19,6 +19,7 @@ char local_directory[MAX_PATH_LENGTH];
 char remote_directory[MAX_PATH_LENGTH];
 char app_ver[6];
 char last_site[32];
+char display_site[32];
 std::vector<std::string> sites;
 std::map<std::string,FtpSettings> site_settings;
 
@@ -79,6 +80,11 @@ namespace CONFIG {
 
         sprintf(last_site, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LAST_SITE, sites[0].c_str()));
         WriteString(CONFIG_GLOBAL, CONFIG_LAST_SITE, last_site);
+
+        char buf[12];
+        int num;
+        sscanf(last_site, "%[^ ] %d", buf, &num);
+        sprintf(display_site, "%s %d", lang_strings[STR_SITE], num);
 
         ftp_settings = &site_settings[std::string(last_site)];
 

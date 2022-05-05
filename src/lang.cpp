@@ -65,7 +65,11 @@ char lang_strings[LANG_STRINGS_NUM][LANG_STR_SIZE] = {
 	"426 Connection closed.", // STR_CONNECTION_CLOSE_ERR_MSG
 	"426 Remote Server has terminated the connection.", // STR_REMOTE_TERM_CONN_MSG
 	"300 Failed Login. Please check your username or password.", // STR_FAIL_LOGIN_MSG
-	"426 Failed. Connection timeout." // STR_FAIL_TIMEOUT_MSG
+	"426 Failed. Connection timeout.", // STR_FAIL_TIMEOUT_MSG
+	"Failed to delete directory", // STR_FAIL_DEL_DIR_MSG
+	"Deleting", // STR_DELETING
+	"Failed to delete file", // STR_FAIL_DEL_FILE_MSG
+	"Deleted" // STR_DELETED
 };
 
 bool needs_extended_font = false;
@@ -80,7 +84,7 @@ namespace Lang
 		switch (idx)
 		{
 			case SCE_SYSTEM_PARAM_LANG_ITALIAN:
-				sprintf(langFile, "ux0:app/FTPCLI001/lang/Italian.ini");
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/Italiano.ini");
 				break;
 			case SCE_SYSTEM_PARAM_LANG_SPANISH:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/Spanish.ini");
@@ -88,19 +92,31 @@ namespace Lang
 			case SCE_SYSTEM_PARAM_LANG_GERMAN:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/German.ini");
 				break;
-			case SCE_SYSTEM_PARAM_LANG_PORTUGUESE_PT: // FIXME: Temporarily using Brazilian one
+			case SCE_SYSTEM_PARAM_LANG_PORTUGUESE_PT:
 			case SCE_SYSTEM_PARAM_LANG_PORTUGUESE_BR:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/Portuguese_BR.ini");
 				break;
 			case SCE_SYSTEM_PARAM_LANG_RUSSIAN:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/Russian.ini");
 				break;
+			case SCE_SYSTEM_PARAM_LANG_DUTCH:
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/Dutch.ini");
+				break;
+			case SCE_SYSTEM_PARAM_LANG_FRENCH:
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/French.ini");
+				break;
+			case SCE_SYSTEM_PARAM_LANG_POLISH:
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/Polish.ini");
+				break;
 			case SCE_SYSTEM_PARAM_LANG_JAPANESE:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/Japanese.ini");
-				needs_extended_font = true;
 				break;
-			case SCE_SYSTEM_PARAM_LANG_UKRAINIAN:
-				sprintf(langFile, "ux0:app/FTPCLI001/lang/Ukrainian.ini");
+			case SCE_SYSTEM_PARAM_LANG_KOREAN:
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/Korean.ini");
+				break;
+			case SCE_SYSTEM_PARAM_LANG_CHINESE_S:
+			case SCE_SYSTEM_PARAM_LANG_CHINESE_T:
+				sprintf(langFile, "ux0:app/FTPCLI001/lang/Chinese.ini");
 				break;
 			default:
 				sprintf(langFile, "ux0:app/FTPCLI001/lang/English.ini");
