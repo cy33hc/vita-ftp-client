@@ -177,8 +177,8 @@ namespace Services
 		ImGui_ImplVitaGL_UseRearTouch(false);
 		ImGui_ImplVitaGL_GamepadUsage(true);
 		ImGui_ImplVitaGL_MouseStickUsage(false);
-		ImGui_ImplVita2D_DisableButtons(SCE_CTRL_SQUARE);
-		ImGui_ImplVita2D_SetAnalogRepeatDelay(1000);
+		ImGui_ImplVitaGL_DisableButtons(SCE_CTRL_SQUARE);
+		ImGui_ImplVitaGL_SetAnalogRepeatDelay(1000);
 
 		Textures::Init();
 
