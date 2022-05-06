@@ -1,4 +1,4 @@
-#include <imgui_vita.h>
+#include <imgui_vita2d/imgui_vita.h>
 #include <stdio.h>
 #include <vita2d.h>
 #include "windows.h"
@@ -15,21 +15,27 @@ namespace GUI {
 
 		Windows::Init();
 		while (!done) {
+			vita2d_start_drawing();
+			vita2d_clear_screen();
+
 			if (gui_mode == GUI_MODE_BROWSER)
 			{
-				ImGui_ImplVitaGL_NewFrame();
+				ImGui_ImplVita2D_NewFrame();
 				Windows::HandleWindowInput();
 				Windows::MainWindow();
 				Windows::ExecuteActions();
-				glViewport(0, 0, static_cast<int>(ImGui::GetIO().DisplaySize.x), static_cast<int>(ImGui::GetIO().DisplaySize.y));
 				ImGui::Render();
-				ImGui_ImplVitaGL_RenderDrawData(ImGui::GetDrawData());
-				vglSwapBuffers(GL_FALSE);
+				ImGui_ImplVita2D_RenderDrawData(ImGui::GetDrawData());
 			}
 			else if (gui_mode == GUI_MODE_IME)
 			{
 				Windows::HandleImeInput();
 			}
+
+			vita2d_end_drawing();
+			vita2d_common_dialog_update();
+			vita2d_swap_buffers();
+			sceDisplayWaitVblankStart();
 		}
 		
 		return 0;

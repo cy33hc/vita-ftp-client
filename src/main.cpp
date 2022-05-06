@@ -6,7 +6,7 @@
 // **Prefer using the code in the sdl_opengl3_example/ folder**
 // See imgui_impl_sdl.cpp for details.
 
-#include <imgui_vita.h>
+#include <imgui_vita2d/imgui_vita.h>
 #include <stdio.h>
 #include <vita2d.h>
 
@@ -168,15 +168,13 @@ namespace Services
         colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
         colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
-		vglInitExtended(0, 960, 544, 0x1800000, SCE_GXM_MULTISAMPLE_4X);
-		ImGui::CreateContext();
-		ImGui_ImplVitaGL_Init();
+		ImGui_ImplVita2D_Init();
 
-		ImGui_ImplVitaGL_TouchUsage(true);
-		ImGui_ImplVitaGL_UseIndirectFrontTouch(false);
-		ImGui_ImplVitaGL_UseRearTouch(false);
-		ImGui_ImplVitaGL_GamepadUsage(true);
-		ImGui_ImplVitaGL_MouseStickUsage(false);
+		ImGui_ImplVita2D_TouchUsage(true);
+		ImGui_ImplVita2D_UseIndirectFrontTouch(false);
+		ImGui_ImplVita2D_UseRearTouch(false);
+		ImGui_ImplVita2D_GamepadUsage(true);
+		ImGui_ImplVita2D_MouseStickUsage(false);
 		ImGui_ImplVita2D_DisableButtons(SCE_CTRL_SQUARE);
 		ImGui_ImplVita2D_SetAnalogRepeatDelay(1000);
 
@@ -190,7 +188,7 @@ namespace Services
 		Textures::Exit();
 
 		// Cleanup
-		ImGui_ImplVitaGL_Shutdown();
+		ImGui_ImplVita2D_Shutdown();
 		ImGui::DestroyContext();
 	}
 

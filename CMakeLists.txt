@@ -47,14 +47,11 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  imgui
   vorbisfile
   vorbis
   ogg
   vita2d
-  vitaGL
-  vitashark
-  mathneon
+  imgui_vita2d
   png
   stdc++
   c

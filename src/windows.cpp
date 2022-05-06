@@ -1,4 +1,4 @@
-#include <imgui_vita.h>
+#include <imgui_vita2d/imgui_vita.h>
 #include <stdio.h>
 #include <algorithm>
 #include <set>
@@ -167,7 +167,7 @@ namespace Windows {
         std::string hidden_password = std::string("xxxxxxx");
 
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+4);
-        if (ImGui::ImageButton((void*)update_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(update_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_UPDATE_SOFTWARE;
         }
@@ -190,7 +190,7 @@ namespace Windows {
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
-        if (ImGui::ImageButton((void*)connect_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(connect_icon.id), ImVec2(25,25)))
         {
             ftp_settings->server_port = atoi(txt_server_port);
             selected_action = ACTION_CONNECT_FTP;
@@ -214,7 +214,7 @@ namespace Windows {
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.3f);
         }
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
-        if (ImGui::ImageButton((void*)disconnect_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(disconnect_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_DISCONNECT_FTP;
         }
@@ -365,7 +365,7 @@ namespace Windows {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()-17);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+5);
         ImGui::PushID("search##local");
-        if (ImGui::ImageButton((void*)search_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(search_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_APPLY_LOCAL_FILTER;
         }
@@ -378,7 +378,7 @@ namespace Windows {
         }
         ImGui::SameLine();
         ImGui::PushID("refresh##local");
-        if (ImGui::ImageButton((void*)refresh_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_LOCAL_FILES;
         }
@@ -408,11 +408,11 @@ namespace Windows {
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
             if (item.isDir)
             {
-                ImGui::Image((void*)folder_icon, ImVec2(20,20));
+                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
             }
             else
             {
-                ImGui::Image((void*)file_icon, ImVec2(20,20));
+                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
             }
             ImGui::NextColumn();
             ImGui::SetColumnWidth(-1,318);
@@ -509,7 +509,7 @@ namespace Windows {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()-17);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()+5);
         ImGui::PushID("search##remote");
-        if (ImGui::ImageButton((void*)search_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(search_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_APPLY_REMOTE_FILTER;
         }
@@ -522,7 +522,7 @@ namespace Windows {
         }
         ImGui::SameLine();
         ImGui::PushID("refresh##remote");
-        if (ImGui::ImageButton((void*)refresh_icon, ImVec2(25,25)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(refresh_icon.id), ImVec2(25,25)))
         {
             selected_action = ACTION_REFRESH_REMOTE_FILES;
         }
@@ -552,11 +552,11 @@ namespace Windows {
             ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
             if (item.isDir)
             {
-                ImGui::Image((void*)folder_icon, ImVec2(20,20));
+                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
             }
             else
             {
-                ImGui::Image((void*)file_icon, ImVec2(20,20));
+                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
             }
             ImGui::NextColumn();
 

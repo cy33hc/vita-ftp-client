@@ -154,7 +154,6 @@ namespace Dialog
 
     SceCommonDialogStatus status;
     while ((status = sceImeDialogGetStatus()) != IME_DIALOG_RESULT_FINISHED) {
-			vglSwapBuffers(GL_TRUE);
 		}
 
     SceImeDialogResult result;

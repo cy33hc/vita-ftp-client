@@ -1,46 +1,33 @@
 #include <vitaGL.h>
-#include <imgui_vita.h>
+#include <imgui_vita2d/imgui_vita.h>
 #include <vita2d.h>
 #include "textures.h"
 
-GLuint connect_icon;
-GLuint disconnect_icon;
-GLuint search_icon;
-GLuint refresh_icon;
+Tex connect_icon;
+Tex disconnect_icon;
+Tex search_icon;
+Tex refresh_icon;
 
-GLuint folder_icon;
-GLuint file_icon;
-GLuint update_icon;
+Tex folder_icon;
+Tex file_icon;
+Tex update_icon;
 
 namespace Textures {
 	
-	void LoadFonts()
+	bool LoadImageFile(const std::string filename, Tex *texture)
 	{
-		// Build and load the texture atlas into a texture
-		uint32_t* pixels = NULL;
-		int width, height;
-		ImGuiIO& io = ImGui::GetIO();
-		io.Fonts->AddFontFromFileTTF(
-					"ux0:app/SMLA00001/Ubuntu-R.ttf",
-					16.0f,
-					0,
-					io.Fonts->GetGlyphRangesDefault());
-	}
-
-	bool LoadImageFile(const std::string filename, GLuint *texture)
-	{
-		// Load from file
 		vita2d_texture *image = vita2d_load_PNG_file(filename.c_str());
 		if (image == NULL) {
-				return false;
+			return false;
 		}
-		int width = vita2d_texture_get_width(image);
-		int height = vita2d_texture_get_height(image);
+		int image_width = vita2d_texture_get_width(image);
+		int image_height = vita2d_texture_get_height(image);
+		vita2d_texture_set_filters(image, SCE_GXM_TEXTURE_FILTER_LINEAR, SCE_GXM_TEXTURE_FILTER_LINEAR);
 
-		glGenTextures(1, texture);
-		glBindTexture(GL_TEXTURE_2D, *texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, vita2d_texture_get_datap(image));
-		vita2d_free_texture(image);
+		texture->id = image;
+		texture->width = image_width;
+		texture->height = image_height;
+
 		return true;
 	}
 	
