@@ -232,8 +232,8 @@ namespace Services
 
 		initSceAppUtil();
 
-		Lang::SetTranslation(console_language);
 		CONFIG::LoadConfig();
+		Lang::SetTranslation(console_language);
 
 		return 0;
 	}

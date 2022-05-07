@@ -38,6 +38,8 @@
 #define CONFIG_LOCAL_DIRECTORY "local_directory"
 #define CONFIG_REMOTE_DIRECTORY "remote_directory"
 
+#define CONFIG_LANGUAGE "language"
+
 struct FtpSettings {
     char site_name[32];
     char server_ip[16];
@@ -57,6 +59,7 @@ extern char remote_directory[MAX_PATH_LENGTH];
 extern char app_ver[6];
 extern char last_site[32];
 extern char display_site[32];
+extern char language[32];
 extern FtpSettings *ftp_settings;
 
 namespace CONFIG {

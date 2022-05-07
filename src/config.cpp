@@ -20,6 +20,7 @@ char remote_directory[MAX_PATH_LENGTH];
 char app_ver[6];
 char last_site[32];
 char display_site[32];
+char language[32];
 std::vector<std::string> sites;
 std::map<std::string,FtpSettings> site_settings;
 
@@ -49,6 +50,9 @@ namespace CONFIG {
         enable_backgrou_music = ReadBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, true);
         WriteBool(CONFIG_GLOBAL, CONFIG_ENABLE_BACKGROUND_MUSIC, enable_backgrou_music);
         
+        sprintf(language, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LANGUAGE, ""));
+        WriteString(CONFIG_GLOBAL, CONFIG_LANGUAGE, language);
+
         sprintf(local_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, "ux0:"));
         WriteString(CONFIG_GLOBAL, CONFIG_LOCAL_DIRECTORY, local_directory);
 
@@ -80,11 +84,6 @@ namespace CONFIG {
 
         sprintf(last_site, "%s", ReadString(CONFIG_GLOBAL, CONFIG_LAST_SITE, sites[0].c_str()));
         WriteString(CONFIG_GLOBAL, CONFIG_LAST_SITE, last_site);
-
-        char buf[12];
-        int num;
-        sscanf(last_site, "%[^ ] %d", buf, &num);
-        sprintf(display_site, "%s %d", lang_strings[STR_SITE], num);
 
         ftp_settings = &site_settings[std::string(last_site)];
 
