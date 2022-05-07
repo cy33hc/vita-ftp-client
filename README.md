@@ -19,9 +19,9 @@ The appplication can auto-detect the following standard PSVITA languages
 
 Japanese, English, French, Spanish, German, Italian, Dutch, Portuguese_BR, Protugese_PT, Russian, Korean, Chinese, Finnish, Swedish,  Danish, Norwegian, Polish, Turkish
 
-For **Non-Standard** Languages like **Catalan, Euskera and Galego**
+For **Non-Standard** Languages like **Croatian, Catalan, Euskera and Galego**
 
-User must modify the file **ux0:data/FTPCLI0001/config.ini** and update the **language** setting to Catalan, Euskera or Galego
+User must modify the file **ux0:data/FTPCLI0001/config.ini** and update the **language** setting to Croatian, Catalan, Euskera or Galego
 
 # Credits
 Thx to the following people for translating the string used in the app.
