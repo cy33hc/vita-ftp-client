@@ -169,7 +169,6 @@ namespace Services
         colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
 		ImGui_ImplVita2D_Init();
-
 		ImGui_ImplVita2D_TouchUsage(true);
 		ImGui_ImplVita2D_UseIndirectFrontTouch(false);
 		ImGui_ImplVita2D_UseRearTouch(false);
@@ -230,8 +229,8 @@ namespace Services
 
 		initSceAppUtil();
 
-		Lang::SetTranslation(console_language);
 		CONFIG::LoadConfig();
+		Lang::SetTranslation(console_language);
 
 		return 0;
 	}

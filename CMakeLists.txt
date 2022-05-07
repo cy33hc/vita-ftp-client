@@ -13,7 +13,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Ftp Client")
 set(VITA_TITLEID  "FTPCLI001")
-set(VITA_VERSION  "01.41")
+set(VITA_VERSION  "01.43")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
@@ -116,5 +116,9 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE lang/Chinese_Simplified.ini lang/Chinese_Simplified.ini
   FILE lang/Chinese_Traditional.ini lang/Chinese_Traditional.ini
   FILE lang/Japanese.ini lang/Japanese.ini
+  FILE lang/Catalan.ini lang/Catalan.ini
+  FILE lang/Euskera.ini lang/Euskera.ini
+  FILE lang/Galego.ini lang/Galego.ini
+  FILE lang/Croatian.ini lang/Croatian.ini
   FILE version.txt version.txt
 )
