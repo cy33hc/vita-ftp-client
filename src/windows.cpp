@@ -179,7 +179,7 @@ namespace Windows {
         }
         if (ImGui::IsWindowAppearing())
         {
-            SetNavFocusHere();
+            ImGui::SetItemDefaultFocus();
         }
         ImGui::SameLine();
 
@@ -446,7 +446,7 @@ namespace Windows {
                 if (strcmp(local_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.0f);
+                    ImGui::SetScrollHereY(0.5f);
                     sprintf(local_file_to_select, "");
                 }
                 selected_browser |= LOCAL_BROWSER;
@@ -591,7 +591,7 @@ namespace Windows {
                 if (strcmp(remote_file_to_select, item.name)==0)
                 {
                     SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.0f);
+                    ImGui::SetScrollHereY(0.5f);
                     sprintf(remote_file_to_select, "");
                 }
                 selected_browser |= REMOTE_BROWSER;
@@ -807,7 +807,7 @@ namespace Windows {
             ImGui::PopID();
             if (ImGui::IsWindowAppearing())
             {
-                SetNavFocusHere();
+                ImGui::SetItemDefaultFocus();
             }
             ImGui::EndPopup();
         }
@@ -871,7 +871,7 @@ namespace Windows {
                 };
                 if (ImGui::IsWindowAppearing())
                 {
-                    SetNavFocusHere();
+                    ImGui::SetItemDefaultFocus();
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(lang_strings[STR_CONTINUE], ImVec2(100, 0)))

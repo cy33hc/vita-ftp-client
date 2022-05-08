@@ -17,7 +17,7 @@
 */
 
 #include <vitasdk.h>
-#include <vitaGL.h>
+#include <vita2d.h>
 #include "ime_dialog.h"
 
 static int ime_dialog_running = 0;
@@ -152,30 +152,34 @@ namespace Dialog
     if (!ime_dialog_running)
       return IME_DIALOG_RESULT_NONE;
 
-    SceCommonDialogStatus status;
-    while ((status = sceImeDialogGetStatus()) != IME_DIALOG_RESULT_FINISHED) {
-			vglSwapBuffers(GL_TRUE);
-		}
-
-    SceImeDialogResult result;
-    memset(&result, 0, sizeof(SceImeDialogResult));
-    sceImeDialogGetResult(&result);
-
-    if ((ime_dialog_option == SCE_IME_OPTION_MULTILINE && result.button == SCE_IME_DIALOG_BUTTON_CLOSE) ||
-        (ime_dialog_option != SCE_IME_OPTION_MULTILINE && result.button == SCE_IME_DIALOG_BUTTON_ENTER))
+    vita2d_start_drawing();
+    vita2d_clear_screen();
+    SceCommonDialogStatus status = sceImeDialogGetStatus();
+    if (status == IME_DIALOG_RESULT_FINISHED)
     {
-      // Convert UTF16 to UTF8
-      utf16_to_utf8(ime_input_text_utf16, ime_input_text_utf8);
+      SceImeDialogResult result;
+      memset(&result, 0, sizeof(SceImeDialogResult));
+      sceImeDialogGetResult(&result);
+
+      if ((ime_dialog_option == SCE_IME_OPTION_MULTILINE && result.button == SCE_IME_DIALOG_BUTTON_CLOSE) ||
+          (ime_dialog_option != SCE_IME_OPTION_MULTILINE && result.button == SCE_IME_DIALOG_BUTTON_ENTER))
+      {
+        // Convert UTF16 to UTF8
+        utf16_to_utf8(ime_input_text_utf16, ime_input_text_utf8);
+      }
+      else
+      {
+        status = IME_DIALOG_RESULT_CANCELED;
+      }
+
+      sceImeDialogTerm();
+
+      ime_dialog_running = 0;
     }
-    else
-    {
-      status = IME_DIALOG_RESULT_CANCELED;
-    }
-
-    sceImeDialogTerm();
-
-    ime_dialog_running = 0;
-
+    vita2d_end_drawing();
+    vita2d_common_dialog_update();
+    vita2d_swap_buffers();
+    sceDisplayWaitVblankStart();
     return status;
   }
 
