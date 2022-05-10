@@ -977,6 +977,7 @@ namespace Windows {
                     ImGui::PopTextWrapPos();
                 }
                 ImGui::EndPopup();
+                sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DEFAULT);
             }
         }
     }
