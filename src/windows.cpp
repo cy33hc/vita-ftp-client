@@ -393,78 +393,79 @@ namespace Windows {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+10);
         ImGui::BeginChild("Local##ChildWindow", ImVec2(452,315));
         ImGui::Separator();
-        ImGui::Columns(3, "Local##Columns", true);
         int i = 0;
         if (set_focus_to_local)
         {
             set_focus_to_local = false;
             ImGui::SetWindowFocus();
         }
-        for (int j=0; j<local_files.size(); j++)
+        if (ImGui::BeginTable("Local##Columns", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings))
         {
-            FsEntry item = local_files[j];
-            ImGui::SetColumnWidth(-1,25);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX()-5);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
-            if (item.isDir)
+            ImGui::TableSetupColumn("type", ImGuiTableColumnFlags_WidthFixed, 23);
+            ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthFixed, 310);
+            ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 100);
+            for (int j=0; j<local_files.size(); j++)
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
-            }
-            else
-            {
-                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
-            }
-            ImGui::NextColumn();
-            ImGui::SetColumnWidth(-1,318);
-            ImGui::PushID(i);
-            auto search_item = multi_selected_local_files.find(item);
-            if (search_item != multi_selected_local_files.end())
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
-            }
-            if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
-            {
-                selected_local_file = item;
-                selected_action = ACTION_CHANGE_LOCAL_DIRECTORY;
-            }
-            ImGui::PopID();
-            if (ImGui::IsItemFocused())
-            {
-                selected_local_file = item;
-            }
-            if (ImGui::IsItemHovered())
-            {
-                if (ImGui::CalcTextSize(item.name).x>310)
+                ImGui::TableNextColumn();
+                FsEntry item = local_files[j];
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY()-4);
+                if (item.isDir)
                 {
-                    ImGui::BeginTooltip();
-                    ImGui::Text(item.name);
-                    ImGui::EndTooltip();
+                    ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
                 }
-            }
-            if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
-            {
-                if (strcmp(local_file_to_select, item.name)==0)
+                else
                 {
-                    SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.5f);
-                    sprintf(local_file_to_select, "");
+                    ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
                 }
-                selected_browser |= LOCAL_BROWSER;
+                ImGui::TableNextColumn();
+                ImGui::PushID(i);
+                auto search_item = multi_selected_local_files.find(item);
+                if (search_item != multi_selected_local_files.end())
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
+                }
+                if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
+                {
+                    selected_local_file = item;
+                    selected_action = ACTION_CHANGE_LOCAL_DIRECTORY;
+                }
+                ImGui::PopID();
+                if (ImGui::IsItemFocused())
+                {
+                    selected_local_file = item;
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    if (ImGui::CalcTextSize(item.name).x>310)
+                    {
+                        ImGui::BeginTooltip();
+                        ImGui::Text(item.name);
+                        ImGui::EndTooltip();
+                    }
+                }
+                if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+                {
+                    if (strcmp(local_file_to_select, item.name)==0)
+                    {
+                        SetNavFocusHere();
+                        ImGui::SetScrollHereY(0.5f);
+                        sprintf(local_file_to_select, "");
+                    }
+                    selected_browser |= LOCAL_BROWSER;
+                }
+                ImGui::TableNextColumn();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(item.display_size).x 
+                    - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::Text(item.display_size);
+                if (search_item != multi_selected_local_files.end())
+                {
+                    ImGui::PopStyleColor();
+                }
+                ImGui::Separator();
+                i++;
             }
-            ImGui::NextColumn();
-            ImGui::SetColumnWidth(-1,90);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(item.display_size).x 
-                   - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
-            ImGui::Text(item.display_size);
-            if (search_item != multi_selected_local_files.end())
-            {
-                ImGui::PopStyleColor();
-            }
-            ImGui::NextColumn();               
-            ImGui::Separator();
-            i++;
+            ImGui::EndTable();
         }
-        ImGui::Columns(1);
         ImGui::EndChild();
         EndGroupPanel();
         ImGui::SameLine();
@@ -542,74 +543,74 @@ namespace Windows {
             ImGui::SetWindowFocus();
         }
         ImGui::Separator();
-        ImGui::Columns(3, "Remote##Columns", true);
         i=99999;
-        for (int j=0; j<remote_files.size(); j++)
+        if (ImGui::BeginTable("Remote##Columns", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings))
         {
-            FsEntry item = remote_files[j];
-            ImGui::SetColumnWidth(-1,25);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX()-5);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
-            if (item.isDir)
+            ImGui::TableSetupColumn("type", ImGuiTableColumnFlags_WidthFixed, 23);
+            ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthFixed, 310);
+            ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 100);
+            for (int j=0; j<remote_files.size(); j++)
             {
-                ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
-            }
-            else
-            {
-                ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
-            }
-            ImGui::NextColumn();
-
-            ImGui::SetColumnWidth(-1,318);
-            auto search_item = multi_selected_remote_files.find(item);
-            if (search_item != multi_selected_remote_files.end())
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
-            }
-            ImGui::PushID(i);
-            if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
-            {
-                selected_remote_file = item;
-                selected_action = ACTION_CHANGE_REMOTE_DIRECTORY;
-            }
-            if (ImGui::IsItemHovered())
-            {
-                if (ImGui::CalcTextSize(item.name).x>310)
+                FsEntry item = remote_files[j];
+                ImGui::TableNextColumn();
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY()-4);
+                if (item.isDir)
                 {
-                    ImGui::BeginTooltip();
-                    ImGui::Text(item.name);
-                    ImGui::EndTooltip();
+                    ImGui::Image(reinterpret_cast<ImTextureID>(folder_icon.id), ImVec2(20,20));
                 }
-            }
-            ImGui::PopID();
-            if (ImGui::IsItemFocused())
-            {
-                selected_remote_file = item;
-            }
-            if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
-            {
-                if (strcmp(remote_file_to_select, item.name)==0)
+                else
                 {
-                    SetNavFocusHere();
-                    ImGui::SetScrollHereY(0.5f);
-                    sprintf(remote_file_to_select, "");
+                    ImGui::Image(reinterpret_cast<ImTextureID>(file_icon.id), ImVec2(20,20));
                 }
-                selected_browser |= REMOTE_BROWSER;
+                ImGui::TableNextColumn();
+                auto search_item = multi_selected_remote_files.find(item);
+                if (search_item != multi_selected_remote_files.end())
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,255,0,255));
+                }
+                ImGui::PushID(i);
+                if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
+                {
+                    selected_remote_file = item;
+                    selected_action = ACTION_CHANGE_REMOTE_DIRECTORY;
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    if (ImGui::CalcTextSize(item.name).x>310)
+                    {
+                        ImGui::BeginTooltip();
+                        ImGui::Text(item.name);
+                        ImGui::EndTooltip();
+                    }
+                }
+                ImGui::PopID();
+                if (ImGui::IsItemFocused())
+                {
+                    selected_remote_file = item;
+                }
+                if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+                {
+                    if (strcmp(remote_file_to_select, item.name)==0)
+                    {
+                        SetNavFocusHere();
+                        ImGui::SetScrollHereY(0.5f);
+                        sprintf(remote_file_to_select, "");
+                    }
+                    selected_browser |= REMOTE_BROWSER;
+                }
+                ImGui::TableNextColumn();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(item.display_size).x 
+                    - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::Text(item.display_size);
+                if (search_item != multi_selected_remote_files.end())
+                {
+                    ImGui::PopStyleColor();
+                }
+                ImGui::Separator();
+                i++;
             }
-            ImGui::NextColumn();
-            ImGui::SetColumnWidth(-1,90);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(item.display_size).x 
-                   - ImGui::GetScrollX() - ImGui::GetStyle().ItemSpacing.x);
-            ImGui::Text(item.display_size);
-            if (search_item != multi_selected_remote_files.end())
-            {
-                ImGui::PopStyleColor();
-            }
-            ImGui::NextColumn();               
-            ImGui::Separator();
-            i++;
+            ImGui::EndTable();
         }
-        ImGui::Columns(1);
         ImGui::EndChild();
         EndGroupPanel();
     }
@@ -977,6 +978,7 @@ namespace Windows {
                     ImGui::PopTextWrapPos();
                 }
                 ImGui::EndPopup();
+                sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DEFAULT);
             }
         }
     }

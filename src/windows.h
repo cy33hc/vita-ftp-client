@@ -49,7 +49,7 @@ namespace Windows {
 
     inline void SetNavFocusHere()
     {
-        GImGui->NavId = GImGui->LastItemData.ID;
+        GImGui->NavId = GImGui->CurrentWindow->DC.LastItemId;
     }
 
     inline void ClearNavFocus()
