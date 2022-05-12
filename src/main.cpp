@@ -223,6 +223,11 @@ namespace Services
 
 	int Init(void)
 	{
+		scePowerSetArmClockFrequency(500);
+		scePowerSetBusClockFrequency(222);
+		scePowerSetGpuXbarClockFrequency(166);
+		scePowerSetGpuClockFrequency(333);
+
 		// Allow writing to ux0:app/VITASHELL
 		sceAppMgrUmount("app0:");
 		sceAppMgrUmount("savedata0:");
