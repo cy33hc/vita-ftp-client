@@ -37,7 +37,6 @@ struct FsEntry {
     {
         return strcmp(a.name, b.name) < 0;
     }
-
 };
 
 namespace FS {

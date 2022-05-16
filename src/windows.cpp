@@ -424,8 +424,11 @@ namespace Windows {
             }
             if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
             {
-                selected_local_file = item;
-                selected_action = ACTION_CHANGE_LOCAL_DIRECTORY;
+                if (item.isDir)
+                {
+                    selected_local_file = item;
+                    selected_action = ACTION_CHANGE_LOCAL_DIRECTORY;
+                }
             }
             ImGui::PopID();
             if (ImGui::IsItemFocused())
@@ -569,8 +572,11 @@ namespace Windows {
             ImGui::PushID(i);
             if (ImGui::Selectable(item.name, false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(452, 0)))
             {
-                selected_remote_file = item;
-                selected_action = ACTION_CHANGE_REMOTE_DIRECTORY;
+                if (item.isDir)
+                {
+                    selected_remote_file = item;
+                    selected_action = ACTION_CHANGE_REMOTE_DIRECTORY;
+                }
             }
             if (ImGui::IsItemHovered())
             {
