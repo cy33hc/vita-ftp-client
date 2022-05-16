@@ -6,6 +6,10 @@
 #include "net.h"
 #include "gui.h"
 
+extern "C" {
+	#include "inifile.h"
+}
+
 #define ITLS_ENSO_APP_ID "SKGTLSE12"
 
 char updater_message[256];
@@ -106,6 +110,11 @@ namespace Updater {
         free(head_bin);
 
         return 0;
+    }
+
+    bool isiTLSEnsoInstalled()
+    {
+        return FS::FileExists("vs0:/data/external/itls/libhttp.suprx");
     }
 
     int CheckAppExist(const char *titleid)
@@ -265,17 +274,17 @@ namespace Updater {
         SceKernelFwInfo fw;
         fw.size = sizeof(SceKernelFwInfo);
         _vshSblGetSystemSwVersion(&fw);
-        int itls_enso_installed = CheckAppExist(ITLS_ENSO_APP_ID);
+        int itls_enso_installed = isiTLSEnsoInstalled();
         int updated = 0;
         if (itls_enso_installed || fw.version > 0x03650000)
         {
             updated = UpdateFtpClient();
         }
 
-        if (!itls_enso_installed && fw.version <= 0x03650000)
+        if (!itls_enso_installed && fw.version <= 0x03650000 && warn_missing_installs)
         {
             sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download updates");
-            sceKernelDelayThread(4000000);
+            sceKernelDelayThread(5000000);
         }
 
         if (updated == 1)
@@ -283,6 +292,15 @@ namespace Updater {
             sprintf(updater_message, "FtpClient updated successfully.\nRestarting after 3s");
             sceKernelDelayThread(3000000);
             sceAppMgrLoadExec("app0:eboot.bin", NULL, NULL);
+        }
+
+        // Just warn once only
+        if (warn_missing_installs)
+        {
+            OpenIniFile(CONFIG_INI_FILE);
+            WriteBool(CONFIG_GLOBAL, CONFIG_UPDATE_WARN_MISSING, false);
+            WriteIniFile(CONFIG_INI_FILE);
+            CloseIniFile();
         }
 
         handle_updates = false;
@@ -307,17 +325,29 @@ namespace Updater {
     {
         sceKernelDelayThread(1500000);
 
-        int itls_enso_installed = CheckAppExist(ITLS_ENSO_APP_ID);
-        if (itls_enso_installed)
-        {
-        }
+        SceKernelFwInfo fw;
+        fw.size = sizeof(SceKernelFwInfo);
+        _vshSblGetSystemSwVersion(&fw);
+
+        int itls_enso_installed = isiTLSEnsoInstalled();
+        if (itls_enso_installed || fw.version > 0x03650000){}
 
     ERROR_EXIT:
-        if (!itls_enso_installed)
+        if (!itls_enso_installed && fw.version <= 0x03650000 && warn_missing_installs)
         {
             sprintf(updater_message, "iTLS-Enso is not installed.\nIt's required to download icons and updates");
             sceKernelDelayThread(4000000);
         }
+        
+        // Just warn once only
+        if (warn_missing_installs)
+        {
+            OpenIniFile(CONFIG_INI_FILE);
+            WriteBool(CONFIG_GLOBAL, CONFIG_UPDATE_WARN_MISSING, false);
+            WriteIniFile(CONFIG_INI_FILE);
+            CloseIniFile();
+        }
+
         handle_updates = false;
         Windows::SetModalMode(false);
         return sceKernelExitDeleteThread(0);

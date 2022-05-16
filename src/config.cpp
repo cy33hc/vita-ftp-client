@@ -23,6 +23,7 @@ char display_site[32];
 char language[32];
 std::vector<std::string> sites;
 std::map<std::string,FtpSettings> site_settings;
+bool warn_missing_installs;
 
 namespace CONFIG {
 
@@ -58,6 +59,9 @@ namespace CONFIG {
 
         sprintf(remote_directory, "%s", ReadString(CONFIG_GLOBAL, CONFIG_REMOTE_DIRECTORY, "/"));
         WriteString(CONFIG_GLOBAL, CONFIG_REMOTE_DIRECTORY, remote_directory);
+
+        warn_missing_installs = ReadBool(CONFIG_GLOBAL, CONFIG_UPDATE_WARN_MISSING, true);
+        WriteBool(CONFIG_GLOBAL, CONFIG_UPDATE_WARN_MISSING, warn_missing_installs);
 
         for (int i=0; i <sites.size(); i++)
         {

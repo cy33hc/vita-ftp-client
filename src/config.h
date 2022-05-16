@@ -37,6 +37,7 @@
 
 #define CONFIG_LOCAL_DIRECTORY "local_directory"
 #define CONFIG_REMOTE_DIRECTORY "remote_directory"
+#define CONFIG_UPDATE_WARN_MISSING "warn_missing_installs"
 
 #define CONFIG_LANGUAGE "language"
 
@@ -61,6 +62,7 @@ extern char last_site[32];
 extern char display_site[32];
 extern char language[32];
 extern FtpSettings *ftp_settings;
+extern bool warn_missing_installs;
 
 namespace CONFIG {
     void LoadConfig();
