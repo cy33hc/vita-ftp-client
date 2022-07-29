@@ -73,6 +73,14 @@ namespace Services
 					NULL,
 					io.Fonts->GetGlyphRangesJapanese());
 			}
+			else
+			{
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/ltn0.pvf",
+					16.0f,
+					NULL,
+					ranges);
+			}
 		}
 		else
 		{
