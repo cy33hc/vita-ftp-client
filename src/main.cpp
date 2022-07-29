@@ -17,6 +17,7 @@
 #include "net.h"
 #include "ftpclient.h"
 #include "lang.h"
+#include "util.h"
 #include "debugScreen.h"
 
 extern "C" {
@@ -60,55 +61,70 @@ namespace Services
 			0,
 		};
 
-		switch (console_language)
+		std::string lang = std::string(language);
+		lang = Util::Trim(lang, " ");
+		if (lang.size() > 0)
 		{
-		case SCE_SYSTEM_PARAM_LANG_CHINESE_S:
-			io.Fonts->AddFontFromFileTTF(
-				"sa0:/data/font/pvf/cn0.pvf",
-				17.0f,
-				NULL,
-				io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
-			break;
-		case SCE_SYSTEM_PARAM_LANG_CHINESE_T:
-			io.Fonts->AddFontFromFileTTF(
-				"sa0:/data/font/pvf/cn0.pvf",
-				16.0f,
-				NULL,
-				io.Fonts->GetGlyphRangesChineseFull());
-			break;
-		case SCE_SYSTEM_PARAM_LANG_KOREAN:
+			if (strcmp(lang.c_str(), "Ryukyuan") == 0)
 			{
-				ImFontConfig config;
-				config.MergeMode = true;
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/jpn0.pvf",
+					16.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesJapanese());
+			}
+		}
+		else
+		{
+			switch (console_language)
+			{
+			case SCE_SYSTEM_PARAM_LANG_CHINESE_S:
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/cn0.pvf",
+					17.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+				break;
+			case SCE_SYSTEM_PARAM_LANG_CHINESE_T:
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/cn0.pvf",
+					16.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesChineseFull());
+				break;
+			case SCE_SYSTEM_PARAM_LANG_KOREAN:
+				{
+					ImFontConfig config;
+					config.MergeMode = true;
+					io.Fonts->AddFontFromFileTTF(
+						"sa0:/data/font/pvf/ltn0.pvf",
+						16.0f,
+						NULL,
+						io.Fonts->GetGlyphRangesDefault());
+					io.Fonts->AddFontFromFileTTF(
+						"sa0:/data/font/pvf/kr0.pvf",
+						16.0f,
+						&config,
+						io.Fonts->GetGlyphRangesKorean());
+					io.Fonts->Build();
+				}
+				break;
+			case SCE_SYSTEM_PARAM_LANG_JAPANESE:
+				io.Fonts->AddFontFromFileTTF(
+					"sa0:/data/font/pvf/jpn0.pvf",
+					16.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesJapanese());
+				break;
+			default:
 				io.Fonts->AddFontFromFileTTF(
 					"sa0:/data/font/pvf/ltn0.pvf",
 					16.0f,
 					NULL,
-					io.Fonts->GetGlyphRangesDefault());
-				io.Fonts->AddFontFromFileTTF(
-					"sa0:/data/font/pvf/kr0.pvf",
-					16.0f,
-					&config,
-					io.Fonts->GetGlyphRangesKorean());
-				io.Fonts->Build();
+					ranges);
+				break;
 			}
-			break;
-		case SCE_SYSTEM_PARAM_LANG_JAPANESE:
-			io.Fonts->AddFontFromFileTTF(
-				"sa0:/data/font/pvf/jpn0.pvf",
-				16.0f,
-				NULL,
-				io.Fonts->GetGlyphRangesJapanese());
-			break;
-		default:
-			io.Fonts->AddFontFromFileTTF(
-				"sa0:/data/font/pvf/ltn0.pvf",
-				16.0f,
-				NULL,
-				ranges);
-			break;
 		}
-
 
 		style.AntiAliasedLinesUseTex = false;
 		style.AntiAliasedLines = true;
