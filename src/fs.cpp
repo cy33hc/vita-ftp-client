@@ -80,7 +80,6 @@ namespace FS {
     void Rename(const std::string& from, const std::string& to)
     {
         // try to remove first because sceIoRename does not overwrite
-        sceIoRemove(to.c_str());
         int res = sceIoRename(from.c_str(), to.c_str());
     }
 
