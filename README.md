@@ -16,10 +16,23 @@ Opening the Input Editor multiple times crashes the application. I can't figure 
 
 # Multi Language support
 The appplication can auto-detect the following standard PSVITA languages
+```
+Japanese
+English
+French
+Spanish
+German
+Italian
+Dutch
+Portuguese_BR
+Protugese_PT
+Russian
+Korean
+Chinese
+Polish
+```
 
-Japanese, English, French, Spanish, German, Italian, Dutch, Portuguese_BR, Protugese_PT, Russian, Korean, Chinese, Finnish, Swedish,  Danish, Norwegian, Polish, Turkish
-
-For **Non-Standard** Languages like **Croatian, Catalan, Euskera, Galego, Indonesian**
+For **Non-Standard** Languages like **Croatian, Catalan, Euskera, Galego, Hungarian, Indonesian**
 
 User must modify the file **ux0:data/FTPCLI0001/config.ini** and update the **language** setting to Croatian, Catalan, Euskera, Galego or Indonesian
 
