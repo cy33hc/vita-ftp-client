@@ -22,6 +22,7 @@ English
 French
 Spanish
 German
+Greek
 Italian
 Dutch
 Portuguese_BR
@@ -32,9 +33,21 @@ Chinese
 Polish
 ```
 
-For **Non-Standard** Languages like **Croatian, Catalan, Euskera, Galego, Hungarian, Indonesian**
+For **Non-Standard** Languages like 
+```
+Arabic
+Croatian
+Catalan
+Euskera
+Galego
+Greek
+Hungarian
+Indonesian
+Thai
+Turkish
+```
 
-User must modify the file **ux0:data/FTPCLI0001/config.ini** and update the **language** setting to Croatian, Catalan, Euskera, Galego or Indonesian
+User must modify the file **ux0:data/FTPCLI0001/config.ini** and update the **language** setting
 
 # Credits
 Thx to the following people for translating the string used in the app.
