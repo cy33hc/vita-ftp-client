@@ -159,8 +159,8 @@ namespace Windows {
     {
         ImGuiStyle* style = &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
-        static char title[32];
-        sprintf(title, "v%s  %s", app_ver, lang_strings[STR_CONNECTION_SETTINGS]);
+        static char title[64];
+        sprintf(title, "v%s FTP %s", app_ver, lang_strings[STR_CONNECTION_SETTINGS]);
         BeginGroupPanel(title, ImVec2(945, 100));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()+3);
         char id[256];
@@ -236,7 +236,7 @@ namespace Windows {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX()-2);
         if (ImGui::BeginCombo("##Site", display_site, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightLargest | ImGuiComboFlags_NoArrowButton))
         {
-            static char site_id[16];
+            static char site_id[32];
             for (int n = 0; n < sites.size(); n++)
             {
                 const bool is_selected = strcmp(sites[n].c_str(), last_site)==0;

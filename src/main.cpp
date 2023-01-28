@@ -61,6 +61,23 @@ namespace Services
 			0,
 		};
 
+        static const ImWchar arabic[] = { // Arabic
+                0x0020, 0x00FF, // Basic Latin + Latin Supplement
+                0x0100, 0x024F, // Latin Extended
+                0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+                0x1E00, 0x1EFF, // Latin Extended Additional
+                0x2000, 0x206F, // General Punctuation
+                0x2100, 0x214F, // Letterlike Symbols
+                0x2460, 0x24FF, // Enclosed Alphanumerics
+                0x0600, 0x06FF, // Arabic
+                0x0750, 0x077F, // Arabic Supplement
+                0x0870, 0x089F, // Arabic Extended-B
+                0x08A0, 0x08FF, // Arabic Extended-A
+                0xFB50, 0xFDFF, // Arabic Presentation Forms-A
+                0xFE70, 0xFEFF, // Arabic Presentation Forms-B
+                0,
+        };
+
 		std::string lang = std::string(language);
 		lang = Util::Trim(lang, " ");
 		if (lang.size() > 0)
@@ -72,6 +89,30 @@ namespace Services
 					16.0f,
 					NULL,
 					io.Fonts->GetGlyphRangesJapanese());
+			}
+			else if (strcmp(lang.c_str(), "Thai") == 0)
+			{
+				io.Fonts->AddFontFromFileTTF(
+					"ux0:app/SMBCLI001/lang/Roboto_ext.ttf",
+					16.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesThai());
+			}
+			else if (strcmp(lang.c_str(), "Vietnamese") == 0)
+			{
+				io.Fonts->AddFontFromFileTTF(
+					"ux0:app/SMBCLI001/lang/Roboto_ext.ttf",
+					16.0f,
+					NULL,
+					io.Fonts->GetGlyphRangesVietnamese());
+			}
+			else if (strcmp(lang.c_str(), "Arabic") == 0)
+			{
+				io.Fonts->AddFontFromFileTTF(
+					"ux0:app/SMBCLI001/lang/Roboto_ext.ttf",
+					16.0f,
+					NULL,
+					arabic);
 			}
 			else
 			{

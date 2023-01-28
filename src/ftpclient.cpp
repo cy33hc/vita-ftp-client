@@ -31,6 +31,10 @@ FtpClient::FtpClient()
 	}
     ClearHandle();
 	sceRtcGetCurrentClock(&time, 0);
+
+	const SSL_METHOD *method = DTLS_client_method();
+	sslctx = SSL_CTX_new(method);
+	ssl = SSL_new(sslctx);
 }
 
 FtpClient::~FtpClient()
@@ -473,6 +477,12 @@ int FtpClient::FtpOpenPasv(ftphandle *nControl, ftphandle **nData, transfermode 
 	sData = sceNetSocket("ftp_data", SCE_NET_AF_INET, SCE_NET_SOCK_STREAM, SCE_NET_IPPROTO_TCP);
 	if (sData == -1)
 	{
+		return -1;
+	}
+
+	if (sceNetSetsockopt(sData, SCE_NET_IPPROTO_TCP, SCE_NET_TCP_NODELAY, (const void*)&on, sizeof(on)) == -1)
+	{
+		sceNetSocketClose(sData);
 		return -1;
 	}
 

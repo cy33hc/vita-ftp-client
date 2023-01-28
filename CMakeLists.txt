@@ -13,7 +13,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Ftp Client")
 set(VITA_TITLEID  "FTPCLI001")
-set(VITA_VERSION  "01.53")
+set(VITA_VERSION  "01.54")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
@@ -57,6 +57,8 @@ target_link_libraries(${PROJECT_NAME}
   mathneon
   png
   stdc++
+  ssl
+  crypto
   c
   z
   SceCommonDialog_stub
@@ -126,5 +128,10 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE lang/Croatian.ini lang/Croatian.ini
   FILE lang/Indonesian.ini lang/Indonesian.ini
   FILE lang/Ryukyuan.ini lang/Ryukyuan.ini
+  FILE lang/Arabic.ini lang/Arabic.ini
+  FILE lang/Greek.ini lang/Greek.ini
+  FILE lang/Turkish.ini lang/Turkish.ini
+  FILE lang/Thai.ini lang/Thai.ini
+  FILE lang/Roboto_ext.ttf lang/Roboto_ext.ttf
   FILE version.txt version.txt
 )

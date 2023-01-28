@@ -6,6 +6,8 @@
 #include <time.h>
 #include <string>
 #include <vector>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include "fs.h"
 
 #define FTP_CLIENT_MAX_FILENAME_LEN 128
@@ -97,6 +99,8 @@ private:
 	ftphandle* mp_ftphandle;
 	SceDateTime time;
 	SceUInt64 tick;
+	SSL_CTX *sslctx;
+	SSL *ssl;
 
 	int FtpSendCmd(const char *cmd, char expected_resp, ftphandle *nControl);
 	ftphandle* RawOpen(const char *path, accesstype type, transfermode mode);
