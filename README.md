@@ -1,3 +1,5 @@
+# This repo is archived, please refer to the superceded version. https://github.com/cy33hc/vita-ezremote-client
+
 # vita-ftp-client
 Simple FTP Client App for Vita
 
